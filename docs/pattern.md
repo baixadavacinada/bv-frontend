@@ -36,6 +36,9 @@
 - cypress
 - commit - https://www.conventionalcommits.org/pt-br/v1.0.0-beta.4/
 - branch - ex: feat - id do card
+- design atomic
+- PWA - a definir
+- 
 
 ## 🔐 Autenticação & Segurança
 
