@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { GetServerSidePropsContext, NextPageContext } from 'next';
 import { parseCookies } from 'nookies';
 
