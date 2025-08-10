@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { cn } from '@/lib/utils'
 
 // TODO: Alterar fonte e metadados
 
@@ -17,8 +18,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt" className={inter.className}>
-      <body className="bg-amber-50 text-black antialiased">{children}</body>
+    <html lang="pt-BR">
+      <body className={cn(inter.className, 'bg-[#E4EAEE] antialiased dark:bg-slate-900')}>
+        {children}
+      </body>
     </html>
   )
 }
