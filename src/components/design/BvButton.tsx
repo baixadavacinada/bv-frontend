@@ -22,7 +22,12 @@ export const BvButton = ({
   const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     if (isLoading) return
     if (forwardProps.onClick) {
-      forwardProps.onClick(event)
+
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    if (isLoading) return
+    if (props.onClick) {
+      props.onClick(event)
     }
   }
 
