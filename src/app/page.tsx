@@ -1,4 +1,6 @@
-// import { Button } from "@/components/ui/button";
+import Image from 'next/image'
+// import { Button } from "@/ui/button";
+
 import {
   Card,
   CardContent,
@@ -6,24 +8,18 @@ import {
   // CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import Image from "next/image";
+} from '@/ui/card'
 
 export default function Page() {
-  const DoctorIllustration = "/doctor-illustration.svg";
+  const DoctorIllustration = '/doctor-illustration.svg'
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-100 dark:bg-slate-900 p-4">
-      <Card
-        className="w-full max-w-sm sm:max-w-md lg:max-w-4xl rounded-lg
-        border-0 bg-transparent shadow-none
-        
-        lg:bg-transparent lg:shadow-none"
-      >
+    <div className="flex items-center justify-center">
+      <Card className="w-full max-w-sm rounded-lg border-0 bg-transparent shadow-none sm:max-w-md lg:max-w-4xl lg:bg-transparent lg:shadow-none">
         <div className="lg:grid lg:grid-cols-2 lg:items-center lg:gap-8">
           <div className="p-2 sm:p-6 lg:p-0">
             <CardHeader className="text-center lg:text-left">
-              <CardTitle className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100">
+              <CardTitle className="text-2xl font-bold text-slate-800 md:text-3xl dark:text-slate-100">
                 Bem-vindo(a) à nossa plataforma de vacinação!
               </CardTitle>
             </CardHeader>
@@ -37,9 +33,9 @@ export default function Page() {
                 className="mb-4 lg:hidden"
                 priority
               />
-              <CardDescription className="text-center text-md text-slate-600 dark:text-slate-400 lg:text-left">
-                Aqui você pode localizar a unidade de saúde mais próxima,
-                consultar vacinas disponíveis e acompanhar sua caderneta.
+              <CardDescription className="text-md text-center text-slate-600 lg:text-left dark:text-slate-400">
+                Aqui você pode localizar a unidade de saúde mais próxima, consultar vacinas
+                disponíveis e acompanhar sua caderneta.
               </CardDescription>
             </CardContent>
             {/* <CardFooter className="flex flex-col items-center justify-center space-y-4 pt-6 lg:items-start">
@@ -58,8 +54,7 @@ export default function Page() {
             </CardFooter> */}
           </div>
 
-
-          <div className="hidden lg:flex items-center justify-center h-full">
+          <div className="hidden h-full items-center justify-center lg:flex">
             <Image
               src={DoctorIllustration}
               alt="Ilustração de um profissional da saúde segurando uma seringa"
@@ -71,5 +66,5 @@ export default function Page() {
         </div>
       </Card>
     </div>
-  );
+  )
 }
