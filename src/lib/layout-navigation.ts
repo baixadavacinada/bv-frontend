@@ -28,13 +28,13 @@ export const sidebarNavigation: NavigationItem[] = [
     id: 'home',
     icon: BsHouse,
     label: 'Home',
-    href: '/',
+    href: '/dashboard/inicio',
   },
   {
     id: 'ubs',
     icon: BsGeoAlt,
     label: 'UBS',
-    href: '/',
+    href: '/dashboard/ubs',
   },
   {
     id: 'registro',
