@@ -8,7 +8,7 @@ import {
   // CardFooter,
   CardHeader,
   CardTitle,
-} from '@/ui/card'
+} from '@/components/ui/card'
 
 export default function Page() {
   const DoctorIllustration = '/doctor-illustration.svg'
