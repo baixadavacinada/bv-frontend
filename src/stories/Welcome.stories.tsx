@@ -86,7 +86,7 @@ const Welcome = () => {
           }}
         >
           <h3 style={{ color: '#14532d', marginTop: 0, marginBottom: '0.5rem' }}>
-            �️ Backend & Auth
+            🛠️ Backend & Auth
           </h3>
           <ul style={{ margin: 0, paddingLeft: '1.2rem' }}>
             <li>
