@@ -78,7 +78,7 @@ export function BvUbsCard({
             variant="ghost"
             size="icon"
             onClick={(e) => handleIconClick(e, onFavoriteToggle)}
-            aria-label="Favoritar"
+            aria-label={isFavorite ? 'Desfavoritar' : 'Favoritar'}
           >
             <Heart
               className={cn('h-5 w-5 text-slate-500', isFavorite && 'fill-red-500 text-red-500')}
