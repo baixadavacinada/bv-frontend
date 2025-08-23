@@ -1,0 +1,29 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "close": "Fechar",
+    "search": "Pesquisar",
+    "save": "Salvar"
+  },
+  "navigation": {
+    "home": "Início",
+    "vaccines": "Vacinas",
+    "ubs": "Unidades de Saúde",
+    "feedback": "Avaliações"
+  },
+  "components": {
+    "educationalMaterials": {
+      "title": "Materiais educativos",
+      "emptyState": "Nenhum material disponível",
+      "loadingMaterial": "Carregando material {title}",
+      "openMaterial": "Abrir material {title}"
+    }
+  },
+  "accessibility": {
+    "skipToMain": "Pular para o conteúdo principal",
+    "menuToggle": "Alternar menu de navegação",
+    "closeMenu": "Fechar menu",
+    "searchButton": "Pesquisar conteúdo"
+  }
+}
