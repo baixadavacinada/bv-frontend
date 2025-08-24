@@ -1,0 +1,53 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "close": "Fechar",
+    "search": "Pesquisar",
+    "save": "Salvar",
+    "cancel": "Cancelar"
+  },
+  "navigation": {
+    "home": "Início",
+    "vaccines": "Vacinas",
+    "ubs": "Unidades de Saúde",
+    "feedback": "Avaliações"
+  },
+  "accessibility": {
+    "skipToMain": "Pular para o conteúdo principal",
+    "menuToggle": "Alternar menu de navegação",
+    "closeMenu": "Fechar menu",
+    "openInNewTab": "Abrir em nova aba"
+  },
+  "home": {
+    "greeting": "Olá, que bom que está aqui!",
+    "welcome": "Bem-vindo à plataforma de vacinação"
+  },
+  "educationalMaterials": {
+    "title": "Materiais Educativos",
+    "subtitle": "Conteúdos informativos sobre saúde",
+    "emptyState": "Nenhum material disponível",
+    "loadingMaterials": "Carregando materiais...",
+    "materialsLoaded": "{count} materiais carregados com sucesso",
+    "openMaterial": "Abrir material",
+    "errorLoading": "Erro ao carregar materiais"
+  },
+  "cards": {
+    "ubs": {
+      "title": "Unidade Básica de Saúde",
+      "description": "Encontre a UBS mais próxima"
+    },
+    "vaccination": {
+      "title": "Registro de vacinação",
+      "description": "Acesse sua carteira digital"
+    },
+    "guide": {
+      "title": "Cartilha de vacinas",
+      "description": "Informações sobre vacinas por idade"
+    },
+    "settings": {
+      "title": "Configurações",
+      "description": "Notificações e dados pessoais"
+    }
+  }
+}
