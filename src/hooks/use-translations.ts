@@ -6,8 +6,11 @@ export const useAppTranslations = () => {
   return {
     common: useTranslations('common'),
     navigation: useTranslations('navigation'),
-    components: useTranslations('components'),
     accessibility: useTranslations('accessibility'),
+    home: useTranslations('home'),
+    educationalMaterials: useTranslations('educationalMaterials'),
+    cards: useTranslations('cards'),
+
     // Helper para textos com interpolação
     format: (key: string, values?: Record<string, string | number>) => t(key, values),
   }

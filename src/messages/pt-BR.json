@@ -11,13 +11,38 @@
     "home": "Início",
     "vaccines": "Vacinas",
     "ubs": "Unidades de Saúde",
-    "feedback": "Avaliações"
+    "feedback": "Avaliações",
+    "materials": "Materiais Educativos",
+    "appName": "Baixada Vacinada"
   },
   "accessibility": {
     "skipToMain": "Pular para o conteúdo principal",
+    "skipToContent": "Pular para o conteúdo principal",
     "menuToggle": "Alternar menu de navegação",
     "closeMenu": "Fechar menu",
-    "openInNewTab": "Abrir em nova aba"
+    "openInNewTab": "Abrir em nova aba",
+    "loading": "Carregando",
+    "disabled": "desabilitado",
+    "actionNotAvailable": "Ação não disponível no momento",
+    "actionCompleted": "Ação realizada com sucesso",
+    "actionFailed": "Falha ao executar ação",
+    "pageLoaded": "Página carregada",
+    "siteHeader": "Cabeçalho do site",
+    "siteFooter": "Rodapé do site",
+    "mainContent": "Conteúdo principal",
+    "primaryNavigation": "Navegação principal",
+    "breadcrumb": "Localização atual",
+    "allRightsReserved": "Todos os direitos reservados",
+    "openMenu": "Abrir menu",
+    "closeDialog": "Fechar diálogo",
+    "nextPage": "Próxima página",
+    "previousPage": "Página anterior",
+    "sortBy": "Ordenar por",
+    "filterBy": "Filtrar por",
+    "searchResults": "Resultados da pesquisa",
+    "noResults": "Nenhum resultado encontrado",
+    "expandSection": "Expandir seção",
+    "collapseSection": "Recolher seção"
   },
   "home": {
     "greeting": "Olá, que bom que está aqui!",
@@ -35,19 +60,19 @@
   "cards": {
     "ubs": {
       "title": "Unidade Básica de Saúde",
-      "description": "Encontre a UBS mais próxima"
+      "description": "Encontre a UBS mais próxima e veja quais vacinas estão disponíveis em cada unidade."
     },
     "vaccination": {
       "title": "Registro de vacinação",
-      "description": "Acesse sua carteira digital"
+      "description": "Registre suas vacinas na carteira de vacinação digital."
     },
     "guide": {
       "title": "Cartilha de vacinas",
-      "description": "Informações sobre vacinas por idade"
+      "description": "Veja aqui quais vacinas tomar em cada idade e o que fazer se perdeu alguma dose."
     },
     "settings": {
       "title": "Configurações",
-      "description": "Notificações e dados pessoais"
+      "description": "Precisa ajustar algo? Aqui você pode configurar notificações, atualizar seus dados ou falar com a gente."
     }
   }
 }
