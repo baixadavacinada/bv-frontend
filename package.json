@@ -14,7 +14,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "lint:a11y": "npm run build && npx @axe-core/cli http://localhost:3000",
-    "test:a11y": "jest --testPathPattern=accessibility"
+    "check:a11y": "bash src/scripts/check-a11y.sh"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.3",
@@ -75,6 +75,12 @@
     "vitest": "^3.2.4"
   },
   "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "src/{components,sections}/**/*.{ts,tsx}": [
+      "npm run check:a11y"
+    ]
   }
 }
