@@ -3,4 +3,6 @@ import BvTheme from './BvTheme'
 
 addons.setConfig({
   theme: BvTheme,
+  showNav: true,
+  showPanel: true,
 })

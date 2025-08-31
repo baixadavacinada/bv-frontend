@@ -5,31 +5,23 @@ export default create({
   fontBase: '"Open Sans", sans-serif',
   fontCode: 'monospace',
 
-  // TODO: Alterar as informações da marca (URL, imagem, etc.)
   brandTitle: 'DS Baixada Vacinada',
   brandUrl: 'https://example.com',
   brandImage: 'https://storybook.js.org/images/placeholders/350x150.png',
   brandTarget: '_self',
 
-  colorPrimary: '#5518C2',
-  colorSecondary: '#585C6D',
+  colorSecondary: '#7D4CDB',
 
-  appBg: '#ffffff',
-  appContentBg: '#ffffff',
-  appPreviewBg: '#ffffff',
-  appBorderColor: '#585C6D',
-  appBorderRadius: 4,
+  appBg: '#F8F8F8',
+  appBorderColor: '#EDEDED',
+  appBorderRadius: 6,
 
-  textColor: '#10162F',
-  textInverseColor: '#ffffff',
+  barTextColor: '#999999',
+  barSelectedColor: '#7D4CDB',
+  barBg: '#F2F2F2',
 
-  barTextColor: '#585C6D',
-  barSelectedColor: '#5518C2',
-  barHoverColor: '#AA8BE0',
-  barBg: '#ffffff',
-
-  inputBg: '#ffffff',
-  inputBorder: '#10162F',
-  inputTextColor: '#10162F',
-  inputBorderRadius: 2,
+  inputBg: 'white',
+  inputBorder: 'rgba(0,0,0,.1)',
+  inputTextColor: '#333333',
+  inputBorderRadius: 4,
 })
