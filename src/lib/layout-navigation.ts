@@ -28,7 +28,7 @@ export const sidebarNavigation: NavigationItem[] = [
     id: 'home',
     icon: BsHouse,
     label: 'Home',
-    href: '/dashboard/inicio',
+    href: '/inicio',
   },
   {
     id: 'ubs',
