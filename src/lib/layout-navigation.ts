@@ -34,7 +34,7 @@ export const sidebarNavigation: NavigationItem[] = [
     id: 'ubs',
     icon: BsGeoAlt,
     label: 'UBS',
-    href: '/dashboard/ubs',
+    href: '/ubs',
   },
   {
     id: 'registro',
