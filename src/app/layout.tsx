@@ -1,26 +1,30 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages } from 'next-intl/server'
 import './globals.css'
 import { cn } from '@/lib/utils'
 
-// TODO: Alterar fonte e metadados
-
-const inter = Inter({ subsets: ['latin'], display: 'swap' })
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
   title: 'Baixada Vacinada',
-  description: 'Plataforma de vacinação',
+  description: 'Plataforma de informações sobre vacinação',
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const messages = await getMessages()
+
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <body className={cn(inter.className, 'bg-[#E4EAEE] antialiased dark:bg-slate-900')}>
-        {children}
+        <NextIntlClientProvider messages={messages}>
+          <div>{children}</div>
+        </NextIntlClientProvider>
       </body>
     </html>
   )
