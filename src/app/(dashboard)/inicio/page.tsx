@@ -17,7 +17,7 @@ export default async function HomeScreen() {
   const { userName, materials } = await getHomeData()
 
   return (
-    <div className="" aria-label="Página inicial do aplicativo" id="main-content">
+    <div aria-label="Página inicial do aplicativo" id="main-content">
       <WelcomeSection userName={userName} />
       <MainActionsSection />
       <EducationalMaterialsSection materials={materials} />
