@@ -824,8 +824,7 @@ export const UtilitariosDeSecao: Story = {
 \`\`\`tsx
 import {
   useSectionAccessibilityIds,
-  AccessibilityLoadingIndicator,
-  useWelcomeAnnouncement
+  AccessibilityLoadingIndicator
 } from '@/utils/accessibility'
 \`\`\`
 
@@ -833,12 +832,18 @@ import {
 \`\`\`tsx
 export function WelcomeSection({ userName }) {
   const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
+  const { announceToScreenReader } = useLiveRegion()
 
   // 1. IDs estáveis para SSR
   const { sectionId, headingId } = useSectionAccessibilityIds('welcome')
 
   // 2. Anúncio automático de boas-vindas
-  useWelcomeAnnouncement(userName, 1000)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      announceToScreenReader(\`Bem-vinda, \${userName}\`, 'polite')
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [userName, announceToScreenReader])
 
   return (
     <section
@@ -882,9 +887,16 @@ export function MaterialsSection({ materials }) {
 
 **Recursos disponíveis:**
 - ✅ \`useSectionAccessibilityIds\`: IDs únicos para elementos de seção
-- ✅ \`useWelcomeAnnouncement\`: Anúncio automático de boas-vindas
 - ✅ \`AccessibilityLoadingIndicator\`: Estado de loading acessível
 - ✅ SSR-safe: Funciona corretamente com Next.js
+- ✅ Landmarks apropriados
+- ✅ Screen reader friendly
+
+**Usado em:**
+- WelcomeSection
+- MainActionsSection
+- EducationalMaterialsSection
+- Qualquer seção principal do layout
         `,
       },
     },
@@ -892,32 +904,51 @@ export function MaterialsSection({ materials }) {
 }
 
 export const PadroesRecomendados: Story = {
-  name: '✅ Boas Práticas',
+  name: '✅ Boas Práticas e Padrões',
   render: () => (
     <div className="mx-auto max-w-4xl space-y-6 p-6">
       <div className="grid grid-cols-1 gap-6">
         <div className="rounded border-l-4 border-green-400 bg-green-50 p-4">
           <h4 className="font-medium text-green-800">✅ Faça Sempre</h4>
           <ul className="mt-2 space-y-1 text-sm text-green-700">
-            <li>Use useAccessibilityValidation em desenvolvimento</li>
-            <li>Forneça feedback com useLiveRegion</li>
-            <li>Implemente focus trap em modais</li>
-            <li>Teste com leitores de tela reais</li>
-            <li>Use aria-labels descritivos</li>
-            <li>Mantenha hierarquia de headings</li>
+            <li>Use useAccessibilityValidation em todos os componentes interativos</li>
+            <li>Forneça feedback com useLiveRegion para mudanças dinâmicas</li>
+            <li>Implemente focus trap em modais com useFocusTrap</li>
+            <li>Teste com leitores de tela reais (NVDA, VoiceOver)</li>
+            <li>Use aria-labels descritivos e contextuais</li>
+            <li>Mantenha hierarquia de headings (h1 → h2 → h3)</li>
+            <li>Implemente navegação por teclado (Tab, Enter, Escape)</li>
+            <li>Use elementos semânticos apropriados</li>
           </ul>
         </div>
 
         <div className="rounded border-l-4 border-red-400 bg-red-50 p-4">
           <h4 className="font-medium text-red-800">❌ Evite</h4>
           <ul className="mt-2 space-y-1 text-sm text-red-700">
-            <li>Elementos interativos sem labels</li>
+            <li>Elementos interativos sem labels adequados</li>
             <li>Imagens decorativas com alt text</li>
             <li>Mudanças de conteúdo sem anúncios</li>
             <li>Focus trap inexistente em modais</li>
             <li>Cores como única forma de informação</li>
-            <li>Textos com baixo contraste</li>
+            <li>Textos com baixo contraste (&lt; 4.5:1)</li>
+            <li>Ignorar erros do hook de validação</li>
+            <li>Usar tabindex positivo</li>
           </ul>
+        </div>
+
+        <div className="rounded border-l-4 border-amber-400 bg-amber-50 p-4">
+          <h4 className="font-medium text-amber-800">🚨 Validação do Husky</h4>
+          <div className="mt-2 space-y-2 text-sm text-amber-700">
+            <p>
+              O script <code>check-a11y.sh</code> verifica automaticamente:
+            </p>
+            <ul className="space-y-1">
+              <li>• Se componentes com &apos;use client&apos; têm hooks de acessibilidade</li>
+              <li>• Se elementos interativos estão validados</li>
+              <li>• Se useAccessibilityValidation está presente</li>
+            </ul>
+            <p className="font-medium">Se falhar: siga as instruções de correção no terminal</p>
+          </div>
         </div>
       </div>
     </div>
@@ -926,7 +957,6 @@ export const PadroesRecomendados: Story = {
     docs: {
       description: {
         story: `
-### Padrões e Boas Práticas
 
 **Setup padrão para novos componentes:**
 
@@ -937,13 +967,22 @@ import {
 } from '@/hooks/use-accessibility'
 
 export function NovoComponente() {
-  // 1. Validação automática
+  // 1. Validação automática (obrigatório para Husky)
   useAccessibilityValidation({
     enabled: process.env.NODE_ENV === 'development'
   })
 
   // 2. Feedback para usuários
   const { announceSuccess, announceError } = useLiveRegion()
+
+  const handleAction = () => {
+    try {
+      // Sua lógica aqui
+      announceSuccess('Ação realizada com sucesso!')
+    } catch (error) {
+      announceError('Erro ao realizar ação')
+    }
+  }
 
   return (
     <div>
@@ -963,7 +1002,7 @@ export function ModalComponente({ isOpen, onClose }) {
   const { trapFocus } = useFocusTrap()
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && modalRef.current) {
       const cleanup = trapFocus(modalRef.current, {
         escapeDeactivates: true
       })
@@ -985,7 +1024,16 @@ export function ModalComponente({ isOpen, onClose }) {
 - **VoiceOver** (macOS): Cmd + F5
 - **NVDA** (Windows): Gratuito
 - **axe DevTools**: Extensão do navegador
-- **Lighthouse**: Auditoria automática
+- **Lighthouse**: Auditoria automática no DevTools
+
+**Comandos de teste:**
+\`\`\`bash
+# Executar validação manual
+npm run check:a11y
+
+# Testar com Storybook
+npm run storybook
+\`\`\`
         `,
       },
     },
@@ -1018,6 +1066,14 @@ export const ChecklistImplementacao: Story = {
               <input type="checkbox" />
               <span className="text-sm">Elementos semânticos corretos</span>
             </label>
+            <label className="flex items-center space-x-2">
+              <input type="checkbox" />
+              <span className="text-sm">Hierarquia de headings</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <input type="checkbox" />
+              <span className="text-sm">Alt text em imagens</span>
+            </label>
           </div>
 
           <div className="space-y-3">
@@ -1038,6 +1094,14 @@ export const ChecklistImplementacao: Story = {
               <input type="checkbox" />
               <span className="text-sm">Contraste de cores validado</span>
             </label>
+            <label className="flex items-center space-x-2">
+              <input type="checkbox" />
+              <span className="text-sm">Passou no check-a11y.sh</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <input type="checkbox" />
+              <span className="text-sm">Testado em dispositivos reais</span>
+            </label>
           </div>
         </div>
       </div>
@@ -1048,7 +1112,37 @@ export const ChecklistImplementacao: Story = {
       description: {
         story: `
 
-Use este checklist para garantir que seus componentes atendem aos critérios de acessibilidade:
+Use este checklist para garantir que seus componentes atendem aos critérios de acessibilidade.
+
+**Antes de fazer commit:**
+
+1. ✅ Validação automática sem erros no console
+2. ✅ Feedback implementado para ações do usuário
+3. ✅ Focus management em overlays
+4. ✅ Testado com tecnologias assistivas
+5. ✅ Contraste de cores adequado (mín. 4.5:1)
+6. ✅ Passou na validação do Husky
+
+**Comandos úteis:**
+
+\`\`\`bash
+# Executar script de validação manualmente
+./src/scripts/check-a11y.sh
+
+# Verificar componentes específicos
+git add meu-componente.tsx
+git commit -m "test: verificar acessibilidade"
+
+# Ver logs de acessibilidade no browser
+# Abra o DevTools Console em desenvolvimento
+\`\`\`
+
+**Se o commit falhar:**
+
+1. Leia a mensagem de erro
+2. Identifique o arquivo problemático
+3. Adicione o hook de validação necessário
+4. Commit novamente
 
 **Critérios WCAG 2.1 AA atendidos:**
 
@@ -1057,21 +1151,6 @@ Use este checklist para garantir que seus componentes atendem aos critérios de 
 - **2.4.3** - Ordem do Foco: Sequência lógica de navegação
 - **4.1.2** - Nome, Função, Valor: Elementos têm nomes acessíveis
 - **4.1.3** - Mensagens de Status: Estados comunicados adequadamente
-
-**Comandos úteis:**
-
-\`\`\`bash
-# Executar testes de acessibilidade
-npm run check:a11y
-\`\`\`
-
-**Antes de fazer merge:**
-
-1. ✅ Validação automática sem erros
-2. ✅ Feedback implementado para ações
-3. ✅ Focus management em overlays
-4. ✅ Testado com tecnologias assistivas
-5. ✅ Contraste de cores adequado
         `,
       },
     },
