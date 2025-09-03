@@ -1,9 +1,11 @@
 'use client'
 
 import * as React from 'react'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/ui/collapsible'
+
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
 interface CollapsibleFilterProps {
   title?: string
@@ -17,6 +19,7 @@ export function CollapsibleFilter({
   className,
 }: CollapsibleFilterProps) {
   const [isOpen, setIsOpen] = React.useState(false)
+  useAccessibilityValidation({ enabled: true })
 
   return (
     <Collapsible
