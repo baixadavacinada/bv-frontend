@@ -5,7 +5,8 @@
     "close": "Fechar",
     "search": "Pesquisar",
     "save": "Salvar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "logout": "Sair"
   },
   "navigation": {
     "home": "Início",
@@ -13,7 +14,9 @@
     "ubs": "Unidades de Saúde",
     "feedback": "Avaliações",
     "materials": "Materiais Educativos",
-    "appName": "Baixada Vacinada"
+    "appName": "Baixada Vacinada",
+    "navigatingTo": "Navegando para {destination}",
+    "logoutAction": "Saindo da conta"
   },
   "accessibility": {
     "skipToMain": "Pular para o conteúdo principal",
@@ -42,7 +45,15 @@
     "searchResults": "Resultados da pesquisa",
     "noResults": "Nenhum resultado encontrado",
     "expandSection": "Expandir seção",
-    "collapseSection": "Recolher seção"
+    "collapseSection": "Recolher seção",
+    "educationalMaterials": {
+      "materialOpened": "Material educativo aberto"
+    },
+    "sidebar": {
+      "navigationMenu": "Menu de navegação lateral",
+      "accountActions": "Ações de conta",
+      "validatingAccessibility": "Verificando acessibilidade do menu"
+    }
   },
   "home": {
     "greeting": "Olá, que bom que está aqui!",
@@ -55,7 +66,8 @@
     "loadingMaterials": "Carregando materiais...",
     "materialsLoaded": "{count} materiais carregados com sucesso",
     "openMaterial": "Abrir material",
-    "errorLoading": "Erro ao carregar materiais"
+    "errorLoading": "Erro ao carregar materiais",
+    "materialOpened": "Material educativo aberto"
   },
   "cards": {
     "ubs": {
