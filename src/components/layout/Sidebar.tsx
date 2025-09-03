@@ -3,40 +3,84 @@
 import { sidebarNavigation } from '@/lib/layout-navigation'
 import { BvButton } from '../design/BvButton'
 import { useRouter } from 'next/navigation'
+import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
+import { useAppTranslations } from '@/hooks/use-translations'
+import {
+  AccessibilityLoadingIndicator,
+  useSectionAccessibilityIds,
+  DEFAULT_A11Y_CONFIG,
+} from '@/utils/accessibility'
 
 export function Sidebar() {
   const router = useRouter()
 
+  const { navigation, accessibility, common } = useAppTranslations()
+  const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
+  const { announceToScreenReader } = useLiveRegion()
+  const { sectionId, headingId } = useSectionAccessibilityIds('sidebar')
+
+  const handleNavigation = (action: (typeof sidebarNavigation)[0]) => {
+    announceToScreenReader(`Navegando para ${action.label}`, 'polite')
+
+    // TODO: implementar tracking de cliques
+    router.push(action.href)
+  }
+
+  const handleLogout = () => {
+    announceToScreenReader(accessibility('actionCompleted') + ': Saindo da conta', 'assertive')
+
+    // TODO: implementar tracking do logout
+    router.push('/')
+  }
+
   return (
-    <aside className="h-[calc(100vh-64px)] w-64 rounded-r-3xl border-r border-gray-200 bg-white p-4">
+    <aside
+      id={sectionId}
+      className="fixed top-16 left-0 z-40 h-[calc(100vh-64px)] w-64 overflow-y-auto rounded-r-3xl border-r border-gray-200 bg-white p-4"
+      aria-labelledby={headingId}
+      role="complementary"
+      aria-label="Menu de navegação lateral"
+    >
       <div className="flex h-full flex-col">
+        <header>
+          <h2 id={headingId} className="sr-only">
+            {accessibility('sidebar.navigationMenu')}
+          </h2>
+        </header>
+
         {/* Menu items */}
-        <nav className="flex-1 space-y-5">
-          {sidebarNavigation.map((action) => (
-            <BvButton
-              key={`sidebar-${action.id}`}
-              title={action.label}
-              variant="ghost"
-              className="w-full justify-start gap-8 text-gray-700 hover:bg-gray-100"
-              leftIcon={<action.icon className="size-6" />}
-              onClick={() => {
-                // TODO: implementar tracking de cliques
-                router.push(action.href)
-              }}
-            />
-          ))}
+        <nav className="flex-1" aria-label={accessibility('primaryNavigation')}>
+          <ul className="space-y-5" role="list">
+            {sidebarNavigation.map((action) => (
+              <li key={`sidebar-${action.id}`}>
+                <BvButton
+                  title={action.label}
+                  variant="ghost"
+                  className="w-full justify-start gap-8 text-gray-700 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500"
+                  leftIcon={<action.icon className="size-6" aria-hidden="true" />}
+                  aria-label={`Navegar para ${action.label}`}
+                  onClick={() => handleNavigation(action)}
+                />
+              </li>
+            ))}
+          </ul>
         </nav>
 
-        {/* Logout button */}
-        <div className="border-t border-gray-200 pt-4">
-          <BvButton
-            title="Sair"
-            onClick={() => {
-              // TODO: implementar tracking do logout
-              router.push('/')
-            }}
-          />
-        </div>
+        <footer className="border-t border-gray-200 pt-4">
+          <div aria-label={accessibility('sidebar.accountActions')}>
+            <BvButton
+              title={common('logout')}
+              aria-label={navigation('logoutAction')}
+              className="focus-visible:ring-2 focus-visible:ring-red-500"
+              onClick={handleLogout}
+            />
+          </div>
+        </footer>
+
+        <AccessibilityLoadingIndicator
+          isValidating={isValidating}
+          validatingMessage={accessibility('sidebar.validatingAccessibility')}
+        />
       </div>
     </aside>
   )
