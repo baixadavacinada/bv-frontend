@@ -1,7 +1,15 @@
-import type { Meta, StoryObj } from '@storybook/nextjs'
-import { withNextIntl } from '../../.storybook/decorators'
-import { useAccessibilityValidation, useLiveRegion, useFocusTrap } from '@/hooks/use-accessibility'
 import { useState, useRef, useEffect } from 'react'
+
+import type { Meta, StoryObj } from '@storybook/nextjs'
+import { useAccessibilityValidation, useLiveRegion, useFocusTrap } from '@/hooks/use-accessibility'
+import {
+  AccessibilityLoadingIndicator,
+  useCardAccessibilityIds,
+  useCardKeyboardHandlers,
+  generateCardAriaLabel,
+  DEFAULT_A11Y_CONFIG,
+  useSectionAccessibilityIds,
+} from '@/utils/accessibility'
 
 // Componente principal de documentação
 const AccessibilityGuideDoc = () => {
@@ -15,7 +23,7 @@ const AccessibilityGuideDoc = () => {
         </p>
       </header>
 
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {/* Card 1: Validação Automática */}
         <div className="rounded-lg border bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
@@ -95,9 +103,49 @@ const AccessibilityGuideDoc = () => {
           </div>
           <p className="mb-4 text-gray-700">Utilitários para casos específicos de acessibilidade</p>
           <ul className="space-y-1 text-sm text-gray-600">
+            <li>• AccessibilityLoadingIndicator</li>
+            <li>• useCardAccessibilityIds</li>
+            <li>• useCardKeyboardHandlers</li>
+            <li>• generateCardAriaLabel</li>
+          </ul>
+        </div>
+
+        {/* Card 5: Utilitários de Seção */}
+        <div className="rounded-lg border bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-100">
+              <span className="text-lg">📋</span>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">Utilitários de Seção</h3>
+              <p className="text-sm text-gray-600">Para seções e layouts</p>
+            </div>
+          </div>
+          <p className="mb-4 text-gray-700">Componentes para estrutura acessível de páginas</p>
+          <ul className="space-y-1 text-sm text-gray-600">
             <li>• useSkipLink - Skip navigation</li>
             <li>• useColorContrast - Validação de cores</li>
             <li>• usePerformanceA11y - Performance</li>
+          </ul>
+        </div>
+
+        {/* Card 6: Configuração */}
+        <div className="rounded-lg border bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100">
+              <span className="text-lg">⚙️</span>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">Configuração</h3>
+              <p className="text-sm text-gray-600">Setup e interfaces</p>
+            </div>
+          </div>
+          <p className="mb-4 text-gray-700">Configurações e tipos compartilhados</p>
+          <ul className="space-y-1 text-sm text-gray-600">
+            <li>• DEFAULT_A11Y_CONFIG</li>
+            <li>• CardAccessibilityProps</li>
+            <li>• Interfaces compartilhadas</li>
+            <li>• Configurações padrão</li>
           </ul>
         </div>
       </div>
@@ -111,8 +159,8 @@ const AccessibilityGuideDoc = () => {
             <h4 className="font-medium text-blue-900">Durante o Desenvolvimento:</h4>
             <ul className="space-y-1 text-sm text-blue-800">
               <li>□ Adicionar useAccessibilityValidation</li>
-              <li>□ Implementar navegação por teclado</li>
-              <li>□ Adicionar aria-labels apropriados</li>
+              <li>□ Usar AccessibilityLoadingIndicator</li>
+              <li>□ Implementar useCardAccessibilityIds</li>
               <li>□ Usar elementos semânticos corretos</li>
             </ul>
           </div>
@@ -120,9 +168,9 @@ const AccessibilityGuideDoc = () => {
             <h4 className="font-medium text-blue-900">Para Interações:</h4>
             <ul className="space-y-1 text-sm text-blue-800">
               <li>□ Implementar useLiveRegion para feedback</li>
-              <li>□ Adicionar focus management se necessário</li>
+              <li>□ Usar useCardKeyboardHandlers</li>
               <li>□ Testar com leitores de tela</li>
-              <li>□ Validar contraste de cores</li>
+              <li>□ Validar com DEFAULT_A11Y_CONFIG</li>
             </ul>
           </div>
         </div>
@@ -283,95 +331,193 @@ const FocusTrapExample = () => {
   )
 }
 
-const meta: Meta<typeof AccessibilityGuideDoc> = {
-  title: 'Guias/Sistema de Acessibilidade',
-  component: AccessibilityGuideDoc,
-  decorators: [withNextIntl],
-  tags: ['autodocs'],
-  parameters: {
-    layout: 'fullscreen',
-    a11y: {
-      config: {
-        rules: [
-          { id: 'button-name', enabled: true },
-          { id: 'aria-label', enabled: true },
-          { id: 'aria-live', enabled: true },
-          { id: 'focus-visible', enabled: true },
-          { id: 'landmark-one-main', enabled: true },
-        ],
-      },
-    },
-    docs: {
-      description: {
-        component: `
-### Guia de Acessibilidade
+// Componente para demonstrar utilitários de Card
+const CardUtilitiesExample = () => {
+  const { announceToScreenReader, announceError } = useLiveRegion()
+  const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
 
-#### Este guia demonstra como usar os hooks de acessibilidade do projeto para implementar **padrões WCAG 2.1 AA** de forma consistente.
+  // Exemplo de card com todos os utilitários
+  const cardTitle = 'Exemplo de Card Acessível'
+  const cardDescription = 'Este card demonstra o uso de todos os utilitários de acessibilidade'
 
-### Hooks Disponíveis
+  const { titleId, descId, cardId } = useCardAccessibilityIds(cardTitle)
 
-| Hook | Propósito | Quando usar |
-|------|-----------|-------------|
-| **useAccessibilityValidation** | Validação automática | Todos os componentes em desenvolvimento |
-| **useLiveRegion** | Anúncios para leitores de tela | Feedback de ações e mudanças dinâmicas |
-| **useFocusTrap** | Gerenciamento de foco | Modais, menus e overlays |
-
-### Setup Básico Recomendado
-
-\`\`\`tsx
-import {
-  useAccessibilityValidation,
-  useLiveRegion
-} from '@/hooks/use-accessibility'
-
-export function MeuComponente() {
-  // 1. Validação automática (só em desenvolvimento)
-  useAccessibilityValidation({
-    enabled: process.env.NODE_ENV === 'development',
-    delay: 1000,
-    logLevel: 'warn'
-  })
-
-  // 2. Feedback para usuários
-  const { announceSuccess, announceError } = useLiveRegion()
-
-  const handleAction = async () => {
-    try {
-      await minhaAcao()
-      announceSuccess('Ação realizada com sucesso!')
-    } catch (error) {
-      announceError('Erro ao realizar ação')
-    }
+  const handleCardClick = () => {
+    console.log('Card clicado!')
   }
 
+  const handleKeyDown = useCardKeyboardHandlers(
+    handleCardClick,
+    cardTitle,
+    announceToScreenReader,
+    announceError,
+  )
+
+  const ariaLabel = generateCardAriaLabel(cardTitle, cardDescription)
+
   return (
-    <div>
-      {/* Seu componente aqui */}
+    <div className="space-y-6 p-6">
+      <h2 className="text-xl font-semibold">Exemplo de Card com Utilitários</h2>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Card exemplo */}
+        <div
+          id={cardId}
+          className="cursor-pointer rounded-lg border bg-white p-4 shadow hover:shadow-md focus-visible:ring-2 focus-visible:ring-blue-500"
+          role="button"
+          tabIndex={0}
+          onKeyDown={handleKeyDown}
+          onClick={handleCardClick}
+          aria-label={ariaLabel}
+          aria-describedby={`${titleId} ${descId}`}
+        >
+          <h3 id={titleId} className="mb-2 font-semibold text-gray-900">
+            {cardTitle}
+          </h3>
+          <p id={descId} className="text-gray-600">
+            {cardDescription}
+          </p>
+
+          <AccessibilityLoadingIndicator
+            isValidating={isValidating}
+            validatingMessage="Validando acessibilidade do card"
+          />
+        </div>
+
+        {/* Código exemplo */}
+        <div className="rounded bg-gray-100 p-4">
+          <h4 className="mb-2 font-medium">Implementação:</h4>
+          <pre className="overflow-x-auto text-xs text-gray-800">
+            {`const { titleId, descId } = useCardAccessibilityIds(title)
+const handleKeyDown = useCardKeyboardHandlers(onClick, title)
+const ariaLabel = generateCardAriaLabel(title, description)
+
+<div
+  role="button"
+  tabIndex={0}
+  onKeyDown={handleKeyDown}
+  aria-label={ariaLabel}
+  aria-describedby={\`\${titleId} \${descId}\`}
+>
+  <h3 id={titleId}>{title}</h3>
+  <p id={descId}>{description}</p>
+
+  <AccessibilityLoadingIndicator
+    isValidating={isValidating}
+  />
+</div>`}
+          </pre>
+        </div>
+      </div>
     </div>
   )
 }
+
+// Componente para demonstrar utilitários de seção
+const SectionUtilitiesExample = () => {
+  const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
+  const { announceToScreenReader } = useLiveRegion()
+
+  const [userName] = useState('Maria Silva')
+
+  // Hook para IDs de seção
+  const { sectionId, headingId } = useSectionAccessibilityIds('example')
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      announceToScreenReader(`Bem-vinda, ${userName}`, 'polite')
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [userName, announceToScreenReader])
+
+  return (
+    <div className="space-y-6 p-6">
+      <h2 className="text-xl font-semibold">Exemplo de Seção com Utilitários</h2>
+
+      <section
+        id={sectionId}
+        className="rounded-lg border bg-white p-6"
+        aria-labelledby={headingId}
+      >
+        <h3 id={headingId} className="mb-4 text-lg font-semibold" tabIndex={-1}>
+          Olá, {userName}!
+        </h3>
+
+        <p className="sr-only">
+          Você está na seção de exemplo. Esta seção demonstra o uso dos utilitários de
+          acessibilidade.
+        </p>
+
+        <p className="text-gray-600">
+          Esta seção usa useSectionAccessibilityIds para gerar IDs únicos e consistentes.
+        </p>
+
+        <AccessibilityLoadingIndicator
+          isValidating={isValidating}
+          validatingMessage="Verificando acessibilidade da seção"
+        />
+      </section>
+
+      <div className="rounded bg-gray-100 p-4">
+        <h4 className="mb-2 font-medium">Código da implementação:</h4>
+        <pre className="overflow-x-auto text-xs text-gray-800">
+          {`import {
+  useSectionAccessibilityIds,
+  AccessibilityLoadingIndicator
+} from '@/utils/accessibility'
+
+const { sectionId, headingId } = useSectionAccessibilityIds('welcome')
+
+<section
+  id={sectionId}
+  aria-labelledby={headingId}
+>
+  <h1 id={headingId} tabIndex={-1}>
+    Olá, {userName}!
+  </h1>
+
+  <AccessibilityLoadingIndicator
+    isValidating={isValidating}
+  />
+</section>`}
+        </pre>
+      </div>
+    </div>
+  )
+}
+
+const meta: Meta<typeof AccessibilityGuideDoc> = {
+  title: 'Guias/Sistema de Acessibilidade',
+  component: AccessibilityGuideDoc,
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component: `
+#### Este guia apresenta o sistema completo de acessibilidade, incluindo **hooks** e **utilitários** para implementar padrões WCAG 2.1 AA.
+
+#### Estrutura do Sistema
+
+\`\`\`
+src/
+├── hooks/
+│   └── use-accessibility.ts      # Hooks principais
+└── utils/
+    └── accessibility.tsx         # Utilitários e componentes
 \`\`\`
 
-### Diretrizes de Implementação
+#### Import rápido para novos componentes:
 
-**✅ Sempre faça:**
-- Use \`useAccessibilityValidation\` em desenvolvimento
-- Implemente feedback com \`useLiveRegion\`
-- Adicione focus management em modais
-- Teste com tecnologias assistivas
-
-**❌ Evite:**
-- Elementos interativos sem labels
-- Mudanças de conteúdo sem anúncios
-- Modais sem focus trap
-- Contraste de cores inadequado
-
-### Benefícios do Sistema
-
-- **Validação automática**: Detecta problemas em tempo real
-- **Feedback consistente**: Padrões uniformes de comunicação
-- **Focus management**: Navegação por teclado otimizada
-- **WCAG compliance**: Conformidade com padrões internacionais
+\`\`\`tsx
+import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
+import {
+  AccessibilityLoadingIndicator,
+  useCardAccessibilityIds,
+  DEFAULT_A11Y_CONFIG
+} from '@/utils/accessibility'
+\`\`\`
         `,
       },
     },
@@ -390,7 +536,6 @@ export const ValidacaoAutomatica: Story = {
     docs: {
       description: {
         story: `
-### useAccessibilityValidation
 
 **Propósito:** Detecta automaticamente problemas de acessibilidade durante o desenvolvimento.
 
@@ -447,7 +592,6 @@ export const LiveRegions: Story = {
     docs: {
       description: {
         story: `
-### useLiveRegion
 
 **Propósito:** Comunica mudanças dinâmicas aos usuários de leitores de tela.
 
@@ -514,7 +658,6 @@ export const FocusManagement: Story = {
     docs: {
       description: {
         story: `
-### useFocusTrap
 
 **Propósito:** Controla o foco em modais, menus e outros componentes interativos.
 
@@ -593,6 +736,160 @@ export function Modal({ isOpen, onClose, children }) {
 }
 
 // ===== PADRÕES E BOAS PRÁTICAS =====
+
+export const UtilitariosDeCard: Story = {
+  name: '🃏 Utilitários: Cards Acessíveis',
+  render: () => <CardUtilitiesExample />,
+  parameters: {
+    docs: {
+      description: {
+        story: `
+
+**Import necessário:**
+\`\`\`tsx
+import {
+  AccessibilityLoadingIndicator,
+  useCardAccessibilityIds,
+  useCardKeyboardHandlers,
+  generateCardAriaLabel,
+  DEFAULT_A11Y_CONFIG
+} from '@/utils/accessibility'
+\`\`\`
+
+**Implementação completa:**
+\`\`\`tsx
+export const MeuCard = ({ title, description, onClick }) => {
+  const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
+  const { announceToScreenReader, announceError } = useLiveRegion()
+
+  // 1. Gerar IDs únicos e consistentes
+  const { titleId, descId, cardId } = useCardAccessibilityIds(title)
+
+  // 2. Handler de teclado padronizado
+  const handleKeyDown = useCardKeyboardHandlers(
+    onClick,
+    title,
+    announceToScreenReader,
+    announceError
+  )
+
+  // 3. Aria-label consistente
+  const ariaLabel = generateCardAriaLabel(title, description)
+
+  return (
+    <div
+      id={cardId}
+      role="button"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      onClick={onClick}
+      aria-label={ariaLabel}
+      aria-describedby={\`\${titleId} \${descId}\`}
+      className="card-styles"
+    >
+      <h3 id={titleId}>{title}</h3>
+      <p id={descId}>{description}</p>
+
+      {/* 4. Indicador de loading acessível */}
+      <AccessibilityLoadingIndicator
+        isValidating={isValidating}
+        loadingMessage="Carregando card"
+      />
+    </div>
+  )
+}
+\`\`\`
+
+**Benefícios:**
+- ✅ IDs únicos e consistentes (SSR-safe)
+- ✅ Navegação por teclado padronizada
+- ✅ Labels acessíveis automáticos
+- ✅ Feedback visual para leitores de tela
+- ✅ Reutilização de código
+        `,
+      },
+    },
+  },
+}
+
+export const UtilitariosDeSecao: Story = {
+  name: '📋 Utilitários: Seções e Layouts',
+  render: () => <SectionUtilitiesExample />,
+  parameters: {
+    docs: {
+      description: {
+        story: `
+
+**Import necessário:**
+\`\`\`tsx
+import {
+  useSectionAccessibilityIds,
+  AccessibilityLoadingIndicator,
+  useWelcomeAnnouncement
+} from '@/utils/accessibility'
+\`\`\`
+
+**Para seções principais (como WelcomeSection):**
+\`\`\`tsx
+export function WelcomeSection({ userName }) {
+  const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
+
+  // 1. IDs estáveis para SSR
+  const { sectionId, headingId } = useSectionAccessibilityIds('welcome')
+
+  // 2. Anúncio automático de boas-vindas
+  useWelcomeAnnouncement(userName, 1000)
+
+  return (
+    <section
+      id={sectionId}
+      aria-labelledby={headingId}
+      className="welcome-section"
+    >
+      <h1 id={headingId} tabIndex={-1}>
+        Olá, {userName}!
+      </h1>
+
+      {/* Contexto para leitores de tela */}
+      <p className="sr-only">
+        Você está na página inicial. Use as ações abaixo para navegar.
+      </p>
+
+      <AccessibilityLoadingIndicator
+        isValidating={isValidating}
+        validatingMessage="Verificando acessibilidade"
+      />
+    </section>
+  )
+}
+\`\`\`
+
+**Para outros tipos de seção:**
+\`\`\`tsx
+export function MaterialsSection({ materials }) {
+  const { sectionId, headingId, contentId } = useSectionAccessibilityIds('materials')
+
+  return (
+    <section id={sectionId} aria-labelledby={headingId}>
+      <h2 id={headingId}>Materiais Educativos</h2>
+      <div id={contentId} role="region">
+        {/* Conteúdo da seção */}
+      </div>
+    </section>
+  )
+}
+\`\`\`
+
+**Recursos disponíveis:**
+- ✅ \`useSectionAccessibilityIds\`: IDs únicos para elementos de seção
+- ✅ \`useWelcomeAnnouncement\`: Anúncio automático de boas-vindas
+- ✅ \`AccessibilityLoadingIndicator\`: Estado de loading acessível
+- ✅ SSR-safe: Funciona corretamente com Next.js
+        `,
+      },
+    },
+  },
+}
 
 export const PadroesRecomendados: Story = {
   name: '✅ Boas Práticas',
@@ -750,7 +1047,6 @@ export const ChecklistImplementacao: Story = {
     docs: {
       description: {
         story: `
-### Checklist de Implementação
 
 Use este checklist para garantir que seus componentes atendem aos critérios de acessibilidade:
 

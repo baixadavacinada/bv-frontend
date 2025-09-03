@@ -8,36 +8,6 @@ const meta: Meta<typeof BvButton> = {
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
-    // Configurações específicas de acessibilidade para este componente
-    a11y: {
-      config: {
-        rules: [
-          // Verificar contraste de cores (WCAG AA = 4.5:1)
-          { id: 'color-contrast', options: { level: 'AA' } },
-          // Verificar se o botão tem texto acessível
-          { id: 'button-name', enabled: true },
-          // Verificar se elementos interativos são acessíveis por teclado
-          { id: 'keyboard', enabled: true },
-          // Verificar foco visível
-          { id: 'focus-order-semantics', enabled: true },
-        ],
-      },
-      // Elementos a serem testados especificamente
-      element: 'button',
-      options: {
-        checks: {
-          'color-contrast': {
-            options: {
-              level: 'AA',
-              contrastRatio: {
-                normal: 4.5,
-                large: 3,
-              },
-            },
-          },
-        },
-      },
-    },
     docs: {
       description: {
         component: `

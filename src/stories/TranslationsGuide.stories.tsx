@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs'
-import { withNextIntl } from '../../.storybook/decorators'
+// import { withNextIntl } from '../../.storybook/decorators'
 import { useState } from 'react'
 import { MapPin, Menu, X, Calendar } from 'lucide-react'
 
@@ -649,7 +649,7 @@ const TranslationExample = ({ example = 'basic' }: { example?: string }) => {
 const meta: Meta<typeof TranslationsGuideDoc> = {
   title: '📖 Documentação/Traduções & Internacionalização',
   component: TranslationsGuideDoc,
-  decorators: [withNextIntl],
+  // decorators: [withNextIntl],
   parameters: {
     layout: 'fullscreen',
   },
