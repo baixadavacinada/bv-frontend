@@ -7,7 +7,6 @@ const config = {
     extend: {},
   },
   plugins: [],
-  safelist: [],
 } satisfies Config
 
 export default config
