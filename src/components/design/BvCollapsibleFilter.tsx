@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/ui/collapsible'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

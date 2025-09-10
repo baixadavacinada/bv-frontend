@@ -1,5 +1,5 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/ui/card'
-import { Button } from '@/ui/button'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Hospital, Home, Compass, ArrowRight, Share2, Heart } from 'lucide-react'
 import React from 'react'
