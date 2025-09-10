@@ -1,12 +1,18 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios'
 import { GetServerSidePropsContext, NextPageContext } from 'next'
 import { parseCookies } from 'nookies'
+
+interface ApiErrorResponse {
+  message: string
+  statusCode: number
+  error?: string
+}
 
 const onResponse = (response: AxiosResponse): AxiosResponse => {
   return response.data
 }
 
-const onResponseError = (error: any): Promise<any> => {
+const onResponseError = async (error: AxiosError<ApiErrorResponse>): Promise<AxiosError> => {
   console.error('API Response Error:', error)
   return Promise.reject(error)
 }

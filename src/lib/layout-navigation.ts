@@ -1,5 +1,5 @@
 import { CiSettings } from 'react-icons/ci'
-import { FaSyringe, FaCircle } from 'react-icons/fa'
+import { FaSyringe } from 'react-icons/fa'
 import { IconType } from 'react-icons'
 import {
   BsSun,
@@ -107,9 +107,9 @@ export const footerNavigation: NavigationItem[] = [
     href: '/',
   },
   {
-    id: 'configuracao',
-    icon: FaCircle,
-    label: 'Configurações',
+    id: 'carteira-vacinacao',
+    icon: FaSyringe,
+    label: 'Carteira de Vacinação',
     href: '/',
   },
   {

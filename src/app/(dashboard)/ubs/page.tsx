@@ -1,9 +1,9 @@
 import { BvTitleHeader } from '@/components'
 import { CollapsibleFilter } from '@/components/design/BvCollapsibleFilter'
 import { UbsCardProps, BvUbsList } from '@/components/index'
-import { Checkbox } from '@/ui/checkbox'
-import { Input } from '@/ui/input'
-import { Label } from '@/ui/label'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Checkbox } from '@radix-ui/react-checkbox'
 
 const mockUbsData: Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle'>[] = [
   {
@@ -36,9 +36,9 @@ const mockUbsData: Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteTogg
   },
 ]
 
-export default async function HomeScreen() {
+export default async function UbsScreen() {
   return (
-    <main className="container m-8 min-h-screen py-8">
+    <div>
       <BvTitleHeader title="Unidades Básicas de Saúde" className="mb-8" />
       <div className="mb-8">
         <CollapsibleFilter>
@@ -60,7 +60,7 @@ export default async function HomeScreen() {
           </div>
         </CollapsibleFilter>
       </div>
-      {/* 
+      {/*
         Mapa Mookado.
       */}
       <iframe
@@ -94,6 +94,6 @@ export default async function HomeScreen() {
         </CollapsibleFilter>
       </div>
       <BvUbsList initialData={mockUbsData} />
-    </main>
+    </div>
   )
 }

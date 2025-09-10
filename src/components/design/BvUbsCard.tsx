@@ -1,8 +1,8 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/ui/card'
-import { Button } from '@/ui/button'
 import { cn } from '@/lib/utils'
 import { Hospital, Home, Compass, ArrowRight, Share2, Heart } from 'lucide-react'
 import React from 'react'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card'
+import { Button } from '../ui/button'
 
 export interface UbsCardProps {
   id?: number
