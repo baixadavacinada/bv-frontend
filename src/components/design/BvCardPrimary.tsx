@@ -36,7 +36,7 @@ interface CardIconProps {
 
 interface CardTextProps {
   title: string
-  description: string
+  description?: string
   className?: string
 }
 
@@ -69,8 +69,11 @@ const CardText: React.FC<CardTextProps> = ({ title, description, className = '' 
 const layouts = {
   default: ({ title, description, icon }: LayoutProps) => (
     <div className="flex flex-col items-start">
-      <CardText title={title} description={description} />
-      <div className="flex w-full items-center justify-between">
+      <CardText title={title} />
+      <div className="flex w-full items-center justify-between gap-2">
+        <CardDescription className="text-base font-normal text-black">
+          {description}
+        </CardDescription>
         {icon && <CardIcon icon={icon} title={title} className="ml-auto" />}
       </div>
     </div>
