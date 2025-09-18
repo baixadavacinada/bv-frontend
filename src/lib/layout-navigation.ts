@@ -1,15 +1,17 @@
+import { ActionType } from '@/hooks/use-permissions'
+
 import { CiSettings } from 'react-icons/ci'
 import { FaSyringe } from 'react-icons/fa'
 import { IconType } from 'react-icons'
 import {
   BsSun,
   BsFillPersonFill,
-  BsArrowBarRight,
   BsHouse,
   BsGeoAlt,
   BsFileEarmarkText,
   BsSearch,
   BsHeart,
+  BsBell,
 } from 'react-icons/bs'
 
 export interface NavigationItem {
@@ -20,6 +22,9 @@ export interface NavigationItem {
   badge?: string | number
   disabled?: boolean
   external?: boolean
+  requiredPermission?: ActionType // controle de permissões
+  hideForRoles?: string[] // Ocultar para roles específicos
+  showOnlyForRoles?: string[] // Mostrar apenas para roles específicos
 }
 
 // Menu principal do sidebar (desktop)
@@ -35,36 +40,57 @@ export const sidebarNavigation: NavigationItem[] = [
     icon: BsGeoAlt,
     label: 'UBS',
     href: '/ubs',
+    requiredPermission: 'ubs',
   },
   {
     id: 'registro',
     icon: BsFileEarmarkText,
     label: 'Registro de vacinas',
-    href: '/',
+    href: '/vacinacao',
+    requiredPermission: 'vaccination',
+    hideForRoles: ['AGENTE_SAUDE'],
+  },
+  {
+    id: 'user-register',
+    icon: BsFileEarmarkText,
+    label: 'Registro por morador',
+    href: '/registro-morador',
+    requiredPermission: 'user-register',
+    hideForRoles: ['MORADOR'],
+  },
+  {
+    id: 'alert-settings',
+    icon: BsBell,
+    label: 'Ajustes de alertas',
+    href: '/ajustes-alertas',
+    requiredPermission: 'alert-settings',
+    hideForRoles: ['MORADOR'],
   },
   {
     id: 'cartilha',
     icon: FaSyringe,
     label: 'Cartilha de vacinas',
-    href: '/',
+    href: '/cartilha-vacinas',
+    requiredPermission: 'guide',
   },
   {
     id: 'pesquisar',
     icon: BsSearch,
     label: 'Pesquisar',
-    href: '/',
+    href: '/buscar',
   },
   {
     id: 'favoritos',
     icon: BsHeart,
     label: 'Favoritos',
-    href: '/',
+    href: '/favoritos',
   },
   {
     id: 'configuracoes',
     icon: CiSettings,
     label: 'Configurações',
-    href: '/',
+    href: '/configuracoes',
+    requiredPermission: 'settings',
   },
 ]
 
@@ -78,17 +104,14 @@ export const navbarActions: NavigationItem[] = [
   {
     id: 'configuracao',
     icon: CiSettings,
-    href: '/',
+    href: '/configuracoes',
+    requiredPermission: 'settings',
   },
   {
     id: 'profile',
     icon: BsFillPersonFill,
-    href: '/',
-  },
-  {
-    id: 'logout',
-    icon: BsArrowBarRight,
-    href: '/',
+    href: '/perfil',
+    showOnlyForRoles: ['AGENTE_SAUDE', 'ADMIN'],
   },
 ]
 
@@ -98,30 +121,33 @@ export const footerNavigation: NavigationItem[] = [
     id: 'home',
     icon: BsHouse,
     label: 'Home',
-    href: '/',
+    href: '/inicio',
   },
   {
     id: 'pesquisar',
     icon: BsSearch,
     label: 'Buscar',
-    href: '/',
+    href: '/buscar',
   },
   {
     id: 'carteira-vacinacao',
     icon: FaSyringe,
     label: 'Carteira de Vacinação',
-    href: '/',
+    href: '/vacinacao',
+    requiredPermission: 'vaccination',
+    hideForRoles: ['AGENTE_SAUDE'],
   },
   {
     id: 'ubs',
     icon: BsGeoAlt,
     label: 'UBS',
-    href: '/',
+    href: '/ubs',
+    requiredPermission: 'ubs',
   },
   {
     id: 'favoritos',
     icon: BsHeart,
     label: 'Favoritos',
-    href: '/',
+    href: '/favoritos',
   },
 ]

@@ -10,6 +10,8 @@ import {
   useSectionAccessibilityIds,
   DEFAULT_A11Y_CONFIG,
 } from '@/utils/accessibility'
+import { clearClientAuthCookies } from '@/mock/auth'
+import { usePermissions } from '@/hooks/use-permissions'
 
 export function Sidebar() {
   const router = useRouter()
@@ -19,19 +21,23 @@ export function Sidebar() {
   const { announceToScreenReader } = useLiveRegion()
   const { sectionId, headingId } = useSectionAccessibilityIds('sidebar')
 
+  const { filterNavigationItems, role } = usePermissions()
+  const allowedNavigationItems = filterNavigationItems(sidebarNavigation)
+
   const handleNavigation = (action: (typeof sidebarNavigation)[0]) => {
     announceToScreenReader(`Navegando para ${action.label}`, 'polite')
-
-    // TODO: implementar tracking de cliques
     router.push(action.href)
   }
 
   const handleLogout = () => {
     announceToScreenReader(accessibility('actionCompleted') + ': Saindo da conta', 'assertive')
 
-    // TODO: implementar tracking do logout
-    router.push('/')
+    clearClientAuthCookies()
+    router.push('/inicio')
+    router.refresh()
   }
+
+  const shouldShowLogout = role !== 'MORADOR'
 
   return (
     <aside
@@ -51,7 +57,7 @@ export function Sidebar() {
         {/* Menu items */}
         <nav className="flex-1" aria-label={accessibility('primaryNavigation')}>
           <ul className="space-y-5" role="list">
-            {sidebarNavigation.map((action) => (
+            {allowedNavigationItems.map((action) => (
               <li key={`sidebar-${action.id}`}>
                 <BvButton
                   title={action.label}
@@ -66,16 +72,18 @@ export function Sidebar() {
           </ul>
         </nav>
 
-        <footer className="border-t border-gray-200 pt-4">
-          <div aria-label={accessibility('sidebar.accountActions')}>
-            <BvButton
-              title={common('logout')}
-              aria-label={navigation('logoutAction')}
-              className="focus-visible:ring-2 focus-visible:ring-red-500"
-              onClick={handleLogout}
-            />
-          </div>
-        </footer>
+        {shouldShowLogout && (
+          <footer className="border-t border-gray-200 pt-4">
+            <div aria-label={accessibility('sidebar.accountActions')}>
+              <BvButton
+                title={common('logout')}
+                aria-label={navigation('logoutAction')}
+                className="focus-visible:ring-2 focus-visible:ring-red-500"
+                onClick={handleLogout}
+              />
+            </div>
+          </footer>
+        )}
 
         <AccessibilityLoadingIndicator
           isValidating={isValidating}

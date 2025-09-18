@@ -85,6 +85,14 @@
     "settings": {
       "title": "Configurações",
       "description": "Precisa ajustar algo? Aqui você pode configurar notificações, atualizar seus dados ou falar com a gente."
+    },
+    "alertSettings": {
+      "title": "Ajustes de alertas",
+      "description": "Configure as notificações e alertas que os usuários irão receber."
+    },
+    "manageUsers": {
+      "title": "Registro por morador",
+      "description": "Visualize ou atualize o registro de vacinação por morador."
     }
   }
 }

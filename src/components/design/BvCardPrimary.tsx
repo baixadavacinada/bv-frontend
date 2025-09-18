@@ -54,6 +54,10 @@ const CardIcon: React.FC<CardIconProps> = ({ icon, title, className = '' }) => (
     width={60}
     height={60}
     className={`text-gray-600 ${className}`}
+    style={{
+      width: 'auto',
+      height: 'auto',
+    }}
   />
 )
 
