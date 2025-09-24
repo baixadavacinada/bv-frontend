@@ -1,15 +1,19 @@
 'use client'
+
 import { useRouter } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { createElement } from 'react'
+import Image from 'next/image'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
 interface PageHeaderProps {
+  ico?: string
   title: string
   className?: string
+  alt: string
 }
 
-export function BvTitleHeader({ title, className }: PageHeaderProps) {
+export function BvTitleIco({ ico, title, className, alt }: PageHeaderProps) {
   useAccessibilityValidation({ enabled: true })
   const router = useRouter()
 
@@ -19,13 +23,7 @@ export function BvTitleHeader({ title, className }: PageHeaderProps) {
 
   return (
     <div className={cn('flex items-center gap-4', className)}>
-      <button
-        onClick={handleBack}
-        className="hover:bg-accent focus:ring-ring rounded-md p-4 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-        aria-label="Voltar para a página anterior"
-      >
-        <ArrowLeft className="h-6 w-6 text-blue-600" />
-      </button>
+      {ico && <Image src={ico} alt={alt} width={104} height={104} className="h-12 w-12" />}
 
       <h1 className="text-2xl font-bold tracking-tight text-gray-800 dark:text-gray-100">
         {title}
