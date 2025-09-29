@@ -7,6 +7,7 @@ import { BvButton } from '@/components'
 import { useAppTranslations } from '@/hooks/use-translations'
 import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
 import { AccessibilityLoadingIndicator, DEFAULT_A11Y_CONFIG } from '@/utils/accessibility'
+import { usePermissions } from '@/hooks/use-permissions'
 
 export function FooterBar() {
   const router = useRouter()
@@ -14,10 +15,12 @@ export function FooterBar() {
   const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
   const { announceToScreenReader } = useLiveRegion()
 
+  const { filterNavigationItems } = usePermissions()
+  const allowedNavigationItems = filterNavigationItems(footerNavigation)
+
   const handleNavigation = (action: (typeof footerNavigation)[0]) => {
     announceToScreenReader(`Navegando para ${action.label}`, 'polite')
 
-    // TODO: implementar tracking de cliques
     router.push(action.href)
   }
 
@@ -28,7 +31,7 @@ export function FooterBar() {
       className="fixed right-0 bottom-0 left-0 z-40 rounded-t-3xl bg-white px-2 py-2"
     >
       <div className="flex justify-around">
-        {footerNavigation.map((action) => (
+        {allowedNavigationItems.map((action) => (
           <BvButton
             key={`footerbar-${action.id}`}
             variant="ghost"
