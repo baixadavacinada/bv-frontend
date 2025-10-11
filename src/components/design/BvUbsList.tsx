@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { BvUbsCard, UbsCardProps } from '@/components/index'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
 interface UbsListProps {
   initialData: Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle'>[]
 }
 
 export function BvUbsList({ initialData }: UbsListProps) {
+  useAccessibilityValidation({ enabled: true })
   const [ubsList, setUbsList] = useState(initialData)
 
   const handleMoreInfo = (name: string) => {
@@ -30,6 +32,7 @@ export function BvUbsList({ initialData }: UbsListProps) {
         <BvUbsCard
           key={ubs.id}
           name={ubs.name}
+          url={ubs.url}
           neighborhood={ubs.neighborhood}
           distanceInKm={ubs.distanceInKm}
           isFavorite={ubs.isFavorite}

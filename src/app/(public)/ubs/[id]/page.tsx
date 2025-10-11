@@ -1,10 +1,13 @@
 'use client'
-import { BvButton, BvTitleHeader } from '@/components'
+import { BvButton, BvTitleHeader, UbsCardProps } from '@/components'
 import { BvTitleIco } from '@/components/design/BvTitleIco'
 import CaledarIco from '@/assets/icons/calendar.svg'
 import SyringeIco from '@/assets/icons/syringe.svg'
-import React from 'react'
+import React, { useState } from 'react'
 import Tag from '@/components/design/Tag'
+import { Button } from '@/components/ui/button'
+import { Heart, Share2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const vaccines = ['Influenza', 'Covid-19', 'Hepatite B', 'Sarampo', 'Febre Amarela', 'Tétano']
 
@@ -13,25 +16,62 @@ interface DetailUbsProps {
   timeMedia?: string
 }
 
-export default async function DetailUbs({
-  nameUbs = 'XXXX',
+export default function DetailUbs({
+  nameUbs = 'UBS - JD. UNIVERSO',
   timeMedia = '30 minutos',
 }: DetailUbsProps) {
+  const [isFavorite, setIsFavorite] = useState(false)
+
+  const onShare = () => {
+    alert(`Compartilhando: ${nameUbs}`)
+  }
+
+  const onFavoriteToggle = () => {
+    setIsFavorite(!isFavorite)
+  }
+
+  const handleIconClick = (e: React.MouseEvent<HTMLButtonElement>, action: () => void) => {
+    e.stopPropagation()
+    action()
+  }
+
   return (
     <div>
       <BvTitleHeader title={`Sobre`} className="mb-8" />
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <p className="border-b py-2">{nameUbs}</p>
+      <div className="mb-4">
+        <h2 className="text-1xl font-bold">{nameUbs}</h2>
       </div>
 
-      <div className="mt-8 mb-8 flex justify-end">
-        <button
-          className="relative rounded-md bg-purple-700 px-6 py-2 font-medium text-white transition-colors hover:bg-purple-800"
-          onClick={() => alert('Avaliar UBS')}
-        >
-          Avaliar
-        </button>
+      <div className="mt-8 mb-8 flex justify-between">
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => handleIconClick(e, onShare)}
+            aria-label="Compartilhar"
+          >
+            <Share2 className="h-5 w-5 text-slate-500" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => handleIconClick(e, onFavoriteToggle)}
+            aria-label={isFavorite ? 'Desfavoritar' : 'Favoritar'}
+          >
+            <Heart
+              className={cn('h-5 w-5 text-slate-500', isFavorite && 'fill-red-500 text-red-500')}
+            />
+          </Button>
+        </div>
+        <div className="flex space-x-4">
+          <button
+            className="relative rounded-md bg-purple-700 px-6 py-2 font-medium text-white transition-colors hover:bg-purple-800"
+            onClick={() => alert('Avaliar UBS')}
+          >
+            Avaliar
+          </button>
+        </div>
       </div>
 
       <iframe

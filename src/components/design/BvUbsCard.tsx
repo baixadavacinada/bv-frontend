@@ -9,6 +9,7 @@ export interface UbsCardProps {
   name: string
   neighborhood: string
   distanceInKm: number
+  url: string
   isFavorite?: boolean
   onMoreInfo: () => void
   onShare: () => void
@@ -20,6 +21,7 @@ export function BvUbsCard({
   name,
   neighborhood,
   distanceInKm,
+  url,
   isFavorite = false,
   onMoreInfo,
   onShare,
@@ -42,7 +44,9 @@ export function BvUbsCard({
         <div className="rounded-lg bg-slate-100 p-3 dark:bg-slate-800">
           <Hospital className="h-6 w-6 text-slate-600 dark:text-slate-300" />
         </div>
-        <CardTitle className="text-lg font-bold">{name}</CardTitle>
+        <a href={`/ubs/${url}`}>
+          <CardTitle className="text-lg font-bold">{name}</CardTitle>
+        </a>
       </CardHeader>
 
       <CardContent className="flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-400">
