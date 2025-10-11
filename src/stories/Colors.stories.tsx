@@ -2,19 +2,66 @@ import type { Meta, StoryObj } from '@storybook/nextjs'
 
 const ColorPalette = () => {
   const colors = [
-    { name: 'Primary', class: 'bg-blue-600', hex: '#2563eb' },
-    { name: 'Primary Foreground', class: 'bg-blue-50', hex: '#eff6ff' },
-    { name: 'Destructive', class: 'bg-red-600', hex: '#dc2626' },
-    { name: 'Background', class: 'bg-white border-2 border-gray-200', hex: '#ffffff' },
-    { name: 'Muted', class: 'bg-gray-50', hex: '#f9fafb' },
-    { name: 'Accent', class: 'bg-gray-100', hex: '#f3f4f6' },
-    { name: 'Border', class: 'bg-gray-200', hex: '#e5e7eb' },
-    { name: 'Foreground', class: 'bg-gray-900', hex: '#111827' },
-    { name: 'Muted Foreground', class: 'bg-gray-600', hex: '#4b5563' },
-    { name: 'Success', class: 'bg-green-600', hex: '#16a34a' },
-    { name: 'Warning', class: 'bg-yellow-500', hex: '#eab308' },
-    { name: 'Error', class: 'bg-red-600', hex: '#dc2626' },
-    { name: 'Info', class: 'bg-blue-500', hex: '#3b82f6' },
+    {
+      name: 'Primary',
+      hex: '#4C2E97',
+      description: 'Cor principal do sistema',
+    },
+    {
+      name: 'Primary Foreground',
+      hex: '#FFFFFF',
+      description: 'Texto sobre primary',
+    },
+    {
+      name: 'Dark Primary',
+      hex: '#9E90CB',
+      description: 'Primary no tema escuro',
+    },
+    {
+      name: 'Success',
+      hex: '#50C36E',
+      description: 'Indicadores de sucesso',
+    },
+    {
+      name: 'Alert',
+      hex: '#FC6E04',
+      description: 'Alertas importantes',
+    },
+    {
+      name: 'Warning',
+      hex: '#ECAD00',
+      description: 'Avisos e cuidados',
+    },
+    {
+      name: 'Background',
+      hex: '#E2E2E2',
+      description: 'Fundo da aplicação',
+    },
+    {
+      name: 'Dark Background',
+      hex: '#1D1D1D',
+      description: 'Fundo no tema escuro',
+    },
+    {
+      name: 'Gray Secondary',
+      hex: '#727272',
+      description: 'Texto secundário',
+    },
+    {
+      name: 'Dark Text',
+      hex: '#383838',
+      description: 'Texto no tema escuro',
+    },
+    {
+      name: 'White',
+      hex: '#FFFFFF',
+      description: 'Branco puro',
+    },
+    {
+      name: 'Black',
+      hex: '#000000',
+      description: 'Preto puro',
+    },
   ]
 
   return (
@@ -37,17 +84,23 @@ const ColorPalette = () => {
         {colors.map((color) => (
           <div key={color.name} style={{ textAlign: 'center' }}>
             <div
-              className={color.class}
               style={{
                 height: '80px',
                 borderRadius: '8px',
                 marginBottom: '0.5rem',
-                border: color.name === 'Background' ? '2px solid #e5e7eb' : 'none',
+                backgroundColor: color.hex,
+                border:
+                  color.name.includes('Background') || color.name === 'White'
+                    ? '2px solid #727272'
+                    : 'none',
               }}
             />
             <div style={{ fontSize: '0.875rem' }}>
               <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{color.name}</div>
-              <div style={{ color: '#6b7280' }}>{color.hex}</div>
+              <div style={{ color: '#727272', marginBottom: '0.25rem' }}>{color.hex}</div>
+              {color.description && (
+                <div style={{ color: '#727272', fontSize: '0.75rem' }}>{color.description}</div>
+              )}
             </div>
           </div>
         ))}
@@ -66,17 +119,26 @@ const ColorPalette = () => {
           marginBottom: '1rem',
         }}
       >
-        {`/* Cores principais */
-.bg-primary { @apply bg-blue-600; }
-.text-primary { @apply text-blue-600; }
+        {`/* Cores do Design System - Use as variáveis CSS ou cores diretas */
 
-/* Cores de background */
-.bg-background { @apply bg-white; }
-.bg-muted { @apply bg-gray-50; }
+/* Método 1: Variáveis CSS (recomendado para componentes) */
+.bg-primary { background-color: var(--primary); }           /* #4C2E97 */
+.bg-success { background-color: var(--success); }           /* #50C36E */
+.bg-alert { background-color: var(--alert); }               /* #FC6E04 */
+.bg-warning { background-color: var(--warning); }           /* #ECAD00 */
+
+/* Método 2: Classes Tailwind diretas (para casos específicos) */
+.bg-primary-direct { @apply bg-[#4C2E97]; }
+.bg-success-direct { @apply bg-[#50C36E]; }
+.bg-alert-direct { @apply bg-[#FC6E04]; }
+.bg-warning-direct { @apply bg-[#ECAD00]; }
 
 /* Cores de texto */
-.text-foreground { @apply text-gray-900; }
-.text-muted-foreground { @apply text-gray-600; }`}
+.text-gray-secondary { @apply text-[#727272]; }
+
+/* Cores de background */
+.bg-background { @apply bg-[#E2E2E2]; }
+.dark .bg-background { @apply bg-[#1D1D1D]; }`}
       </pre>
 
       <h3 style={{ color: '#374151', marginBottom: '0.5rem' }}>Em Components</h3>
@@ -89,15 +151,22 @@ const ColorPalette = () => {
           overflow: 'auto',
         }}
       >
-        {`// Usando com className
-<div className="bg-primary text-primary-foreground">
-  Conteúdo com cor primária
-</div>
+        {`// Usando variantes do BvButton (funciona com o sistema de cores)
+<BvButton variant="default">Primary (#4C2E97)</BvButton>
+<BvButton variant="success">Sucesso (#50C36E)</BvButton>
+<BvButton variant="alert">Alerta (#FC6E04)</BvButton>
+<BvButton variant="warning">Aviso (#ECAD00)</BvButton>
 
-// Usando com CSS Variables (quando configurado)
-<div style={{ backgroundColor: 'var(--primary)' }}>
-  Conteúdo dinâmico
-</div>`}
+// Usando classes Tailwind diretas
+<div className="bg-[#4C2E97] text-white">Primary</div>
+<div className="bg-[#50C36E] text-white">Success</div>
+<div className="bg-[#FC6E04] text-white">Alert</div>
+<div className="bg-[#ECAD00] text-black">Warning</div>
+
+// Navbar com cores do design system
+<nav className="bg-[#4C2E97] text-white">
+  // Conteúdo do navbar
+</nav>`}
       </pre>
 
       <div
