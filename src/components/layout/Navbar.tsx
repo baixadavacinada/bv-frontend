@@ -47,6 +47,7 @@ export function Navbar() {
           height={40}
           className="object-contain"
           style={{ width: 'auto', height: 'auto' }}
+          priority
         />
         <div className="hidden text-lg font-semibold md:block">Baixada Vacinada</div>
       </div>

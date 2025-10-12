@@ -4,14 +4,12 @@ import clsx from 'clsx'
 import { footerNavigation } from '@/lib/layout-navigation'
 import { useRouter } from 'next/navigation'
 import { BvButton } from '@/components'
-import { useAppTranslations } from '@/hooks/use-translations'
 import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
 import { AccessibilityLoadingIndicator, DEFAULT_A11Y_CONFIG } from '@/utils/accessibility'
 import { usePermissions } from '@/hooks/use-permissions'
 
 export function FooterBar() {
   const router = useRouter()
-  const { accessibility } = useAppTranslations()
   const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
   const { announceToScreenReader } = useLiveRegion()
 
@@ -27,7 +25,7 @@ export function FooterBar() {
   return (
     <div
       role="contentinfo"
-      aria-label={accessibility('siteFooter')}
+      aria-label="Navegação principal do rodapé"
       className="fixed right-0 bottom-0 left-0 z-40 rounded-t-3xl bg-white px-2 py-2"
     >
       <div className="flex justify-around">
