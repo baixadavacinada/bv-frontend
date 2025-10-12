@@ -76,7 +76,6 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         allowFullScreen
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
-        title={`Localização no mapa da ${name}`}
       ></iframe>
 
       <BvTitleIco

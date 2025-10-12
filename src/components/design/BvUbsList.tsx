@@ -34,6 +34,7 @@ export function BvUbsList({ initialData }: UbsListProps) {
         <BvUbsCard
           key={ubs.id}
           name={ubs.name}
+          url={ubs.url}
           neighborhood={ubs.neighborhood}
           distanceInKm={ubs.distanceInKm}
           isFavorite={ubs.isFavorite}
