@@ -23,7 +23,13 @@ export function Navbar() {
 
   const handleNavigation = (action: (typeof navbarActions)[0]) => {
     announceToScreenReader(`Navegando para ${action.label}`, 'polite')
-    router.push(action.href)
+
+    if (action.id === 'profile') {
+      const profileHref = role === 'MORADOR' ? '/login' : '/perfil'
+      router.push(profileHref)
+    } else {
+      router.push(action.href)
+    }
   }
 
   const handleLogout = () => {
