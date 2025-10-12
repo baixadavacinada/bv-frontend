@@ -1,14 +1,15 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Barlow } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import './globals.css'
 import { cn } from '@/lib/utils'
 
-const inter = Inter({
+const barlow = Barlow({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-inter',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-barlow',
 })
 
 export const metadata: Metadata = {
@@ -21,7 +22,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className={cn(inter.className, 'bg-[#E4EAEE] antialiased dark:bg-slate-900')}>
+      <body className={cn(barlow.className, 'bg-background antialiased dark:bg-slate-900')}>
         <NextIntlClientProvider messages={messages}>
           <div>{children}</div>
         </NextIntlClientProvider>

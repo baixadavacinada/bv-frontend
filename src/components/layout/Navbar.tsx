@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation'
-
+import Image from 'next/image'
 import { navbarActions } from '@/lib/layout-navigation'
 import { BvButton } from '@/components'
 import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
@@ -23,7 +23,13 @@ export function Navbar() {
 
   const handleNavigation = (action: (typeof navbarActions)[0]) => {
     announceToScreenReader(`Navegando para ${action.label}`, 'polite')
-    router.push(action.href)
+
+    if (action.id === 'profile') {
+      const profileHref = role === 'MORADOR' ? '/login' : '/perfil'
+      router.push(profileHref)
+    } else {
+      router.push(action.href)
+    }
   }
 
   const handleLogout = () => {
@@ -36,12 +42,20 @@ export function Navbar() {
 
   return (
     <nav
-      className="sticky top-0 z-50 flex h-16 items-center justify-between bg-indigo-600 px-4 text-white"
+      className="bg-primary text-primary-foreground sticky top-0 z-50 flex h-16 items-center justify-between px-4"
       aria-label="Navegação superior"
     >
       <div className="flex items-center gap-4">
-        {/* TODO: Alterar logo */}
-        <div className="text-lg font-semibold">Baixada Vacinada</div>
+        <Image
+          src="/logo.png"
+          alt="Logo Criola"
+          width={40}
+          height={40}
+          className="object-contain"
+          style={{ width: 'auto', height: 'auto' }}
+          priority
+        />
+        <div className="hidden text-lg font-semibold md:block">Baixada Vacinada</div>
       </div>
 
       <div className="flex items-center gap-1" role="group" aria-label="Ações rápidas">
@@ -50,7 +64,7 @@ export function Navbar() {
             key={`navbar-${action.id}`}
             variant="ghost"
             size="icon"
-            aria-label={`Navegar para ${action.label}`}
+            aria-label={`Navegar para ${action.id}`}
             leftIcon={<action.icon className="size-6" aria-hidden="true" />}
             onClick={() => handleNavigation(action)}
           />

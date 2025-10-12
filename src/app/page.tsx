@@ -32,6 +32,7 @@ export default function Page() {
                 height={200}
                 className="mb-4 lg:hidden"
                 priority
+                style={{ width: 'auto', height: 'auto' }}
               />
               <CardDescription className="text-md text-center text-slate-600 lg:text-left dark:text-slate-400">
                 Aqui você pode localizar a unidade de saúde mais próxima, consultar vacinas
@@ -61,6 +62,7 @@ export default function Page() {
               width={200}
               height={200}
               priority
+              style={{ width: 'auto', height: 'auto' }}
             />
           </div>
         </div>
