@@ -4,41 +4,16 @@ import { UbsCardProps, BvUbsList } from '@/components/index'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@radix-ui/react-checkbox'
+import { mockUbsData } from '@/mock/ubs'
 
-const mockUbsData: Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle'>[] = [
-  {
-    id: 1,
-    name: 'UBS - JD. UNIVERSO',
-    neighborhood: 'Jardim Universo',
-    distanceInKm: 1.2,
-    url: 'jd-universo',
-    isFavorite: false,
-  },
-  {
-    id: 2,
-    name: 'UBS - VILA SUISSA',
-    neighborhood: 'Vila Suissa',
-    distanceInKm: 2.5,
-    url: 'vila-suissa',
-    isFavorite: true,
-  },
-  {
-    id: 3,
-    name: 'UBS - ALTO DO IPIRANGA',
-    neighborhood: 'Alto do Ipiranga',
-    distanceInKm: 3.1,
-    url: 'alto-do-ipiranga',
-    isFavorite: false,
-  },
-  {
-    id: 4,
-    name: 'UBS - PONTE GRANDE',
-    neighborhood: 'Ponte Grande',
-    distanceInKm: 4.8,
-    url: 'ponte-grande',
-    isFavorite: false,
-  },
-]
+const ubsListData: Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle'>[] =
+  mockUbsData.map((ubs) => ({
+    id: ubs.id,
+    name: ubs.name,
+    neighborhood: ubs.neighborhood,
+    distanceInKm: ubs.distanceInKm,
+    isFavorite: ubs.isFavorite,
+  }))
 
 export default async function UbsScreen() {
   return (
@@ -64,7 +39,7 @@ export default async function UbsScreen() {
           </div>
         </CollapsibleFilter>
       </div>
-      <BvUbsList initialData={mockUbsData} />
+      <BvUbsList initialData={ubsListData} />
     </div>
   )
 }

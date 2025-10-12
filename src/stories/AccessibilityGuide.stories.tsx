@@ -196,7 +196,7 @@ const ValidationExample = () => {
       </p>
 
       {/* Exemplo com problemas intencionais para demonstração */}
-      <Image src="/placeholder.jpg" className="h-32 w-32 bg-gray-200" alt="Imagem de exemplo" />
+      <Image src="/placeholder.jpg" alt="Imagem de exemplo" width={80} height={80} />
       <button className="rounded bg-blue-500 px-4 py-2 text-white">Botão sem label</button>
 
       <div className="mt-4 rounded bg-gray-100 p-4">

@@ -73,7 +73,7 @@ export function Sidebar() {
         </nav>
 
         {shouldShowLogout && (
-          <footer className="border-t border-gray-200 pt-4">
+          <footer className="border-t border-gray-200 pt-4" aria-label="Ações da conta do usuário">
             <div aria-label={accessibility('sidebar.accountActions')}>
               <BvButton
                 title={common('logout')}

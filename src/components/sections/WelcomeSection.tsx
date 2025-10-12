@@ -27,6 +27,7 @@ const ROLE_ICONS: Record<string, JSX.Element> = {
       className="inline h-5 w-5"
       width={20}
       height={20}
+      style={{ width: 'auto', height: 'auto' }}
     />
   ),
   ADMIN: (
@@ -36,6 +37,7 @@ const ROLE_ICONS: Record<string, JSX.Element> = {
       className="inline h-5 w-5"
       width={20}
       height={20}
+      style={{ width: 'auto', height: 'auto' }}
     />
   ),
 }

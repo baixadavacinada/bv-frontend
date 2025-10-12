@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { BvUbsCard, UbsCardProps } from '@/components/index'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
@@ -11,9 +12,10 @@ interface UbsListProps {
 export function BvUbsList({ initialData }: UbsListProps) {
   useAccessibilityValidation({ enabled: true })
   const [ubsList, setUbsList] = useState(initialData)
+  const router = useRouter()
 
-  const handleMoreInfo = (name: string) => {
-    alert(`Carregando mais informações para: ${name}`)
+  const handleMoreInfo = (id: number) => {
+    router.push(`/ubs/${id}`)
   }
 
   const handleShare = (name: string) => {
@@ -36,7 +38,7 @@ export function BvUbsList({ initialData }: UbsListProps) {
           neighborhood={ubs.neighborhood}
           distanceInKm={ubs.distanceInKm}
           isFavorite={ubs.isFavorite}
-          onMoreInfo={() => handleMoreInfo(ubs.name)}
+          onMoreInfo={() => handleMoreInfo(ubs.id || 0)}
           onShare={() => handleShare(ubs.name)}
           onFavoriteToggle={() => handleFavoriteToggle(ubs.id || 0)}
         />

@@ -145,5 +145,5 @@ export interface CardAccessibilityProps {
 export const DEFAULT_A11Y_CONFIG = {
   enabled: process.env.NODE_ENV === 'development',
   delay: 500,
-  logLevel: 'warn' as const,
+  logLevel: 'info' as const, // Mudado para 'info' para reduzir warnings desnecessários
 }

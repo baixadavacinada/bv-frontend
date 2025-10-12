@@ -1,77 +1,71 @@
 'use client'
-import { BvButton, BvTitleHeader, UbsCardProps } from '@/components'
+import { BvTitleHeader } from '@/components'
 import { BvTitleIco } from '@/components/design/BvTitleIco'
 import CaledarIco from '@/assets/icons/calendar.svg'
 import SyringeIco from '@/assets/icons/syringe.svg'
-import React, { useState } from 'react'
+import React from 'react'
 import Tag from '@/components/design/Tag'
-import { Button } from '@/components/ui/button'
-import { Heart, Share2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-
-const vaccines = ['Influenza', 'Covid-19', 'Hepatite B', 'Sarampo', 'Febre Amarela', 'Tétano']
+import { mockUbsData } from '@/mock/ubs'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
 interface DetailUbsProps {
-  nameUbs: string
-  timeMedia?: string
+  params: Promise<{ id: string }>
 }
 
-export default function DetailUbs({
-  nameUbs = 'UBS - JD. UNIVERSO',
-  timeMedia = '30 minutos',
-}: DetailUbsProps) {
-  const [isFavorite, setIsFavorite] = useState(false)
+export default function DetailUbs({ params }: DetailUbsProps) {
+  const resolvedParams = React.use(params)
+  const ubsId = parseInt(resolvedParams.id)
+  const ubsData = mockUbsData.find((ubs) => ubs.id === ubsId)
 
-  const onShare = () => {
-    alert(`Compartilhando: ${nameUbs}`)
+  useAccessibilityValidation({ enabled: true })
+
+  if (!ubsData) {
+    return console.error('UBS não encontrada')
   }
 
-  const onFavoriteToggle = () => {
-    setIsFavorite(!isFavorite)
-  }
-
-  const handleIconClick = (e: React.MouseEvent<HTMLButtonElement>, action: () => void) => {
-    e.stopPropagation()
-    action()
-  }
-
+  const {
+    name,
+    neighborhood,
+    address = 'Endereço não informado',
+    phone = 'Telefone não informado',
+    openingHours = {
+      monday: '08:00 - 17:00',
+      tuesday: '08:00 - 17:00',
+      wednesday: '08:00 - 17:00',
+      thursday: '08:00 - 17:00',
+      friday: '08:00 - 17:00',
+      saturday: '08:00 - 12:00',
+      sunday: 'Fechado',
+    },
+    averageWaitTime = '30 minutos',
+    vaccines = ['Influenza', 'Covid-19', 'Hepatite B', 'Sarampo', 'Febre Amarela', 'Tétano'],
+  } = ubsData
   return (
     <div>
-      <BvTitleHeader title={`Sobre`} className="mb-8" />
+      <BvTitleHeader title={`Sobre ${name}`} className="mb-8" />
 
-      <div className="mb-4">
-        <h2 className="text-1xl font-bold">{nameUbs}</h2>
-      </div>
+      <dl className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div>
+          <dt className="font-semibold">Nome:</dt>
+          <dd className="border-b py-2">{name}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold">Bairro:</dt>
+          <dd className="border-b py-2">{neighborhood}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold">Endereço:</dt>
+          <dd className="border-b py-2">{address}</dd>
+        </div>
+      </dl>
 
-      <div className="mt-8 mb-8 flex justify-between">
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => handleIconClick(e, onShare)}
-            aria-label="Compartilhar"
-          >
-            <Share2 className="h-5 w-5 text-slate-500" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => handleIconClick(e, onFavoriteToggle)}
-            aria-label={isFavorite ? 'Desfavoritar' : 'Favoritar'}
-          >
-            <Heart
-              className={cn('h-5 w-5 text-slate-500', isFavorite && 'fill-red-500 text-red-500')}
-            />
-          </Button>
-        </div>
-        <div className="flex space-x-4">
-          <button
-            className="relative rounded-md bg-purple-700 px-6 py-2 font-medium text-white transition-colors hover:bg-purple-800"
-            onClick={() => alert('Avaliar UBS')}
-          >
-            Avaliar
-          </button>
-        </div>
+      <div className="mt-8 mb-8 flex justify-end">
+        <button
+          className="relative rounded-md bg-purple-700 px-6 py-2 font-medium text-white transition-colors hover:bg-purple-800"
+          onClick={() => alert('Avaliar UBS')}
+        >
+          Avaliar
+        </button>
       </div>
 
       <iframe
@@ -91,17 +85,20 @@ export default function DetailUbs({
         className="mt-8 mb-8"
       />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <p>Segunda: 08:00 - 17:00</p>
-        <p>Terça: 08:00 - 17:00</p>
-        <p>Quarta: 08:00 - 17:00</p>
-        <p>Quinta: 08:00 - 17:00</p>
-        <p>Sexta: 08:00 - 17:00</p>
-        <p>Sábado: 08:00 - 12:00</p>
-        <p>Domingo: Fechado</p>
+        <p>Segunda: {openingHours.monday}</p>
+        <p>Terça: {openingHours.tuesday}</p>
+        <p>Quarta: {openingHours.wednesday}</p>
+        <p>Quinta: {openingHours.thursday}</p>
+        <p>Sexta: {openingHours.friday}</p>
+        <p>Sábado: {openingHours.saturday}</p>
+        <p>Domingo: {openingHours.sunday}</p>
       </div>
       <div className="mt-4">
         <p>
-          Tempo de espera médio para atendimento: <strong>{timeMedia}</strong>
+          Tempo de espera médio para atendimento: <strong>{averageWaitTime}</strong>
+        </p>
+        <p>
+          Telefone: <strong>{phone}</strong>
         </p>
       </div>
 

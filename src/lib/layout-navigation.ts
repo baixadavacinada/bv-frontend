@@ -111,7 +111,6 @@ export const navbarActions: NavigationItem[] = [
     id: 'profile',
     icon: BsFillPersonFill,
     href: '/perfil',
-    showOnlyForRoles: ['AGENTE_SAUDE', 'ADMIN'],
   },
 ]
 

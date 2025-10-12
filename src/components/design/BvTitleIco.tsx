@@ -1,8 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { createElement } from 'react'
 import Image from 'next/image'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
@@ -15,11 +13,6 @@ interface PageHeaderProps {
 
 export function BvTitleIco({ ico, title, className, alt }: PageHeaderProps) {
   useAccessibilityValidation({ enabled: true })
-  const router = useRouter()
-
-  const handleBack = () => {
-    router.back()
-  }
 
   return (
     <div className={cn('flex items-center gap-4', className)}>

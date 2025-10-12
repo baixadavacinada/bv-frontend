@@ -100,7 +100,7 @@ export const BvButton = forwardRef<HTMLButtonElement, BvButtonProps>(
         ref={ref}
         {...props}
         // WCAG 2.1 - Estilização com foco em acessibilidade
-        className={` ${!!title ? 'min-w-40' : ' '} ${props.className || ''} transition-all duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2`.trim()}
+        className={` ${!!title ? 'min-w-40' : ' '} ${props.className || ''} focus-visible:ring-primary transition-all duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-offset-2`.trim()}
         // WCAG 2.1 - Atributos de acessibilidade auto-gerados
         aria-label={getAccessibleLabel()}
         aria-live={getAutoAriaLive()}
