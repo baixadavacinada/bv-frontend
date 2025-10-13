@@ -13,6 +13,7 @@ const ubsListData: Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteTogg
     neighborhood: ubs.neighborhood,
     distanceInKm: ubs.distanceInKm,
     isFavorite: ubs.isFavorite,
+    url: `/ubs/${ubs.id}`,
   }))
 
 export default async function UbsScreen() {
