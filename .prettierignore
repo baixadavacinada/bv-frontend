@@ -1,0 +1,12 @@
+# Ignore artifacts:
+build
+coverage
+.tmp
+**/.git
+**/.hg
+**/.pnp.*
+**/.svn
+**/node_modules
+**/temp
+**/docs/**
+tsconfig.json
