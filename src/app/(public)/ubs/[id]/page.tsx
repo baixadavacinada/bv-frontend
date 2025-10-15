@@ -42,7 +42,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   } = ubsData
   return (
     <div>
-      <BvTitleHeader title={`Sobre ${name}`} className="mb-8" />
+      <BvTitleHeader title={`SOBRE: ${name}`} className="mb-8" />
 
       <dl className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div>

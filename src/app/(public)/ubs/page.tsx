@@ -10,6 +10,7 @@ const ubsListData: Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteTogg
   mockUbsData.map((ubs) => ({
     id: ubs.id,
     name: ubs.name,
+    slug: ubs.id,
     neighborhood: ubs.neighborhood,
     distanceInKm: ubs.distanceInKm,
     isFavorite: ubs.isFavorite,
