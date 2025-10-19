@@ -2,7 +2,9 @@
 import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { BvButton } from './BvButton'
+import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
+import { AccessibilityLoadingIndicator, DEFAULT_A11Y_CONFIG } from '@/utils/accessibility'
 
 interface PageHeaderProps {
   title: string
@@ -10,26 +12,27 @@ interface PageHeaderProps {
 }
 
 export function BvTitleHeader({ title, className }: PageHeaderProps) {
-  useAccessibilityValidation({ enabled: true })
+  const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
+  const { announceToScreenReader } = useLiveRegion()
   const router = useRouter()
 
   const handleBack = () => {
+    announceToScreenReader(`Voltando para a página anterior`, 'polite')
     router.back()
   }
 
   return (
     <div className={cn('flex items-center gap-4', className)}>
-      <button
+      <BvButton
+        variant="ghost"
         onClick={handleBack}
-        className="hover:bg-accent focus:ring-ring rounded-md p-4 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-        aria-label="Voltar para a página anterior"
-      >
-        <ArrowLeft className="h-6 w-6 text-blue-600" />
-      </button>
+        size="lg"
+        leftIcon={<ArrowLeft className="text-primary size-10" />}
+        title={title}
+        className="hover:bg-accent focus:ring-ring rounded-md p-4 px-0 py-0 text-2xl font-bold focus:ring-2 focus:ring-offset-2 focus:outline-none"
+      />
 
-      <h1 className="text-2xl font-bold tracking-tight text-gray-800 dark:text-gray-100">
-        {title}
-      </h1>
+      <AccessibilityLoadingIndicator isValidating={isValidating} />
     </div>
   )
 }
