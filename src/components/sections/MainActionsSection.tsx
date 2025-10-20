@@ -44,7 +44,7 @@ export function MainActionsSection() {
       title: cards('vaccination.title'),
       description: cards('vaccination.description'),
       icon: RegisterIcon,
-      action: () => console.log('Navigate to vaccination'),
+      action: () => router.push('/vacinacao'),
       variant: 'stacked',
     },
     {
@@ -52,7 +52,7 @@ export function MainActionsSection() {
       title: cards('settings.title'),
       description: cards('settings.description'),
       icon: SettingsIcon,
-      action: () => console.log('Navigate to settings'),
+      action: () => router.push('/configuracoes'),
       variant: 'image-first',
       isFullWidth: true,
     },
@@ -61,7 +61,7 @@ export function MainActionsSection() {
       title: cards('guide.title'),
       description: cards('guide.description'),
       icon: SyringeIcon,
-      action: () => console.log('Navigate to guide'),
+      action: () => router.push('/cartilha-vacinas'),
       variant: 'stacked',
     },
     {
@@ -69,7 +69,7 @@ export function MainActionsSection() {
       title: cards('manageUsers.title'),
       description: cards('manageUsers.description'),
       icon: RegisterIcon,
-      action: () => console.log('Navigate to user management'),
+      action: () => router.push('/registro-morador'),
       variant: 'stacked',
     },
     {
@@ -77,7 +77,7 @@ export function MainActionsSection() {
       title: cards('alertSettings.title'),
       description: cards('alertSettings.description'),
       icon: AlertIcon,
-      action: () => console.log('Navigate to alert settings'),
+      action: () => router.push('/ajustes-alertas'),
       variant: 'stacked',
     },
   ]
