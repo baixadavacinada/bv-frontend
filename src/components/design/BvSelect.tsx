@@ -297,6 +297,7 @@ const BvSelect = ({
               aria-multiselectable="true"
               aria-label={`Opções de ${title || label || 'seleção'}`}
               className="max-h-[280px] overflow-x-hidden overflow-y-auto"
+              tabIndex={-1}
             >
               {groups ? groups.map(renderMultipleGroup) : options.map(renderMultipleOption)}
             </div>

@@ -5,7 +5,9 @@ import { DeleteModal } from '@/components/common/DeleteModal'
 import { ManagementTable } from '@/components/common/ManagementTable'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { PlusIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 interface Vaccine {
   id: string
@@ -15,6 +17,7 @@ interface Vaccine {
 
 export default function VaccineManagementPage() {
   useAccessibilityValidation()
+  const router = useRouter()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [vaccineToDelete, setVaccineToDelete] = useState<Vaccine | null>(null)
   const [vaccines, setVaccines] = useState<Vaccine[]>([
@@ -37,9 +40,12 @@ export default function VaccineManagementPage() {
     },
   ]
 
+  const handleAddVaccine = () => {
+    router.push('/gestao-vacinas/formulario')
+  }
+
   const handleEdit = (vaccine: Vaccine) => {
-    console.log('Editar vacina:', vaccine)
-    alert(`Editar: ${vaccine.name}`)
+    router.push(`/gestao-vacinas/formulario?id=${vaccine.id}`)
   }
 
   const handleDeleteClick = (vaccine: Vaccine) => {
@@ -51,6 +57,9 @@ export default function VaccineManagementPage() {
     if (vaccineToDelete) {
       setVaccines(vaccines.filter((v) => v.id !== vaccineToDelete.id))
       setVaccineToDelete(null)
+      toast.success('Vacina removida com sucesso')
+    } else {
+      toast.error('Erro ao remover vacina')
     }
   }
 
@@ -73,7 +82,7 @@ export default function VaccineManagementPage() {
           <BvButton
             title="Adicionar vacina"
             className="mt-8 w-full lg:w-min"
-            onClick={() => console.log('TODO: Adicionar vacina')}
+            onClick={handleAddVaccine}
             rightIcon={<PlusIcon />}
           />
 
