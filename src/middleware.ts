@@ -14,11 +14,14 @@ const publicRoutes = [
 // Rotas que requerem roles específicos
 const roleBasedRoutes = [
   { path: '/cadastro-usuario', allowedRoles: ['AGENTE_SAUDE', 'ADMIN'] },
-  { path: '/alertas', allowedRoles: ['AGENTE_SAUDE', 'ADMIN'] },
-  { path: '/gestao-ubs', allowedRoles: ['AGENTE_SAUDE', 'ADMIN'] },
-  { path: '/vacinacao/editar', allowedRoles: ['AGENTE_SAUDE', 'ADMIN'] },
-  { path: '/locais/editar', allowedRoles: ['AGENTE_SAUDE', 'ADMIN'] },
-  { path: '/horarios/editar', allowedRoles: ['AGENTE_SAUDE', 'ADMIN'] },
+  { path: '/gestao-ubs', allowedRoles: ['ADMIN'] },
+  { path: '/vacinacao/editar', allowedRoles: ['ADMIN'] },
+  { path: '/locais/editar', allowedRoles: ['ADMIN'] },
+  { path: '/horarios/editar', allowedRoles: ['ADMIN'] },
+  { path: '/gestao-usuarios', allowedRoles: ['ADMIN'] },
+  { path: '/ajustes-alertas', allowedRoles: ['ADMIN'] },
+  { path: '/materiais-educativos', allowedRoles: ['ADMIN'] },
+  { path: '/avaliacao', allowedRoles: ['ADMIN'] },
 ]
 
 const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/inicio'
