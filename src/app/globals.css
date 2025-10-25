@@ -67,7 +67,7 @@
   --foreground: #000000;
   --dark-text: #383838;
   --muted: #e2e2e2;
-  --muted-foreground: #727272;
+  --muted-foreground: #555555;
   /* Secondary */
   --secondary: #e2e2e2;
   --secondary-foreground: #000000;
@@ -111,7 +111,7 @@
   --secondary: #383838;
   --secondary-foreground: #ffffff;
   --muted: #383838;
-  --muted-foreground: #727272;
+  --muted-foreground: #a1a1aa;
   --accent: #383838;
   --accent-foreground: #ffffff;
   --destructive: #eb3504;
@@ -140,5 +140,8 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  .text-gray-500 {
+    @apply text-gray-700;
   }
 }
