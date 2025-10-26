@@ -6,6 +6,7 @@ import { mockGoogleLogin, setClientAuthCookies } from '@/mock/auth'
 import { BvButton } from '@/components'
 import { AccessibilityLoadingIndicator, DEFAULT_A11Y_CONFIG } from '@/utils/accessibility'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -41,7 +42,24 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto mt-8 max-w-md">
+    <div className="mx-auto mt-8 max-w-md gap-3">
+      <div className="mb-5">
+        <Image
+          src="/criola-logo.png"
+          alt="Logo Criola"
+          width={80}
+          height={80}
+          className="mx-auto mb-4"
+          style={{
+            width: 'auto',
+            height: 'auto',
+          }}
+        />
+        <h1 className="mb-6 text-center text-3xl font-bold">Baixada Vacinada</h1>
+        <p className="mb-6 text-center text-2xl font-medium">
+          Bem-vindo(a) à nossa plataforma de vacinação!
+        </p>
+      </div>
       <form onSubmit={handleLogin} className="rounded-lg bg-white p-6 shadow-md">
         <h2 className="mb-4 text-2xl font-bold">Login</h2>
 

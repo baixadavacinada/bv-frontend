@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@radix-ui/react-checkbox'
 import { mockUbsData } from '@/mock/ubs'
-
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
@@ -97,6 +96,7 @@ export default function UbsScreen() {
     setIsCreateModalOpen(false)
   }
 
+export default async function UbsScreen() {
   return (
     <>
       <div>
