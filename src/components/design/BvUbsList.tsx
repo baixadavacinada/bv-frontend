@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { BvUbsCard, UbsCardProps } from '@/components/index'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { toast } from 'sonner'
 
 interface UbsListProps {
   data: Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle' | 'onDelete'>[]
@@ -19,7 +20,7 @@ export function BvUbsList({ data, onDeleteRequest, onFavoriteToggleRequest }: Ub
   }
 
   const handleShare = (name: string) => {
-    alert(`Compartilhando: ${name}`)
+    toast.info(`Compartilhando "${name}"...`)
   }
 
   return (
