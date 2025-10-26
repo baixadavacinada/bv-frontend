@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@radix-ui/react-checkbox'
 import { mockUbsData } from '@/mock/ubs'
+
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
@@ -55,11 +56,6 @@ export default function UbsScreen() {
     setUbsList((currentList) =>
       currentList.map((ubs) => (ubs.id === id ? { ...ubs, isFavorite: !ubs.isFavorite } : ubs)),
     )
-    toast.success(
-      !ubsList.find((ubs) => ubs.id === id)?.isFavorite
-        ? `"${ubsList.find((ubs) => ubs.id === id)?.name}" adicionada aos favoritos!`
-        : `"${ubsList.find((ubs) => ubs.id === id)?.name}" removida dos favoritos.`,
-    )
   }
 
   const handleDeleteRequest = (id: number) => {
@@ -95,7 +91,6 @@ export default function UbsScreen() {
     setNewUbsNeighborhood('')
     setIsCreateModalOpen(false)
   }
-
   return (
     <>
       <div>
