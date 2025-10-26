@@ -96,7 +96,6 @@ export default function UbsScreen() {
     setIsCreateModalOpen(false)
   }
 
-export default async function UbsScreen() {
   return (
     <>
       <div>
