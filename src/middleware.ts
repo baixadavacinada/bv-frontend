@@ -5,6 +5,7 @@ import type { NextRequest } from 'next/server'
 const publicRoutes = [
   { path: '/login', whenAuthenticated: 'redirect' },
   { path: '/cadastro', whenAuthenticated: 'redirect' },
+  { path: '/perfil', whenAuthenticated: 'redirect' },
   { path: '/inicio', whenAuthenticated: 'next' },
   { path: '/ubs', whenAuthenticated: 'next' },
   { path: '/configuracao', whenAuthenticated: 'next' },
@@ -19,7 +20,10 @@ const roleBasedRoutes = [
   { path: '/locais/editar', allowedRoles: ['ADMIN'] },
   { path: '/horarios/editar', allowedRoles: ['ADMIN'] },
   { path: '/gestao-usuarios', allowedRoles: ['ADMIN'] },
+  { path: '/gestao-usuarios/formulario', allowedRoles: ['ADMIN'] },
   { path: '/ajustes-alertas', allowedRoles: ['ADMIN'] },
+  { path: '/gestao-vacinas', allowedRoles: ['ADMIN'] },
+  { path: '/gestao-vacinas/formulario', allowedRoles: ['ADMIN'] },
   { path: '/materiais-educativos', allowedRoles: ['ADMIN'] },
   { path: '/avaliacao', allowedRoles: ['ADMIN'] },
 ]
