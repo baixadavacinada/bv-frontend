@@ -96,9 +96,7 @@ export function BvUbsCard({
             onClick={(e) => handleIconClick(e, onFavoriteToggle)}
             aria-label={isFavorite ? 'Desfavoritar' : 'Favoritar'}
           >
-            <Heart
-              className={cn('h-5 w-5 text-slate-500', isFavorite && 'fill-red-500 text-red-500')}
-            />
+            <Heart className={cn('h-6 w-6', isFavorite && 'fill-purple-700 text-purple-700')} />
           </Button>
         </div>
       </CardFooter>
