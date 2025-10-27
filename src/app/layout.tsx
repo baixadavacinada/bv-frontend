@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import './globals.css'
 import { cn } from '@/lib/utils'
+import { Toaster } from 'sonner'
 
 const barlow = Barlow({
   subsets: ['latin'],
@@ -26,6 +27,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <NextIntlClientProvider messages={messages}>
           <div>{children}</div>
         </NextIntlClientProvider>
+        <Toaster />
       </body>
     </html>
   )

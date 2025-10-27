@@ -87,12 +87,32 @@
       "description": "Precisa ajustar algo? Aqui você pode configurar notificações, atualizar seus dados ou falar com a gente."
     },
     "alertSettings": {
-      "title": "Ajustes de alertas",
-      "description": "Configure as notificações e alertas que os usuários irão receber."
+      "title": "Ajustes de notificações",
+      "description": "Gerencie respostas às mensagens enviadas ao suporte e configure sua conta."
     },
     "manageUsers": {
       "title": "Registro por morador",
       "description": "Visualize ou atualize o registro de vacinação por morador."
+    },
+    "ubsManagement": {
+      "title": "Gestão de UBSs",
+      "description": "Adicione novas UBSs, visualize informações e localização das unidades e atualize dados sempre que necessário."
+    },
+    "userManagement": {
+      "title": "Gestão de usuários",
+      "description": "Visualize e adicione usuários, valide alterações na carteira de vacinação dos moradores e edite informações."
+    },
+    "vaccineManagement": {
+      "title": "Gestão de vacinas",
+      "description": "Adicione vacinas, atualize dados de segundas doses e acompanhe o relatório de doses aplicadas."
+    },
+    "educationalMaterials": {
+      "title": "Materiais educativos",
+      "description": "Edite a Cartilha de Vacinas e adicione conteúdos educativos para os usuários da aplicação."
+    },
+    "assessments": {
+      "title": "Avaliações",
+      "description": "Visualize avaliações dos usuários sobre a aplicação e exporte os dados para análise."
     }
   }
 }
