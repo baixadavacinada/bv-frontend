@@ -7,6 +7,8 @@ interface BvButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElemen
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
   isLoading?: boolean
+  size?: 'default' | 'sm' | 'lg' | 'icon' | 'icon-sm' | 'icon-lg' | null | undefined
+  disabled?: boolean
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'transparent' | 'destructive'
   /**
    * WCAG 2.1 - Critério 4.1.2 (Nome, Função, Valor)
@@ -36,6 +38,7 @@ export const BvButton = forwardRef<HTMLButtonElement, BvButtonProps>(
       'aria-label': ariaLabel,
       disabled,
       variant = 'ghost',
+      size,
       ...props
     },
     ref,
@@ -128,6 +131,7 @@ export const BvButton = forwardRef<HTMLButtonElement, BvButtonProps>(
         data-loading={isLoading}
         data-testid="bv-button"
         variant={variant}
+        size={size}
       >
         <div className="flex items-center justify-between gap-2">
           {isLoading ? (
