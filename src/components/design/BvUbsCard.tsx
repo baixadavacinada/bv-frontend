@@ -1,11 +1,11 @@
 import { cn } from '@/lib/utils'
-import { Hospital, Home, Compass, ArrowRight, Share2, Heart, X } from 'lucide-react'
+import { Hospital, Home, Compass, ArrowRight, Share2, Heart } from 'lucide-react'
 import React from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 
 export interface UbsCardProps {
-  id: number
+  id?: number
   name: string
   neighborhood: string
   distanceInKm: number
@@ -14,7 +14,6 @@ export interface UbsCardProps {
   onMoreInfo: () => void
   onShare: () => void
   onFavoriteToggle: () => void
-  onDelete: () => void // <<< MUDANÇA AQUI: ADICIONA 'onDelete'
   className?: string
 }
 
@@ -27,7 +26,6 @@ export function BvUbsCard({
   onMoreInfo,
   onShare,
   onFavoriteToggle,
-  onDelete,
   className,
 }: UbsCardProps) {
   const handleIconClick = (e: React.MouseEvent<HTMLButtonElement>, action: () => void) => {
@@ -38,26 +36,16 @@ export function BvUbsCard({
   return (
     <Card
       className={cn(
-        'relative flex flex-col justify-between rounded-xl bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-slate-900',
+        'flex flex-col justify-between rounded-xl bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-slate-900',
         className,
       )}
     >
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={(e) => handleIconClick(e, onDelete)}
-        aria-label={`Excluir ${name}`}
-        className="absolute top-2 right-2 h-8 w-8 text-slate-400 hover:bg-red-100 hover:text-red-600"
-      >
-        <X className="h-4 w-4" />
-      </Button>
-
       <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
         <div className="rounded-lg bg-slate-100 p-3 dark:bg-slate-800">
           <Hospital className="h-6 w-6 text-slate-600 dark:text-slate-300" />
         </div>
         <a href={`/ubs/${slug}`}>
-          <CardTitle className="pr-8 text-lg font-bold">{name}</CardTitle>
+          <CardTitle className="text-lg font-bold">{name}</CardTitle>
         </a>
       </CardHeader>
 
@@ -96,7 +84,9 @@ export function BvUbsCard({
             onClick={(e) => handleIconClick(e, onFavoriteToggle)}
             aria-label={isFavorite ? 'Desfavoritar' : 'Favoritar'}
           >
-            <Heart className={cn('h-6 w-6', isFavorite && 'fill-purple-700 text-purple-700')} />
+            <Heart
+              className={cn('h-5 w-5 text-slate-500', isFavorite && 'fill-red-500 text-red-500')}
+            />
           </Button>
         </div>
       </CardFooter>
