@@ -36,6 +36,7 @@ type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteTogg
 const initialUbsListData: UbsListData[] = mockUbsData.map((ubs) => ({
   id: ubs.id,
   slug: ubs.id,
+  component: 'public',
   name: ubs.name,
   neighborhood: ubs.neighborhood,
   distanceInKm: Math.floor(Math.random() * 20) + 1,
@@ -84,6 +85,7 @@ export default function UbsScreen() {
     const newId = Math.max(...ubsList.map((ubs) => ubs?.id), 0) + 1
     const newUbs: UbsListData = {
       id: newId,
+      component: 'public',
       slug: newId,
       name: newUbsName,
       neighborhood: newUbsNeighborhood,
@@ -121,89 +123,14 @@ export default function UbsScreen() {
           </CollapsibleFilter>
         </div>
 
-        <div className="mb-8 flex justify-end">
-          <Button className="w-full" onClick={() => setIsCreateModalOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar Nova UBS
-          </Button>
-        </div>
-
         <BvUbsList
           data={ubsList}
+          path="ubs"
+          component="public"
           onDeleteRequest={handleDeleteRequest}
           onFavoriteToggleRequest={handleFavoriteToggle}
         />
       </div>
-
-      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Adicionar Nova UBS</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleCreateSubmit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Nome
-                </Label>
-                <Input
-                  id="name"
-                  value={newUbsName}
-                  onChange={(e) => setNewUbsName(e.target.value)}
-                  className="col-span-3"
-                  placeholder="Ex: UBS Jardim Esperança"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="neighborhood" className="text-right">
-                  Bairro
-                </Label>
-                <Input
-                  id="neighborhood"
-                  value={newUbsNeighborhood}
-                  onChange={(e) => setNewUbsNeighborhood(e.target.value)}
-                  className="col-span-3"
-                  placeholder="Ex: Vila Oliveira"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button type="button" variant="outline">
-                  Cancelar
-                </Button>
-              </DialogClose>
-              <Button type="submit">Salvar UBS</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      <AlertDialog
-        open={deleteAlert.isOpen}
-        onOpenChange={(isOpen) => setDeleteAlert({ ...deleteAlert, isOpen })}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso removerá permanentemente a UBS &quot;
-              {ubsList.find((ubs) => ubs.id === deleteAlert.id)?.name}&quot; da lista.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteAlert({ isOpen: false, id: null })}>
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Sim, excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   )
 }

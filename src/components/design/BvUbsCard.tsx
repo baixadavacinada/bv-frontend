@@ -11,6 +11,7 @@ export interface UbsCardProps {
   distanceInKm: number
   slug: string | number
   isFavorite?: boolean
+  component: 'private' | 'public'
   onMoreInfo: () => void
   onShare: () => void
   onFavoriteToggle: () => void
@@ -23,6 +24,7 @@ export function BvUbsCard({
   neighborhood,
   distanceInKm,
   slug,
+  component,
   isFavorite = false,
   onMoreInfo,
   onShare,
@@ -45,18 +47,18 @@ export function BvUbsCard({
       <Button
         variant="ghost"
         size="icon"
-        onClick={(e) => handleIconClick(e, onDelete)}
+        onClick={component === 'private' ? (e) => handleIconClick(e, onDelete) : undefined}
         aria-label={`Excluir ${name}`}
         className="absolute top-2 right-2 h-8 w-8 text-slate-400 hover:bg-red-100 hover:text-red-600"
       >
-        <X className="h-4 w-4" />
+        {component === 'private' && <X className="h-4 w-4" />}
       </Button>
 
       <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
         <div className="rounded-lg bg-slate-100 p-3 dark:bg-slate-800">
           <Hospital className="h-6 w-6 text-slate-600 dark:text-slate-300" />
         </div>
-        <a href={`/ubs/${slug}`}>
+        <a onClick={onMoreInfo} className="flex-1">
           <CardTitle className="pr-8 text-lg font-bold">{name}</CardTitle>
         </a>
       </CardHeader>

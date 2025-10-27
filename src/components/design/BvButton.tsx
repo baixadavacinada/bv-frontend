@@ -37,7 +37,7 @@ export const BvButton = forwardRef<HTMLButtonElement, BvButtonProps>(
       isLoading = false,
       'aria-label': ariaLabel,
       disabled,
-      variant = 'ghost',
+      variant,
       size,
       ...props
     },

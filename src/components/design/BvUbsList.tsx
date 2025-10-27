@@ -7,21 +7,28 @@ import { toast } from 'sonner'
 
 interface UbsListProps {
   data: Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle' | 'onDelete'>[]
+  path: string
+  component: 'private' | 'public'
   onDeleteRequest: (id: number) => void
   onFavoriteToggleRequest: (id: number) => void
 }
 
-export function BvUbsList({ data, onDeleteRequest, onFavoriteToggleRequest }: UbsListProps) {
+export function BvUbsList({
+  data,
+  path,
+  component,
+  onDeleteRequest,
+  onFavoriteToggleRequest,
+}: UbsListProps) {
   useAccessibilityValidation({ enabled: true })
   const router = useRouter()
 
-  const handleMoreInfo = (id: number) => {
-    router.push(`/ubs/${id}`)
+  const handleMoreInfo = (slug: number, path: string) => {
+    router.push(`${path}/${slug}`)
   }
 
   const handleShare = (name: string) => {
     toast.info(`Compartilhando "${name}"...`)
-
   }
 
   return (
@@ -31,11 +38,12 @@ export function BvUbsList({ data, onDeleteRequest, onFavoriteToggleRequest }: Ub
           key={ubs.id}
           id={ubs.id}
           name={ubs.name}
+          component={component}
           slug={ubs.slug}
           neighborhood={ubs.neighborhood}
           distanceInKm={ubs.distanceInKm}
           isFavorite={ubs.isFavorite}
-          onMoreInfo={() => handleMoreInfo(ubs.id || 0)}
+          onMoreInfo={() => handleMoreInfo(ubs.id || 0, path)}
           onShare={() => handleShare(ubs.name)}
           onFavoriteToggle={() => onFavoriteToggleRequest(ubs.id || 0)}
           onDelete={() => onDeleteRequest(ubs.id || 0)}

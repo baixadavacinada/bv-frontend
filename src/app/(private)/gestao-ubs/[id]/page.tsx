@@ -7,9 +7,21 @@ import React, { useState } from 'react'
 import { mockUbsData } from '@/mock/ubs'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { Button } from '@/components/ui/button'
-import { Syringe, Heart, Share2 } from 'lucide-react'
+import { Edit, Plus, Syringe, X, Heart, Share2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { toast } from 'sonner'
+import { BvAddVaccineModal } from '@/components/design/BvAddVaccineModal'
+import { BvHoursModal } from '@/components/design/BvHoursModal'
+import { Toaster, toast } from 'sonner'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 interface DetailUbsProps {
   params: Promise<{ id: string }>
@@ -53,6 +65,37 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     averageWaitTime = '30 minutos',
     vaccines = ['Influenza', 'Covid-19', 'Hepatite B', 'Sarampo', 'Febre Amarela', 'Tétano'],
   } = ubsData
+  const handleSaveHours = (newHours: typeof openingHours, newWaitTime: string) => {
+    setUbsData((prev) =>
+      prev ? { ...prev, openingHours: newHours, averageWaitTime: newWaitTime } : undefined,
+    )
+    setIsHoursModalOpen(false)
+    toast.success('Horários atualizados com sucesso!')
+  }
+
+  const handleAddVaccine = (newVaccineName: string) => {
+    if (newVaccineName && !vaccines.includes(newVaccineName)) {
+      setUbsData((prev) =>
+        prev ? { ...prev, vaccines: [...vaccines, newVaccineName] } : undefined,
+      )
+      toast.success(`${newVaccineName} foi adicionada.`)
+    }
+    setIsVaccineModalOpen(false)
+  }
+
+  const handleRemoveRequest = (vaccineName: string) => {
+    setDeleteAlert({ isOpen: true, vaccineName: vaccineName })
+  }
+
+  const handleRemoveVaccine = () => {
+    const vaccineToRemove = deleteAlert.vaccineName
+    if (!vaccineToRemove) return
+    setUbsData((prev) =>
+      prev ? { ...prev, vaccines: vaccines.filter((v) => v !== vaccineToRemove) } : undefined,
+    )
+    toast.error(`${vaccineToRemove} foi removida da lista.`)
+    setDeleteAlert({ isOpen: false, vaccineName: null })
+  }
 
   const handleFavoriteToggle = () => {
     setUbsData((prev) =>
@@ -128,6 +171,18 @@ export default function DetailUbs({ params }: DetailUbsProps) {
           referrerPolicy="no-referrer-when-downgrade"
         ></iframe>
 
+        <div className="mt-8 mb-8 flex w-full items-center justify-between">
+          <Button
+            className="w-full"
+            variant="default"
+            size="sm"
+            onClick={() => setIsHoursModalOpen(true)}
+          >
+            <Edit className="mr-2 h-4 w-4" />
+            Editar
+          </Button>
+        </div>
+
         <BvTitleIco
           alt="Icone de Calendario"
           ico={CaledarIco}
@@ -152,6 +207,18 @@ export default function DetailUbs({ params }: DetailUbsProps) {
           </p>
         </div>
 
+        <div className="mt-8 mb-8 flex w-full items-center justify-between">
+          <Button
+            className="w-full"
+            variant="default"
+            size="sm"
+            onClick={() => setIsVaccineModalOpen(true)}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Adicionar vacina
+          </Button>
+        </div>
+
         <BvTitleIco
           alt="Icone de Seringa"
           ico={SyringeIco}
@@ -170,10 +237,14 @@ export default function DetailUbs({ params }: DetailUbsProps) {
                 <div className="flex items-center justify-between">
                   <span className="text-base font-semibold">{vaccine}</span>
                   <button
+                    onClick={() => handleRemoveRequest(vaccine)}
                     className="p-0 text-white/70 transition-colors hover:text-white"
                     aria-label={`Remover ${vaccine}`}
-                  ></button>
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
+                <span className="block text-sm opacity-90">Lote: 000000</span>
               </div>
             </div>
           ))}
@@ -184,6 +255,48 @@ export default function DetailUbs({ params }: DetailUbsProps) {
             Confira a cartilha de vacinas para saber quais vacinas são indicadas para cada idade.
           </p>
         </div>
+
+        <BvHoursModal
+          isOpen={isHoursModalOpen}
+          setIsOpen={setIsHoursModalOpen}
+          currentHours={openingHours}
+          currentWaitTime={averageWaitTime}
+          onSave={handleSaveHours}
+        />
+        <BvAddVaccineModal
+          isOpen={isVaccineModalOpen}
+          setIsOpen={setIsVaccineModalOpen}
+          onAdd={handleAddVaccine}
+          existingVaccines={vaccines}
+        />
+
+        <AlertDialog
+          open={deleteAlert.isOpen}
+          onOpenChange={(isOpen) => setDeleteAlert({ ...deleteAlert, isOpen })}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta ação não pode ser desfeita. Isso removerá permanentemente a vacina &quot;
+                {deleteAlert.vaccineName}&quot; da lista de vacinas disponíveis nesta UBS.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                onClick={() => setDeleteAlert({ isOpen: false, vaccineName: null })}
+              >
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleRemoveVaccine}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Sim, excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </>
   )
