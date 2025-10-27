@@ -3,7 +3,6 @@
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
 import { BvButton } from '@/components'
 import { loginWithGoogle } from '@/lib/auth-service'
 import { useAuth } from '@/hooks/use-firebase-auth'
@@ -18,7 +17,7 @@ import {
 } from '@/components/ui/card'
 
 export default function Page() {
-  const DoctorIllustration = '/doctor-illustration.svg'
+  const DoctorIllustration = '/img-inicio.svg'
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -95,7 +94,7 @@ export default function Page() {
 
               <p className="text-sm text-slate-500 dark:text-slate-400">Como deseja acessar?</p>
 
-              <div className="flex w-full flex-col space-y-2 sm:flex-col sm:space-y-2 sm:space-x-0 lg:flex-col lg:space-y-2 lg:space-x-0">
+              <div className="mt-3 flex w-full flex-col space-y-2 sm:flex-col sm:space-y-2 sm:space-x-0 lg:flex-col lg:space-y-3 lg:space-x-0">
                 <BvButton
                   variant="default"
                   title={isLoading ? 'Entrando...' : 'Entrar com o Google'}
@@ -124,14 +123,13 @@ export default function Page() {
                   }
                 />
 
-                <Button
+                <BvButton
                   variant="outline"
                   className="w-full"
                   onClick={handleOtherForms}
                   disabled={isLoading}
-                >
-                  Outras formas
-                </Button>
+                  title="Outras formas"
+                />
               </div>
             </CardFooter>
           </div>

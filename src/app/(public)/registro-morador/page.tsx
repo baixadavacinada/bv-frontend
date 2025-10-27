@@ -2,13 +2,15 @@
 
 import React from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { RegisterForm } from '@/components/auth/RegisterForm'
 import { AccessibilityLoadingIndicator, DEFAULT_A11Y_CONFIG } from '@/utils/accessibility'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { BvButton } from '@/components'
+import { useRouter } from 'next/navigation'
 
 export default function RegisterPage() {
   const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
+  const router = useRouter()
 
   return (
     <div className="mx-auto mt-8 max-w-md">
@@ -36,12 +38,12 @@ export default function RegisterPage() {
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-600">
             Já tem uma conta?{' '}
-            <Link
-              href="/login"
-              className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
-            >
-              Faça login aqui
-            </Link>
+            <BvButton
+              onClick={() => router.push('/login')}
+              className="font-mediu hover:underline"
+              variant="link"
+              title="Faça login aqui"
+            />
           </p>
         </div>
       </div>

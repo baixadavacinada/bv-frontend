@@ -2,18 +2,19 @@
 
 import React, { useState, useEffect, Suspense } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { LoginForm } from '@/components/auth/LoginForm'
 import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm'
 import { AccessibilityLoadingIndicator, DEFAULT_A11Y_CONFIG } from '@/utils/accessibility'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { BvButton } from '@/components'
 
 function LoginPageContent() {
   const [showResetPassword, setShowResetPassword] = useState(false)
   const [showWelcomeMessage, setShowWelcomeMessage] = useState(false)
   const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
   const searchParams = useSearchParams()
+  const router = useRouter()
 
   useEffect(() => {
     // Verifica se veio da página de registro
@@ -101,22 +102,22 @@ function LoginPageContent() {
         <LoginForm />
 
         <div className="mt-6 space-y-4 text-center text-sm">
-          <button
+          <BvButton
             onClick={() => setShowResetPassword(true)}
-            className="text-blue-600 hover:text-blue-800 hover:underline"
-          >
-            Esqueceu sua senha?
-          </button>
+            className="text-primary"
+            variant="ghost"
+            title="Esqueceu sua senha?"
+          />
 
           <div className="border-t pt-4">
             <p className="text-gray-600">
               Não tem uma conta?{' '}
-              <Link
-                href="/registro-morador"
-                className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
-              >
-                Cadastre-se aqui
-              </Link>
+              <BvButton
+                onClick={() => router.push('/registro-morador')}
+                className="text-primary font-medium hover:underline"
+                variant="link"
+                title="Cadastre-se aqui"
+              />
             </p>
           </div>
         </div>
