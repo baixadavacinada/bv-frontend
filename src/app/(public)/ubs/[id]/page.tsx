@@ -297,8 +297,6 @@ export default function DetailUbs({ params }: DetailUbsProps) {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-
-        <Toaster richColors position="top-right" />
       </div>
     </>
   )

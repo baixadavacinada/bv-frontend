@@ -199,8 +199,6 @@ export default function UbsScreen() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <Toaster richColors position="top-right" />
     </>
   )
 }
