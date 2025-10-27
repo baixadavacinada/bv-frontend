@@ -7,7 +7,7 @@ interface BvButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElemen
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
   isLoading?: boolean
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'transparent'
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'transparent' | 'destructive'
   /**
    * WCAG 2.1 - Critério 4.1.2 (Nome, Função, Valor)
    * Descrição acessível da ação do botão para leitores de tela
