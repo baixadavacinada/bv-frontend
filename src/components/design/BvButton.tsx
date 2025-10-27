@@ -1,8 +1,8 @@
-import { Button, ButtonProps } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { forwardRef } from 'react'
 
-interface BvButtonProps extends Omit<ButtonProps, 'aria-label'> {
+interface BvButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'aria-label'> {
   title?: string
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
