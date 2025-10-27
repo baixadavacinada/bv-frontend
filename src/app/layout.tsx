@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import './globals.css'
 import { cn } from '@/lib/utils'
+import { AuthProvider } from '@/hooks/use-firebase-auth'
 
 const barlow = Barlow({
   subsets: ['latin'],
@@ -24,7 +25,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={cn(barlow.className, 'bg-background antialiased dark:bg-slate-900')}>
         <NextIntlClientProvider messages={messages}>
-          <div>{children}</div>
+          <AuthProvider>
+            <div>{children}</div>
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

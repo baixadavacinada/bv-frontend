@@ -1,49 +1,63 @@
 'use client'
 
-import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { mockGoogleLogin, setClientAuthCookies } from '@/mock/auth'
-import { BvButton } from '@/components'
+import React, { useState, useEffect, Suspense } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { LoginForm } from '@/components/auth/LoginForm'
+import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm'
 import { AccessibilityLoadingIndicator, DEFAULT_A11Y_CONFIG } from '@/utils/accessibility'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
-import Image from 'next/image'
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-  const router = useRouter()
-
+function LoginPageContent() {
+  const [showResetPassword, setShowResetPassword] = useState(false)
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState(false)
   const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
+  const searchParams = useSearchParams()
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError('')
-
-    try {
-      const result = await mockGoogleLogin(email)
-
-      if (result) {
-        setClientAuthCookies(result.token, result.user)
-        router.push('/inicio')
-        router.refresh()
-      } else {
-        setError(
-          'Email não encontrado. Tente: joao.agente@saude.gov.br ou maria.admin@saude.gov.br',
-        )
-      }
-    } catch (err) {
-      console.error('Erro no login:', err)
-      setError('Erro ao fazer login')
-    } finally {
-      setIsLoading(false)
+  useEffect(() => {
+    // Verifica se veio da página de registro
+    if (searchParams.get('registered') === 'true') {
+      setShowWelcomeMessage(true)
+      // Remove a mensagem após 10 segundos
+      setTimeout(() => setShowWelcomeMessage(false), 10000)
     }
+  }, [searchParams])
+
+  if (showResetPassword) {
+    return (
+      <div className="mx-auto mt-8 max-w-md">
+        <div className="mb-8 text-center">
+          <Image
+            src="/criola-logo.png"
+            alt="Logo Criola"
+            width={80}
+            height={80}
+            className="mx-auto mb-4"
+            style={{
+              width: 'auto',
+              height: 'auto',
+            }}
+          />
+          <h1 className="text-2xl font-bold text-gray-900">Baixada Vacinada</h1>
+        </div>
+
+        <div className="rounded-lg bg-white p-6 shadow-md">
+          <ResetPasswordForm onBack={() => setShowResetPassword(false)} />
+        </div>
+
+        <AccessibilityLoadingIndicator
+          isLoading={false}
+          isValidating={isValidating}
+          loadingMessage="Carregando formulário"
+        />
+      </div>
+    )
   }
 
   return (
-    <div className="mx-auto mt-8 max-w-md gap-3">
-      <div className="mb-5">
+    <div className="mx-auto mt-8 max-w-md">
+      <div className="mb-8 text-center">
         <Image
           src="/criola-logo.png"
           alt="Logo Criola"
@@ -55,53 +69,72 @@ export default function LoginPage() {
             height: 'auto',
           }}
         />
-        <h1 className="mb-6 text-center text-3xl font-bold">Baixada Vacinada</h1>
-        <p className="mb-6 text-center text-2xl font-medium">
-          Bem-vindo(a) à nossa plataforma de vacinação!
-        </p>
+        <h1 className="mb-4 text-3xl font-bold text-gray-900">Baixada Vacinada</h1>
+        <p className="text-lg text-gray-600">Bem-vindo(a) à nossa plataforma de vacinação!</p>
       </div>
-      <form onSubmit={handleLogin} className="rounded-lg bg-white p-6 shadow-md">
-        <h2 className="mb-4 text-2xl font-bold">Login</h2>
 
-        {error && <div className="mb-4 rounded bg-red-100 p-3 text-red-700">{error}</div>}
-
-        <div className="mb-4">
-          <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            required
-          />
+      {showWelcomeMessage && (
+        <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4 text-green-700">
+          <div className="flex items-center gap-2">
+            <svg
+              className="h-5 w-5 text-green-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            <p className="font-medium">Conta criada com sucesso!</p>
+          </div>
+          <p className="mt-1 text-sm">Agora você pode fazer login com suas credenciais.</p>
         </div>
+      )}
 
-        <BvButton
-          type="submit"
-          className="w-full"
-          aria-label="Fazer login"
-          disabled={isLoading}
-          title={isLoading ? 'Carregando...' : 'Login'}
-        />
+      <div className="rounded-lg bg-white p-6 shadow-md">
+        <h2 className="mb-6 text-2xl font-bold text-gray-900">Entrar na sua conta</h2>
 
-        <div className="mt-4 rounded bg-gray-50 p-3 text-sm">
-          <p className="mb-2 font-medium">Emails de teste:</p>
-          <ul className="space-y-1 text-gray-600">
-            <li>• joao.agente@saude.gov.br (AGENTE_SAUDE)</li>
-            <li>• maria.admin@saude.gov.br (ADMIN)</li>
-            <li>• carlos.morador@email.com (MORADOR)</li>
-          </ul>
+        <LoginForm />
+
+        <div className="mt-6 space-y-4 text-center text-sm">
+          <button
+            onClick={() => setShowResetPassword(true)}
+            className="text-blue-600 hover:text-blue-800 hover:underline"
+          >
+            Esqueceu sua senha?
+          </button>
+
+          <div className="border-t pt-4">
+            <p className="text-gray-600">
+              Não tem uma conta?{' '}
+              <Link
+                href="/registro-morador"
+                className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                Cadastre-se aqui
+              </Link>
+            </p>
+          </div>
         </div>
+      </div>
 
-        <AccessibilityLoadingIndicator
-          isLoading={isLoading}
-          isValidating={isValidating}
-          loadingMessage="Processando login"
-        />
-      </form>
+      <AccessibilityLoadingIndicator
+        isLoading={false}
+        isValidating={isValidating}
+        loadingMessage="Carregando página"
+      />
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <LoginPageContent />
+    </Suspense>
   )
 }

@@ -48,7 +48,7 @@ export const sidebarNavigation: NavigationItem[] = [
     label: 'Registro de vacinas',
     href: '/vacinacao',
     requiredPermission: 'vaccination',
-    hideForRoles: ['AGENTE_SAUDE'],
+    hideForRoles: ['agent'],
   },
   {
     id: 'user-register',
@@ -56,7 +56,7 @@ export const sidebarNavigation: NavigationItem[] = [
     label: 'Registro por morador',
     href: '/registro-morador',
     requiredPermission: 'user-register',
-    hideForRoles: ['MORADOR'],
+    hideForRoles: ['public'],
   },
   {
     id: 'alert-settings',
@@ -64,7 +64,7 @@ export const sidebarNavigation: NavigationItem[] = [
     label: 'Ajustes de alertas',
     href: '/ajustes-alertas',
     requiredPermission: 'alert-settings',
-    hideForRoles: ['MORADOR'],
+    hideForRoles: ['public'],
   },
   {
     id: 'cartilha',
@@ -134,7 +134,7 @@ export const footerNavigation: NavigationItem[] = [
     label: 'Carteira de Vacinação',
     href: '/cartilha-vacinas',
     requiredPermission: 'vaccination',
-    hideForRoles: ['AGENTE_SAUDE'],
+    hideForRoles: ['agent'],
   },
   {
     id: 'ubs',
