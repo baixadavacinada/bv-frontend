@@ -222,6 +222,7 @@ export function UserFormContent() {
             <div className="flex flex-col gap-4 pt-6 lg:flex-row lg:justify-end">
               <BvButton
                 type="button"
+                variant="outline"
                 onClick={handleCancel}
                 className="w-full lg:w-auto"
                 title="Cancelar"
