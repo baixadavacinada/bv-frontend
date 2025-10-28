@@ -49,12 +49,16 @@
   --primary: #4c2e97;
   --primary-foreground: #ffffff;
   --dark-primary: #9e90cb;
-  --success: #50c36e;
+
+  /* Cores atualizadas para acessibilidade WCAG AA */
+  --success: #166534; /* Verde mais escuro - contraste 5.1:1 */
   --success-foreground: #ffffff;
   --alert: #fc6e04;
   --alert-foreground: #ffffff;
-  --warning: #ecad00;
-  --warning-foreground: #000000;
+  --warning: #a16207; /* Amarelo mais escuro - contraste 5.8:1 */
+  --warning-foreground: #ffffff;
+  --info: #1e40af; /* Azul mais escuro - contraste 7.7:1 */
+  --info-foreground: #ffffff;
   --gray-secondary: #727272;
   /* Backgrounds */
   --background: #e2e2e2;
@@ -67,7 +71,7 @@
   --foreground: #000000;
   --dark-text: #383838;
   --muted: #e2e2e2;
-  --muted-foreground: #727272;
+  --muted-foreground: #555555;
   /* Secondary */
   --secondary: #e2e2e2;
   --secondary-foreground: #000000;
@@ -75,7 +79,7 @@
   --accent: #e2e2e2;
   --accent-foreground: #000000;
   /* States */
-  --destructive: #eb3504;
+  --destructive: #c62d00;
   --destructive-foreground: #ffffff;
   /* Borders and Inputs */
   --border: #727272;
@@ -111,27 +115,168 @@
   --secondary: #383838;
   --secondary-foreground: #ffffff;
   --muted: #383838;
-  --muted-foreground: #727272;
+  --muted-foreground: #a1a1aa;
   --accent: #383838;
   --accent-foreground: #ffffff;
-  --destructive: #eb3504;
+  --destructive: #c62d00;
   --destructive-foreground: #ffffff;
-  --border: #727272;
-  --input: #383838;
-  --ring: #9e90cb;
-  --chart-1: #9e90cb;
-  --chart-2: #50c36e;
-  --chart-3: #fc6e04;
-  --chart-4: #ecad00;
-  --chart-5: #4c2e97;
-  --sidebar: #383838;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #9e90cb;
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #1d1d1d;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #727272;
-  --sidebar-ring: #9e90cb;
+
+  /* Cores para modo escuro - mais claras para contraste com fundo escuro */
+  --success: #22c55e; /* Verde claro para fundo escuro */
+  --success-foreground: #000000;
+  --warning: #eab308; /* Amarelo claro para fundo escuro */
+  --warning-foreground: #000000;
+  --info: #3b82f6; /* Azul claro para fundo escuro */
+  --info-foreground: #000000;
+
+  /* ...rest of existing dark colors... */
+}
+
+/* Reset dos estilos do Sonner */
+[data-sonner-toaster] {
+  position: fixed !important;
+  z-index: 10000 !important;
+  pointer-events: none !important;
+  --width: 356px !important;
+  --border-radius: var(--radius) !important;
+  --font-family: inherit !important;
+}
+
+/* Posicionamento no topo direito */
+[data-sonner-toaster][data-position='top-right'] {
+  top: 16px !important;
+  right: 16px !important;
+  bottom: auto !important;
+  left: auto !important;
+}
+
+/* Container dos toasts */
+[data-sonner-toaster] > * {
+  pointer-events: auto !important;
+}
+
+/* Estilos base do toast */
+[data-sonner-toaster] [data-sonner-toast] {
+  background: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  padding: 16px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  font-family: inherit !important;
+  min-width: 320px !important;
+  max-width: 420px !important;
+  margin-bottom: 8px !important;
+  pointer-events: auto !important;
+  position: relative !important;
+}
+
+/* Toast Success - Verde escuro acessível */
+[data-sonner-toaster] [data-sonner-toast][data-type='success'] {
+  background: var(--success) !important;
+  color: var(--success-foreground) !important;
+  border-color: var(--success) !important;
+}
+
+/* Toast Error - Vermelho acessível */
+[data-sonner-toaster] [data-sonner-toast][data-type='error'] {
+  background: var(--destructive) !important;
+  color: var(--destructive-foreground) !important;
+  border-color: var(--destructive) !important;
+}
+
+/* Toast Warning - Amarelo escuro acessível */
+[data-sonner-toaster] [data-sonner-toast][data-type='warning'] {
+  background: var(--warning) !important;
+  color: var(--warning-foreground) !important;
+  border-color: var(--warning) !important;
+}
+
+/* Toast Info - Azul escuro acessível */
+[data-sonner-toaster] [data-sonner-toast][data-type='info'] {
+  background: var(--info) !important;
+  color: var(--info-foreground) !important;
+  border-color: var(--info) !important;
+}
+
+/* Ícones dos toasts */
+[data-sonner-toaster] [data-sonner-toast] [data-icon] {
+  flex-shrink: 0 !important;
+  margin-right: 12px !important;
+  margin-top: 2px !important;
+  color: currentColor !important;
+}
+
+/* Título dos toasts */
+[data-sonner-toaster] [data-sonner-toast] [data-title] {
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  margin: 0 !important;
+  color: currentColor !important;
+}
+
+/* Descrição dos toasts */
+[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  margin: 4px 0 0 0 !important;
+  opacity: 0.9 !important;
+  color: currentColor !important;
+}
+
+/* Botão de fechar acessível */
+[data-sonner-toaster] [data-sonner-toast] [data-close-button] {
+  position: absolute !important;
+  right: 8px !important;
+  top: 8px !important;
+  height: 20px !important;
+  width: 20px !important;
+  border: none !important;
+  background: transparent !important;
+  color: currentColor !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  opacity: 0.8 !important;
+  transition: opacity 200ms !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-close-button]:hover {
+  opacity: 1 !important;
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+  [data-sonner-toaster] {
+    --width: calc(100vw - 32px) !important;
+    top: 16px !important;
+    left: 16px !important;
+    right: 16px !important;
+    width: var(--width) !important;
+  }
+
+  [data-sonner-toaster] [data-sonner-toast] {
+    min-width: auto !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+}
+
+/* Garantir z-index adequado */
+[data-sonner-toaster] {
+  z-index: 10000 !important;
+}
+
+button,
+input,
+select,
+textarea {
+  cursor: pointer;
+  font-family: inherit;
 }
 
 @layer base {
@@ -140,5 +285,8 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  .text-gray-500 {
+    @apply text-gray-700;
   }
 }

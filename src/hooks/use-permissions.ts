@@ -7,10 +7,11 @@ export type ActionType =
   | 'guide'
   | 'user-register'
   | 'alert-settings'
-  | 'gestao-ubs'
-  | 'vaccination-edit'
-  | 'locations-edit'
-  | 'schedules-edit'
+  | 'ubs-management'
+  | 'user-management'
+  | 'vaccine-management'
+  | 'educational-materials'
+  | 'assessments'
 
 export const ROLE_PERMISSIONS: Record<UserRole, ActionType[]> = {
   public: ['ubs', 'vaccination', 'settings', 'guide'],
@@ -28,13 +29,12 @@ export const ROLE_PERMISSIONS: Record<UserRole, ActionType[]> = {
     'ubs',
     'vaccination',
     'settings',
-    'guide',
-    'user-register',
     'alert-settings',
-    'gestao-ubs',
-    'vaccination-edit',
-    'locations-edit',
-    'schedules-edit',
+    'ubs-management',
+    'user-management',
+    'vaccine-management',
+    'educational-materials',
+    'assessments',
   ],
 }
 

@@ -21,6 +21,7 @@ export function BvUbsList({ data, onDeleteRequest, onFavoriteToggleRequest }: Ub
 
   const handleShare = (name: string) => {
     toast.info(`Compartilhando "${name}"...`)
+
   }
 
   return (

@@ -53,6 +53,8 @@ function ExemploBuscarUBS() {
 | **outline** | Ações neutras/alternativas | "Cancelar", "Voltar" |
 | **ghost** | Ações secundárias discretas | "Mais Informações", "Ajuda" |
 | **destructive** | Ações que removem/excluem | "Excluir Registro", "Limpar Filtros" |
+| **link** | Ações que navegam para outra página | "Ver Termos", "Política de Privacidade" |
+| **transparent** | Ações em barras de ferramentas | Ícones de ações rápidas |
         `,
       },
     },
@@ -176,7 +178,7 @@ export const AgendarVacina: Story = {
   args: {
     title: 'Agendar Vacina',
     rightIcon: <Calendar />,
-    variant: 'default',
+    variant: 'primary',
   },
   parameters: {
     docs: {

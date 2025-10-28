@@ -41,6 +41,7 @@ export const sidebarNavigation: NavigationItem[] = [
     label: 'UBS',
     href: '/ubs',
     requiredPermission: 'ubs',
+    hideForRoles: ['ADMIN'],
   },
   {
     id: 'registro',
@@ -72,6 +73,31 @@ export const sidebarNavigation: NavigationItem[] = [
     label: 'Cartilha de vacinas',
     href: '/cartilha-vacinas',
     requiredPermission: 'guide',
+    hideForRoles: ['ADMIN'],
+  },
+  {
+    id: 'gestao-ubs',
+    icon: BsFileEarmarkText,
+    label: 'Gestão de UBS',
+    href: '/gestao-ubs',
+    requiredPermission: 'ubs-management',
+    hideForRoles: ['MORADOR', 'AGENTE_SAUDE'],
+  },
+  {
+    id: 'gestao-usuarios',
+    icon: BsFileEarmarkText,
+    label: 'Gestão de Usuários',
+    href: '/gestao-usuarios',
+    requiredPermission: 'user-management',
+    hideForRoles: ['MORADOR', 'AGENTE_SAUDE'],
+  },
+  {
+    id: 'gestao-vacinas',
+    icon: BsFileEarmarkText,
+    label: 'Gestão de Vacinas',
+    href: '/gestao-vacinas',
+    requiredPermission: 'vaccine-management',
+    hideForRoles: ['MORADOR', 'AGENTE_SAUDE'],
   },
   {
     id: 'pesquisar',
@@ -86,11 +112,36 @@ export const sidebarNavigation: NavigationItem[] = [
     href: '/favoritos',
   },
   {
+    id: 'materiais-educativos',
+    icon: BsFileEarmarkText,
+    label: 'Materiais Educativos',
+    href: '/materiais-educativos',
+    requiredPermission: 'educational-materials',
+    hideForRoles: ['MORADOR', 'AGENTE_SAUDE'],
+  },
+
+  {
+    id: 'alert-settings',
+    icon: BsBell,
+    label: 'Ajustes de notificações',
+    href: '/ajustes-alertas',
+    requiredPermission: 'alert-settings',
+    hideForRoles: ['MORADOR', 'AGENTE_SAUDE'],
+  },
+  {
     id: 'configuracoes',
     icon: CiSettings,
     label: 'Configurações',
     href: '/configuracoes',
     requiredPermission: 'settings',
+  },
+  {
+    id: 'avaliacoes',
+    icon: BsFileEarmarkText,
+    label: 'Avaliações',
+    href: '/avaliacao',
+    requiredPermission: 'assessments',
+    hideForRoles: ['MORADOR', 'AGENTE_SAUDE'],
   },
 ]
 
@@ -111,6 +162,7 @@ export const navbarActions: NavigationItem[] = [
     id: 'profile',
     icon: BsFillPersonFill,
     href: '/perfil',
+    showOnlyForRoles: ['MORADOR'],
   },
 ]
 
@@ -142,6 +194,15 @@ export const footerNavigation: NavigationItem[] = [
     label: 'UBS',
     href: '/ubs',
     requiredPermission: 'ubs',
+    hideForRoles: ['ADMIN'],
+  },
+  {
+    id: 'gestao-ubs',
+    icon: BsGeoAlt,
+    label: 'Gestão de UBS',
+    href: '/gestao-ubs',
+    requiredPermission: 'ubs-management',
+    hideForRoles: ['MORADOR', 'AGENTE_SAUDE'],
   },
   {
     id: 'favoritos',
