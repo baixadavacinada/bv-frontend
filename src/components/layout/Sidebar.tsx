@@ -10,7 +10,7 @@ import {
   useSectionAccessibilityIds,
   DEFAULT_A11Y_CONFIG,
 } from '@/utils/accessibility'
-import { clearClientAuthCookies } from '@/mock/auth'
+import { useAuth } from '@/hooks/use-firebase-auth'
 import { usePermissions } from '@/hooks/use-permissions'
 
 export function Sidebar() {
@@ -20,8 +20,9 @@ export function Sidebar() {
   const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
   const { announceToScreenReader } = useLiveRegion()
   const { sectionId, headingId } = useSectionAccessibilityIds('sidebar')
+  const { user, logout } = useAuth()
 
-  const { filterNavigationItems, role } = usePermissions()
+  const { filterNavigationItems } = usePermissions()
   const allowedNavigationItems = filterNavigationItems(sidebarNavigation)
 
   const handleNavigation = (action: (typeof sidebarNavigation)[0]) => {
@@ -29,15 +30,19 @@ export function Sidebar() {
     router.push(action.href)
   }
 
-  const handleLogout = () => {
-    announceToScreenReader(accessibility('actionCompleted') + ': Saindo da conta', 'assertive')
+  const handleLogout = async () => {
+    try {
+      announceToScreenReader(accessibility('actionCompleted') + ': Saindo da conta', 'assertive')
 
-    clearClientAuthCookies()
-    router.push('/inicio')
-    router.refresh()
+      await logout()
+      router.push('/')
+      router.refresh()
+    } catch {
+      // Error handling can be added here if needed
+    }
   }
 
-  const shouldShowLogout = role !== 'MORADOR'
+  const shouldShowLogout = !!user
 
   return (
     <aside

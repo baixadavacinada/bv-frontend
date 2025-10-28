@@ -10,17 +10,17 @@ import {
   DEFAULT_A11Y_CONFIG,
   useSectionAccessibilityIds,
 } from '@/utils/accessibility'
-import { useAuth } from '@/mock/auth'
+import { useAuth } from '@/hooks/use-firebase-auth'
 
 const ROLE_DISPLAY_NAMES: Record<string, string> = {
-  MORADOR: '',
-  AGENTE_SAUDE: 'Agente de saúde',
-  ADMIN: 'Administrador',
+  public: '',
+  agent: 'Agente de saúde',
+  admin: 'Administrador',
 }
 
 const ROLE_ICONS: Record<string, JSX.Element> = {
-  MORADOR: <></>,
-  AGENTE_SAUDE: (
+  public: <></>,
+  agent: (
     <Image
       src={AgenteIcon}
       alt="Ícone de Agente de Saúde"
@@ -30,7 +30,7 @@ const ROLE_ICONS: Record<string, JSX.Element> = {
       style={{ width: 'auto', height: 'auto' }}
     />
   ),
-  ADMIN: (
+  admin: (
     <Image
       src={AdminIcon}
       alt="Ícone de Administrador"
@@ -40,13 +40,18 @@ const ROLE_ICONS: Record<string, JSX.Element> = {
       style={{ width: 'auto', height: 'auto' }}
     />
   ),
+  MORADOR: <></>, // Fallback para compatibilidade
 }
 
 export function WelcomeSection() {
   const sectionRef = React.useRef<HTMLElement>(null)
 
-  const { isAuthenticated, role, user } = useAuth()
-  const userName = user?.name || 'Visitante'
+  const { user, firebaseUser } = useAuth()
+  const isAuthenticated = !!user
+  const userRole = user?.role || 'public'
+
+  const userName =
+    user?.displayName || firebaseUser?.displayName || user?.email?.split('@')[0] || 'Visitante'
 
   const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
   const { sectionId, headingId } = useSectionAccessibilityIds('welcome')
@@ -62,15 +67,15 @@ export function WelcomeSection() {
         <div className="mb-4 flex items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="flex items-center gap-2 text-[18px] font-normal text-gray-800">
-              {ROLE_ICONS[role]} {ROLE_DISPLAY_NAMES[role]}
+              {ROLE_ICONS[userRole]} {ROLE_DISPLAY_NAMES[userRole]}
             </span>
           </div>
         </div>
 
-        {/* Elemento oculto para anunciar contexto da página */}
+        {/* Context announcement for screen readers */}
         <p className="sr-only">
           Página inicial do Baixada Vacinada. Você está na página principal do aplicativo de
-          vacinação como {ROLE_DISPLAY_NAMES[role]}.{' '}
+          vacinação como {ROLE_DISPLAY_NAMES[userRole]}.{' '}
           {isAuthenticated ? 'Você está logado no sistema.' : 'Você está navegando como visitante.'}{' '}
           Use as ações principais abaixo para navegar pelas funcionalidades.
         </p>

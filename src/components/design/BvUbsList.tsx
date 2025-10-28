@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BvUbsCard, UbsCardProps } from '@/components/index'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { toast } from 'sonner'
 
 interface UbsListProps {
   initialData: Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle'>[]
@@ -26,6 +27,7 @@ export function BvUbsList({ initialData }: UbsListProps) {
     setUbsList((currentList) =>
       currentList.map((ubs) => (ubs.id === id ? { ...ubs, isFavorite: !ubs.isFavorite } : ubs)),
     )
+    toast.info(`Compartilhando "${name}"...`)
   }
 
   return (

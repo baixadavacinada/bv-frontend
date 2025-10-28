@@ -34,6 +34,7 @@ export function FooterBar() {
             key={`footerbar-${action.id}`}
             variant="ghost"
             size="icon"
+            title=""
             aria-label={`Navegar para ${action.label}`}
             leftIcon={
               <div

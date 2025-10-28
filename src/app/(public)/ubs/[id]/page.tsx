@@ -68,6 +68,30 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         </button>
       </div>
 
+      {/* <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta ação não pode ser desfeita. Isso removerá permanentemente a vacina &quot;
+                {deleteAlert.vaccineName}&quot; da lista de vacinas disponíveis nesta UBS.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                onClick={() => setDeleteAlert({ isOpen: false, vaccineName: null })}
+              >
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleRemoveVaccine}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Sim, excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog> */}
+
       <iframe
         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d470857.1325203243!2d-43.732171476060785!3d-22.781279808959898!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x99a1342b7a7239%3A0x59ce0e8ead817aa7!2sBaixada%20Fluminense%2C%20RJ!5e0!3m2!1spt-BR!2sbr!4v1757530920571!5m2!1spt-BR!2sbr"
         width="100%"

@@ -1,4 +1,4 @@
-import { useAuth, UserRole } from '@/mock/auth'
+import { useAuth, UserRole } from '@/hooks/use-firebase-auth'
 
 export type ActionType =
   | 'ubs'
@@ -13,11 +13,21 @@ export type ActionType =
   | 'educational-materials'
   | 'assessments'
 
-// Mapeamento de permissões por role
 export const ROLE_PERMISSIONS: Record<UserRole, ActionType[]> = {
-  MORADOR: ['ubs', 'vaccination', 'settings', 'guide'],
-  AGENTE_SAUDE: ['ubs', 'user-register', 'alert-settings', 'settings'],
-  ADMIN: [
+  public: ['ubs', 'vaccination', 'settings', 'guide'],
+  agent: [
+    'ubs',
+    'user-register',
+    'alert-settings',
+    'settings',
+    'gestao-ubs',
+    'vaccination-edit',
+    'locations-edit',
+    'schedules-edit',
+  ],
+  admin: [
+    'ubs',
+    'vaccination',
     'settings',
     'alert-settings',
     'ubs-management',
@@ -35,7 +45,8 @@ interface NavigationItem {
 }
 
 export function usePermissions() {
-  const { role } = useAuth()
+  const { user } = useAuth()
+  const role = user?.role || 'public'
 
   const hasPermission = (action: ActionType): boolean => {
     return ROLE_PERMISSIONS[role].includes(action)
@@ -50,7 +61,6 @@ export function usePermissions() {
     return actions.filter((action) => allowedActions.includes(action))
   }
 
-  // filtrar itens de navegação
   const filterNavigationItems = <T extends NavigationItem>(items: T[]): T[] => {
     return items.filter((item) => {
       if (item.requiredPermission && !hasPermission(item.requiredPermission)) {

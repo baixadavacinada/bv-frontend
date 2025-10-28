@@ -1,77 +1,44 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Definição das rotas públicas e comportamento baseado na autenticação
-const publicRoutes = [
-  { path: '/login', whenAuthenticated: 'redirect' },
-  { path: '/cadastro', whenAuthenticated: 'redirect' },
-  { path: '/perfil', whenAuthenticated: 'redirect' },
-  { path: '/inicio', whenAuthenticated: 'next' },
-  { path: '/ubs', whenAuthenticated: 'next' },
-  { path: '/configuracao', whenAuthenticated: 'next' },
-  { path: '/cartilha-vacinas', whenAuthenticated: 'next' },
-]
+// Rotas de autenticação que redirecionam se já logado
+const authRoutes = ['/login', '/registro-morador']
 
-// Rotas que requerem roles específicos
-const roleBasedRoutes = [
-  { path: '/cadastro-usuario', allowedRoles: ['AGENTE_SAUDE', 'ADMIN'] },
-  { path: '/gestao-ubs', allowedRoles: ['ADMIN'] },
-  { path: '/vacinacao/editar', allowedRoles: ['ADMIN'] },
-  { path: '/locais/editar', allowedRoles: ['ADMIN'] },
-  { path: '/horarios/editar', allowedRoles: ['ADMIN'] },
-  { path: '/gestao-usuarios', allowedRoles: ['ADMIN'] },
-  { path: '/gestao-usuarios/formulario', allowedRoles: ['ADMIN'] },
-  { path: '/ajustes-alertas', allowedRoles: ['ADMIN'] },
-  { path: '/gestao-vacinas', allowedRoles: ['ADMIN'] },
-  { path: '/gestao-vacinas/formulario', allowedRoles: ['ADMIN'] },
-  { path: '/materiais-educativos', allowedRoles: ['ADMIN'] },
-  { path: '/avaliacao', allowedRoles: ['ADMIN'] },
-]
-
-const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/inicio'
+const REDIRECT_WHEN_NOT_AUTHENTICATED = '/login'
+const REDIRECT_WHEN_AUTHENTICATED = '/inicio'
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Redirecionamento da raiz para /inicio
-  if (pathname === '/') {
+  // Pular verificação para arquivos estáticos, API routes, etc.
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname.includes('.') ||
+    pathname === '/favicon.ico'
+  ) {
+    return NextResponse.next()
+  }
+
+  // Verificação simples de token
+  const firebaseToken = request.cookies.get('firebase-token')
+  const isAuthenticated = !!firebaseToken?.value
+
+  // Se há token mas queremos validação mais robusta, podemos implementar aqui
+  // Por enquanto, apenas verificamos a presença do token
+
+  // Se é uma rota de autenticação e o usuário já está logado, redireciona
+  if (isAuthenticated && authRoutes.includes(pathname)) {
     const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/inicio'
+    redirectUrl.pathname = REDIRECT_WHEN_AUTHENTICATED
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Verificação de token de autenticação
-  const authToken = request.cookies.get('token')
-  const isAuthenticated = !!authToken
-
-  // Obter role do usuário
-  const userRole = request.cookies.get('userRole')?.value || 'MORADOR'
-
-  // Verifica se a rota atual é pública
-  const publicRoute = publicRoutes.find((route) => pathname.startsWith(route.path))
-
-  // Verifica se a rota requer role específico
-  const roleRoute = roleBasedRoutes.find((route) => pathname.startsWith(route.path))
-
-  // 1. Usuário NÃO autenticado acessando rota privada
-  if (!isAuthenticated && !publicRoute && roleRoute) {
+  // Se é uma rota privada (dentro do grupo (private)) e não está autenticado
+  if (pathname.startsWith('/(private)') && !isAuthenticated) {
     const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE
-    return NextResponse.redirect(redirectUrl)
-  }
-
-  // 2. Usuário autenticado acessando /login ou /cadastro
-  if (isAuthenticated && publicRoute?.whenAuthenticated === 'redirect') {
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE
-    return NextResponse.redirect(redirectUrl)
-  }
-
-  // 3. Verificação de roles para rotas específicas
-  if (roleRoute && isAuthenticated && !roleRoute.allowedRoles.includes(userRole)) {
-    // Usuário autenticado mas sem permissão
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE
+    redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED
+    redirectUrl.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(redirectUrl)
   }
 
