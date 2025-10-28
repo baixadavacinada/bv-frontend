@@ -1,3 +1,5 @@
+'use client'
+
 import { useId, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
