@@ -92,6 +92,40 @@ export const optionalCPF = z
   .optional()
   .or(z.literal(''))
 
+// Nome completo (nome + sobrenome)
+export const fullName = z
+  .string()
+  .min(2, 'Nome deve ter pelo menos 2 caracteres')
+  .refine((name) => {
+    const words = name.trim().split(/\s+/)
+    return words.length >= 2
+  }, 'Por favor, insira nome e sobrenome')
+  .refine((name) => {
+    const words = name.trim().split(/\s+/)
+    return words.every((word) => word.length >= 2)
+  }, 'Nome e sobrenome devem ter pelo menos 2 caracteres cada')
+
+// Senha segura
+export const strongPassword = z
+  .string()
+  .min(8, 'A senha deve ter pelo menos 8 caracteres')
+  .refine(
+    (password) => /[A-Z]/.test(password),
+    'A senha deve conter pelo menos uma letra maiúscula',
+  )
+  .refine(
+    (password) => /[a-z]/.test(password),
+    'A senha deve conter pelo menos uma letra minúscula',
+  )
+  .refine((password) => /\d/.test(password), 'A senha deve conter pelo menos um número')
+  .refine(
+    (password) => /[!@#$%^&*(),.?":{}|<>]/.test(password),
+    'A senha deve conter pelo menos um caractere especial',
+  )
+
+// Senha simples (para compatibilidade)
+export const password = z.string().min(6, 'A senha deve ter pelo menos 6 caracteres')
+
 // CEP
 export const cep = z.string().min(1, msg.required).regex(patterns.cep, msg.cep)
 export const optionalCEP = z.string().regex(patterns.cep, msg.cep).optional().or(z.literal(''))
@@ -133,6 +167,7 @@ export const checkbox = z.boolean().default(false)
 export const commonSchemas = {
   // Textos básicos
   name: text(3, 100),
+  fullName,
   title: text(5, 150),
   description: text(10, 1000),
   shortText: text(1, 100),
@@ -146,6 +181,10 @@ export const commonSchemas = {
   email,
   phone,
   cpf,
+
+  // Segurança
+  password,
+  strongPassword,
 
   // Localização
   cep,

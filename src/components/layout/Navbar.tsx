@@ -7,7 +7,7 @@ import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibi
 import { AccessibilityLoadingIndicator, DEFAULT_A11Y_CONFIG } from '@/utils/accessibility'
 import { usePermissions } from '@/hooks/use-permissions'
 import { useAppTranslations } from '@/hooks/use-translations'
-import { clearClientAuthCookies } from '@/mock/auth'
+import { useAuth } from '@/hooks/use-firebase-auth'
 import { BsArrowBarRight } from 'react-icons/bs'
 
 export function Navbar() {
@@ -15,29 +15,34 @@ export function Navbar() {
   const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
   const { announceToScreenReader } = useLiveRegion()
   const { navigation, accessibility } = useAppTranslations()
+  const { user, logout } = useAuth()
 
   const { filterNavigationItems, role } = usePermissions()
   const allowedNavigationItems = filterNavigationItems(navbarActions)
 
-  const shouldShowLogout = role !== 'MORADOR'
+  const shouldShowLogout = !!user
 
   const handleNavigation = (action: (typeof navbarActions)[0]) => {
     announceToScreenReader(`Navegando para ${action.label}`, 'polite')
 
     if (action.id === 'profile') {
-      const profileHref = role === 'MORADOR' ? '/login' : '/perfil'
+      const profileHref = role === 'public' ? '/login' : '/perfil'
       router.push(profileHref)
     } else {
       router.push(action.href)
     }
   }
 
-  const handleLogout = () => {
-    announceToScreenReader(accessibility('actionCompleted') + ': Saindo da conta', 'assertive')
+  const handleLogout = async () => {
+    try {
+      announceToScreenReader(accessibility('actionCompleted') + ': Saindo da conta', 'assertive')
 
-    clearClientAuthCookies()
-    router.push('/inicio')
-    router.refresh()
+      await logout()
+      router.push('/')
+      router.refresh()
+    } catch {
+      // Error handling can be added here if needed
+    }
   }
 
   return (
@@ -64,6 +69,7 @@ export function Navbar() {
             key={`navbar-${action.id}`}
             variant="ghost"
             size="icon"
+            title=""
             aria-label={`Navegar para ${action.id}`}
             leftIcon={<action.icon className="size-6" aria-hidden="true" />}
             onClick={() => handleNavigation(action)}
@@ -75,6 +81,7 @@ export function Navbar() {
             <BvButton
               variant={'ghost'}
               size="icon"
+              title=""
               leftIcon={<BsArrowBarRight className="size-6" aria-hidden="true" />}
               aria-label={navigation('logoutAction')}
               className="focus-visible:ring-2 focus-visible:ring-red-500"

@@ -16,7 +16,7 @@ import { usePermissions } from '@/hooks/use-permissions'
 
 export default function SettingsScreen() {
   const { role } = usePermissions()
-  const isResident = role === 'MORADOR'
+  const isResident = role === 'public'
 
   const schema = useMemo(() => getPersonalDataSchema(role), [role])
 
