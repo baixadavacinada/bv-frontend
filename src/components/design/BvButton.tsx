@@ -1,15 +1,12 @@
-import { Button } from '@/components/ui/button'
+import { Button, ButtonProps } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { forwardRef } from 'react'
 
-interface BvButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'aria-label'> {
+interface BvButtonProps extends Omit<ButtonProps, 'aria-label'> {
   title?: string
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
   isLoading?: boolean
-  size?: 'default' | 'sm' | 'lg' | 'icon' | 'icon-sm' | 'icon-lg' | null | undefined
-  disabled?: boolean
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'transparent' | 'destructive'
   /**
    * WCAG 2.1 - Critério 4.1.2 (Nome, Função, Valor)
    * Descrição acessível da ação do botão para leitores de tela
@@ -30,17 +27,7 @@ interface BvButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElemen
  */
 export const BvButton = forwardRef<HTMLButtonElement, BvButtonProps>(
   (
-    {
-      title,
-      leftIcon,
-      rightIcon,
-      isLoading = false,
-      'aria-label': ariaLabel,
-      disabled,
-      variant = 'ghost',
-      size,
-      ...props
-    },
+    { title, leftIcon, rightIcon, isLoading = false, 'aria-label': ariaLabel, disabled, ...props },
     ref,
   ) => {
     // WCAG 2.1 - Critério 3.2.2 (Na Entrada): Comportamento previsível
@@ -130,8 +117,6 @@ export const BvButton = forwardRef<HTMLButtonElement, BvButtonProps>(
         disabled={disabled}
         data-loading={isLoading}
         data-testid="bv-button"
-        variant={variant}
-        size={size}
       >
         <div className="flex items-center justify-between gap-2">
           {isLoading ? (

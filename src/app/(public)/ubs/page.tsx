@@ -1,6 +1,4 @@
 'use client'
-
-import React, { useState } from 'react'
 import { BvTitleHeader } from '@/components'
 import { CollapsibleFilter } from '@/components/design/BvCollapsibleFilter'
 import { UbsCardProps, BvUbsList } from '@/components/index'
@@ -11,7 +9,7 @@ import { mockUbsData } from '@/mock/ubs'
 
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
-import { Toaster, toast } from 'sonner'
+import { toast } from 'sonner'
 import {
   Dialog,
   DialogContent,
@@ -20,16 +18,17 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import { useState } from 'react'
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogDescription,
+//   AlertDialogFooter,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+// } from '@/components/ui/alert-dialog'
 
 type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle' | 'onDelete'>
 
@@ -81,7 +80,7 @@ export default function UbsScreen() {
       toast.warning('Preencha o nome e o bairro da UBS.')
       return
     }
-    const newId = Math.max(...ubsList.map((ubs) => ubs?.id), 0) + 1
+    const newId = Math.max(...ubsList.map((ubs) => Number(ubs.id)), 0) + 1
     const newUbs: UbsListData = {
       id: newId,
       slug: newId,
@@ -96,46 +95,35 @@ export default function UbsScreen() {
     setNewUbsNeighborhood('')
     setIsCreateModalOpen(false)
   }
+
   return (
-    <>
-      <div>
-        <BvTitleHeader title="Unidades Básicas de Saúde" className="mb-8" />
-        <div className="mb-8">
-          <CollapsibleFilter>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="space-y-2">
-                <Label htmlFor="ubs-name">Nome da UBS</Label>
-                <Input id="ubs-name" placeholder="Ex: UBS Vila Suissa" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="neighborhood">Bairro</Label>
-                <Input id="neighborhood" placeholder="Ex: Centro" />
-              </div>
-              <div className="flex items-end">
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="open-24h" />
-                  <Label htmlFor="open-24h">Aberto 24h</Label>
-                </div>
+    <div>
+      <BvTitleHeader title="Unidades Básicas de Saúde" className="mb-8" />
+      <div className="mb-8">
+        <CollapsibleFilter>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="ubs-name">Nome da UBS</Label>
+              <Input id="ubs-name" placeholder="Ex: UBS Vila Suissa" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="neighborhood">Bairro</Label>
+              <Input id="neighborhood" placeholder="Ex: Centro" />
+            </div>
+            <div className="flex items-end">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="open-24h" />
+                <Label htmlFor="open-24h">Aberto 24h</Label>
               </div>
             </div>
-          </CollapsibleFilter>
-        </div>
-
-        <div className="mb-8 flex justify-end">
-          <Button className="w-full" onClick={() => setIsCreateModalOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar Nova UBS
-          </Button>
-        </div>
-
-        <BvUbsList
-          data={ubsList}
-          onDeleteRequest={handleDeleteRequest}
-          onFavoriteToggleRequest={handleFavoriteToggle}
-        />
+          </div>
+        </CollapsibleFilter>
       </div>
 
-      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+      <BvUbsList initialData={ubsList} />
+
+      {/* <>
+       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Adicionar Nova UBS</DialogTitle>
@@ -204,6 +192,7 @@ export default function UbsScreen() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+      </> */}
+    </div>
   )
 }

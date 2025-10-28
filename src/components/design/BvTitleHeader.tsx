@@ -24,7 +24,7 @@ export function BvTitleHeader({ title, className }: PageHeaderProps) {
   return (
     <div className={cn('flex items-center gap-4', className)}>
       <BvButton
-        variant="transparent"
+        variant="ghost"
         onClick={handleBack}
         leftIcon={<ArrowLeft className="text-primary size-10" />}
         title={title}
