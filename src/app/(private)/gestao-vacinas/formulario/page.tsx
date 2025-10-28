@@ -1,0 +1,12 @@
+'use client'
+
+import React, { Suspense } from 'react'
+import { VaccineFormContent } from './VaccineFormContent'
+
+export default function VaccineFormPage() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <VaccineFormContent />
+    </Suspense>
+  )
+}

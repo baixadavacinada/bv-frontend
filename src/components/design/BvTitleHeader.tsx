@@ -26,10 +26,9 @@ export function BvTitleHeader({ title, className }: PageHeaderProps) {
       <BvButton
         variant="ghost"
         onClick={handleBack}
-        size="lg"
         leftIcon={<ArrowLeft className="text-primary size-10" />}
         title={title}
-        className="hover:bg-accent focus:ring-ring rounded-md p-4 px-0 py-0 text-2xl font-bold focus:ring-2 focus:ring-offset-2 focus:outline-none"
+        className="hover:bg-accent focus:ring-ring rounded-md p-4 px-0 py-0 text-2xl font-bold text-wrap focus:ring-2 focus:ring-offset-2 focus:outline-none"
       />
 
       <AccessibilityLoadingIndicator isValidating={isValidating} />

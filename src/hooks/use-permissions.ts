@@ -7,35 +7,24 @@ export type ActionType =
   | 'guide'
   | 'user-register'
   | 'alert-settings'
-  | 'gestao-ubs'
-  | 'vaccination-edit'
-  | 'locations-edit'
-  | 'schedules-edit'
+  | 'ubs-management'
+  | 'user-management'
+  | 'vaccine-management'
+  | 'educational-materials'
+  | 'assessments'
 
 // Mapeamento de permissões por role
 export const ROLE_PERMISSIONS: Record<UserRole, ActionType[]> = {
   MORADOR: ['ubs', 'vaccination', 'settings', 'guide'],
-  AGENTE_SAUDE: [
-    'ubs',
-    'user-register',
-    'alert-settings',
-    'settings',
-    'gestao-ubs',
-    'vaccination-edit',
-    'locations-edit',
-    'schedules-edit',
-  ],
+  AGENTE_SAUDE: ['ubs', 'user-register', 'alert-settings', 'settings'],
   ADMIN: [
-    'ubs',
-    'vaccination',
     'settings',
-    'guide',
-    'user-register',
     'alert-settings',
-    'gestao-ubs',
-    'vaccination-edit',
-    'locations-edit',
-    'schedules-edit',
+    'ubs-management',
+    'user-management',
+    'vaccine-management',
+    'educational-materials',
+    'assessments',
   ],
 }
 
