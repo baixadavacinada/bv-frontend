@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils'
 import { AuthProvider } from '@/hooks/use-firebase-auth'
 import { Toaster } from 'sonner'
 
-
 const barlow = Barlow({
   subsets: ['latin'],
   display: 'swap',
