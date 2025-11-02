@@ -82,7 +82,7 @@ export default function UbsScreen() {
       toast.warning('Preencha o nome e o bairro da UBS.')
       return
     }
-    const newId = Math.max(...ubsList.map((ubs) => ubs?.id), 0) + 1
+    const newId = +1
     const newUbs: UbsListData = {
       id: newId,
       component: 'private',
