@@ -1,40 +1,19 @@
 'use client'
-import { BvTitleHeader } from '@/components'
+import React, { useState, useMemo } from 'react'
 import { CollapsibleFilter } from '@/components/design/BvCollapsibleFilter'
-import { UbsCardProps, BvUbsList } from '@/components/index'
+import { UbsCardProps, BvUbsList, BvTitleHeader } from '@/components/index'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Checkbox } from '@radix-ui/react-checkbox'
+import { Checkbox } from '@/components/ui/checkbox'
 import { mockUbsData } from '@/mock/ubs'
-
-import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
-} from '@/components/ui/dialog'
-import { useState } from 'react'
-// import {
-//   AlertDialog,
-//   AlertDialogAction,
-//   AlertDialogCancel,
-//   AlertDialogContent,
-//   AlertDialogDescription,
-//   AlertDialogFooter,
-//   AlertDialogHeader,
-//   AlertDialogTitle,
-// } from '@/components/ui/alert-dialog'
 
 type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle' | 'onDelete'>
 
 const initialUbsListData: UbsListData[] = mockUbsData.map((ubs) => ({
   id: ubs.id,
   slug: ubs.id,
+  component: 'public',
   name: ubs.name,
   neighborhood: ubs.neighborhood,
   distanceInKm: Math.floor(Math.random() * 20) + 1,
@@ -43,23 +22,37 @@ const initialUbsListData: UbsListData[] = mockUbsData.map((ubs) => ({
 
 export default function UbsScreen() {
   const [ubsList, setUbsList] = useState(initialUbsListData)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [newUbsName, setNewUbsName] = useState('')
-  const [newUbsNeighborhood, setNewUbsNeighborhood] = useState('')
   const [deleteAlert, setDeleteAlert] = useState<{ isOpen: boolean; id: number | null }>({
     isOpen: false,
     id: null,
   })
 
+  const [filters, setFilters] = useState({
+    name: '',
+    neighborhood: '',
+    open24h: false,
+  })
+
   const handleFavoriteToggle = (id: number) => {
+    const ubs = ubsList.find((u) => u.id === id)
+    if (!ubs) return
+
+    const isCurrentlyFavorite = ubs.isFavorite
+    const ubsName = ubs.name
+
     setUbsList((currentList) =>
-      currentList.map((ubs) => (ubs.id === id ? { ...ubs, isFavorite: !ubs.isFavorite } : ubs)),
+      currentList.map((u) => (u.id === id ? { ...u, isFavorite: !u.isFavorite } : u)),
     )
+
     toast.success(
-      !ubsList.find((ubs) => ubs.id === id)?.isFavorite
-        ? `"${ubsList.find((ubs) => ubs.id === id)?.name}" adicionada aos favoritos!`
-        : `"${ubsList.find((ubs) => ubs.id === id)?.name}" removida dos favoritos.`,
+      !ubsList.find((u) => u.id === id)?.isFavorite
+        ? `"${ubsName}" adicionada aos favoritos!`
+        : `"${ubsName}" removida dos favoritos.`,
     )
+  }
+
+  const handleShare = (name: string) => {
+    toast.info(`Compartilhando "${name}"...`)
   }
 
   const handleDeleteRequest = (id: number) => {
@@ -74,45 +67,56 @@ export default function UbsScreen() {
     setDeleteAlert({ isOpen: false, id: null })
   }
 
-  const handleCreateSubmit = (event: React.FormEvent) => {
-    event.preventDefault()
-    if (!newUbsName || !newUbsNeighborhood) {
-      toast.warning('Preencha o nome e o bairro da UBS.')
-      return
-    }
-    const newId = Math.max(...ubsList.map((ubs) => Number(ubs.id)), 0) + 1
-    const newUbs: UbsListData = {
-      id: newId,
-      slug: newId,
-      name: newUbsName,
-      neighborhood: newUbsNeighborhood,
-      distanceInKm: 0,
-      isFavorite: false,
-    }
-    setUbsList((currentList) => [newUbs, ...currentList])
-    toast.success(`UBS "${newUbsName}" foi criada com sucesso!`)
-    setNewUbsName('')
-    setNewUbsNeighborhood('')
-    setIsCreateModalOpen(false)
-  }
+  const filteredUbsList = useMemo(() => {
+    return ubsList.filter((ubs) => {
+      const nameMatch = ubs.name.toLowerCase().includes(filters.name.toLowerCase())
+      const neighborhoodMatch = ubs.neighborhood
+        .toLowerCase()
+        .includes(filters.neighborhood.toLowerCase())
+
+      // NOTA: O filtro "Aberto 24h" não pode ser aplicado
+      // pois seus dados em `mockUbsData` não têm essa informação.
+      // Se tivesse, a lógica seria:
+      // const open24hMatch = !filters.open24h || ubs.isOpen24h;
+      // return nameMatch && neighborhoodMatch && open24hMatch;
+
+      return nameMatch && neighborhoodMatch
+    })
+  }, [ubsList, filters])
 
   return (
     <div>
-      <BvTitleHeader title="Unidades Básicas de Saúde" className="mb-8" />
+      <BvTitleHeader title={'Unidades Básicas de Saúde'} className="mb-6" />
       <div className="mb-8">
         <CollapsibleFilter>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="ubs-name">Nome da UBS</Label>
-              <Input id="ubs-name" placeholder="Ex: UBS Vila Suissa" />
+              <Input
+                id="ubs-name"
+                placeholder="Ex: UBS Vila Suissa"
+                value={filters.name}
+                onChange={(e) => setFilters((prev) => ({ ...prev, name: e.target.value }))}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="neighborhood">Bairro</Label>
-              <Input id="neighborhood" placeholder="Ex: Centro" />
+              <Input
+                id="neighborhood"
+                placeholder="Ex: Centro"
+                value={filters.neighborhood}
+                onChange={(e) => setFilters((prev) => ({ ...prev, neighborhood: e.target.value }))}
+              />
             </div>
             <div className="flex items-end">
               <div className="flex items-center space-x-2">
-                <Checkbox id="open-24h" />
+                <Checkbox
+                  id="open-24h"
+                  checked={filters.open24h}
+                  onCheckedChange={(checked) =>
+                    setFilters((prev) => ({ ...prev, open24h: !!checked }))
+                  }
+                />
                 <Label htmlFor="open-24h">Aberto 24h</Label>
               </div>
             </div>
@@ -120,79 +124,14 @@ export default function UbsScreen() {
         </CollapsibleFilter>
       </div>
 
-      <BvUbsList initialData={ubsList} />
-
-      {/* <>
-       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Adicionar Nova UBS</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleCreateSubmit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Nome
-                </Label>
-                <Input
-                  id="name"
-                  value={newUbsName}
-                  onChange={(e) => setNewUbsName(e.target.value)}
-                  className="col-span-3"
-                  placeholder="Ex: UBS Jardim Esperança"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="neighborhood" className="text-right">
-                  Bairro
-                </Label>
-                <Input
-                  id="neighborhood"
-                  value={newUbsNeighborhood}
-                  onChange={(e) => setNewUbsNeighborhood(e.target.value)}
-                  className="col-span-3"
-                  placeholder="Ex: Vila Oliveira"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button type="button" variant="outline">
-                  Cancelar
-                </Button>
-              </DialogClose>
-              <Button type="submit">Salvar UBS</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      <AlertDialog
-        open={deleteAlert.isOpen}
-        onOpenChange={(isOpen) => setDeleteAlert({ ...deleteAlert, isOpen })}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso removerá permanentemente a UBS &quot;
-              {ubsList.find((ubs) => ubs.id === deleteAlert.id)?.name}&quot; da lista.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteAlert({ isOpen: false, id: null })}>
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Sim, excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      </> */}
+      <BvUbsList
+        ubsList={filteredUbsList}
+        onFavoriteToggleRequest={handleFavoriteToggle}
+        onDeleteRequest={handleDeleteRequest}
+        onShareRequest={handleShare}
+        path="/ubs"
+        component="public"
+      />
     </div>
   )
 }

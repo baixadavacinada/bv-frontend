@@ -7,27 +7,26 @@ import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { toast } from 'sonner'
 
 interface UbsListProps {
-  initialData: Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle'>[]
+  ubsList: Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle' | 'onDelete'>[]
+  path: string
+  component: 'private' | 'public'
+  onDeleteRequest: (id: number) => void
+  onFavoriteToggleRequest: (id: number) => void
+  onShareRequest: (name: string) => void
 }
 
-export function BvUbsList({ initialData }: UbsListProps) {
+export function BvUbsList({
+  ubsList,
+  path,
+  component,
+  onShareRequest,
+  onFavoriteToggleRequest,
+}: UbsListProps) {
   useAccessibilityValidation({ enabled: true })
-  const [ubsList, setUbsList] = useState(initialData)
   const router = useRouter()
 
-  const handleMoreInfo = (id: number) => {
-    router.push(`/ubs/${id}`)
-  }
-
-  const handleShare = (name: string) => {
-    alert(`Compartilhando: ${name}`)
-  }
-
-  const handleFavoriteToggle = (id: number) => {
-    setUbsList((currentList) =>
-      currentList.map((ubs) => (ubs.id === id ? { ...ubs, isFavorite: !ubs.isFavorite } : ubs)),
-    )
-    toast.info(`Compartilhando "${name}"...`)
+  const handleMoreInfo = (slug: number, path: string) => {
+    router.push(`${path}/${slug}`)
   }
 
   return (
@@ -36,13 +35,14 @@ export function BvUbsList({ initialData }: UbsListProps) {
         <BvUbsCard
           key={ubs.id}
           name={ubs.name}
+          component={component}
           slug={ubs.slug}
           neighborhood={ubs.neighborhood}
           distanceInKm={ubs.distanceInKm}
           isFavorite={ubs.isFavorite}
-          onMoreInfo={() => handleMoreInfo(ubs.id || 0)}
-          onShare={() => handleShare(ubs.name)}
-          onFavoriteToggle={() => handleFavoriteToggle(ubs.id || 0)}
+          onMoreInfo={() => handleMoreInfo(ubs.id || 0, path)}
+          onShare={() => onShareRequest(ubs.name)}
+          onFavoriteToggle={() => onFavoriteToggleRequest(ubs.id || 0)}
         />
       ))}
     </div>

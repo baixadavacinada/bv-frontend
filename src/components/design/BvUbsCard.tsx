@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { Hospital, Home, Compass, ArrowRight, Share2, Heart } from 'lucide-react'
+import { Hospital, Home, Compass, ArrowRight, Share2, Heart, X } from 'lucide-react'
 import React from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
@@ -11,6 +11,8 @@ export interface UbsCardProps {
   distanceInKm: number
   slug: string | number
   isFavorite?: boolean
+  component: 'private' | 'public'
+  onDelete?: () => void
   onMoreInfo: () => void
   onShare: () => void
   onFavoriteToggle: () => void
@@ -22,10 +24,12 @@ export function BvUbsCard({
   neighborhood,
   distanceInKm,
   slug,
+  component,
   isFavorite = false,
   onMoreInfo,
   onShare,
   onFavoriteToggle,
+  onDelete,
   className,
 }: UbsCardProps) {
   const handleIconClick = (e: React.MouseEvent<HTMLButtonElement>, action: () => void) => {
@@ -40,15 +44,26 @@ export function BvUbsCard({
         className,
       )}
     >
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={
+          component === 'private' ? (e) => handleIconClick(e, onDelete || (() => {})) : undefined
+        }
+        aria-label={`Excluir ${name}`}
+        className="absolute top-2 right-2 h-8 w-8 text-slate-400 hover:bg-red-100 hover:text-red-600"
+      >
+        {component === 'private' && <X className="h-4 w-4" />}
+      </Button>
       <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
         <div className="rounded-lg bg-slate-100 p-3 dark:bg-slate-800">
           <Hospital className="h-6 w-6 text-slate-600 dark:text-slate-300" />
         </div>
-        <a href={`/ubs/${slug}`}>
-          <CardTitle className="text-lg font-bold">{name}</CardTitle>
-        </a>
-      </CardHeader>
 
+        <Button onClick={onMoreInfo} className="flex-1" variant="ghost">
+          <CardTitle className="pr-8 text-lg font-bold">{name}</CardTitle>
+        </Button>
+      </CardHeader>
       <CardContent className="flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-400">
         <div className="flex items-center gap-2">
           <Home className="h-4 w-4" />
@@ -59,7 +74,6 @@ export function BvUbsCard({
           <span>Distância {distanceInKm.toFixed(1)} km</span>
         </div>
       </CardContent>
-
       <CardFooter className="flex items-center justify-between pt-4">
         <Button
           variant="ghost"
@@ -85,7 +99,10 @@ export function BvUbsCard({
             aria-label={isFavorite ? 'Desfavoritar' : 'Favoritar'}
           >
             <Heart
-              className={cn('h-5 w-5 text-slate-500', isFavorite && 'fill-red-500 text-red-500')}
+              className={cn(
+                'h-5 w-5',
+                isFavorite && 'fill-red-500 text-red-500', // Estilo dinâmico
+              )}
             />
           </Button>
         </div>

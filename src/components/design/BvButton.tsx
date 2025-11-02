@@ -27,7 +27,17 @@ interface BvButtonProps extends Omit<ButtonProps, 'aria-label'> {
  */
 export const BvButton = forwardRef<HTMLButtonElement, BvButtonProps>(
   (
-    { title, leftIcon, rightIcon, isLoading = false, 'aria-label': ariaLabel, disabled, ...props },
+    {
+      title,
+      leftIcon,
+      rightIcon,
+      isLoading = false,
+      'aria-label': ariaLabel,
+      disabled,
+      size,
+      ...props
+    },
+
     ref,
   ) => {
     // WCAG 2.1 - Critério 3.2.2 (Na Entrada): Comportamento previsível
