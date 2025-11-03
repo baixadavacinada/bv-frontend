@@ -17,7 +17,6 @@ export interface LoginCredentials {
 
 export interface RegisterData {
   email: string
-  password: string
   displayName: string
 }
 
@@ -130,12 +129,23 @@ export async function loginWithGoogle(): Promise<{
 /**
  * Registra novo usuário
  */
-export async function registerUser(userData: RegisterData): Promise<{
+export async function registerUser(
+  userData: RegisterData,
+  password: string,
+): Promise<{
   user: FirebaseUser
   backendData?: unknown
 }> {
   try {
-    // Try backend registration first, but continue if it fails
+    // Cria no Firebase PRIMEIRO (antes de chamar a API)
+    const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password)
+
+    // Update Firebase profile
+    await updateProfile(userCredential.user, {
+      displayName: userData.displayName,
+    })
+
+    // Agora chama a API APENAS com email e displayName (SEM senha)
     let backendData = null
     try {
       const response = await fetch(
@@ -158,18 +168,6 @@ export async function registerUser(userData: RegisterData): Promise<{
     } catch {
       // Backend not available, continue with Firebase only
     }
-
-    // Registra no Firebase
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      userData.email,
-      userData.password,
-    )
-
-    // Update Firebase profile
-    await updateProfile(userCredential.user, {
-      displayName: userData.displayName,
-    })
 
     // Sign out to force manual login
     await signOut(auth)

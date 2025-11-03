@@ -48,11 +48,14 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     setError('')
 
     try {
-      await registerUser({
-        email: data.email,
-        password: data.password,
-        displayName: data.displayName,
-      })
+      // Passa senha como parâmetro separado - NUNCA será enviada para a API
+      await registerUser(
+        {
+          email: data.email,
+          displayName: data.displayName,
+        },
+        data.password,
+      )
 
       if (onSuccess) {
         onSuccess()
