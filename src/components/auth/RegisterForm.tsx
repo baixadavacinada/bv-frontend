@@ -48,7 +48,6 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     setError('')
 
     try {
-      // Passa senha como parâmetro separado - NUNCA será enviada para a API
       await registerUser(
         {
           email: data.email,
@@ -60,7 +59,6 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       if (onSuccess) {
         onSuccess()
       } else {
-        // Redireciona para login com sucesso
         router.push('/login?registered=true')
       }
     } catch (err: unknown) {

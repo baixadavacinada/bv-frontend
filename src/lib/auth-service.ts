@@ -29,9 +29,6 @@ export interface ApiResponse<T = unknown> {
   }
 }
 
-/**
- * Faz login com email e senha
- */
 export async function loginWithEmail(credentials: LoginCredentials): Promise<{
   user: FirebaseUser
   token: string
@@ -45,7 +42,6 @@ export async function loginWithEmail(credentials: LoginCredentials): Promise<{
 
     const token = await userCredential.user.getIdToken()
 
-    // Store token in cookie for SSR support
     if (typeof document !== 'undefined') {
       const isProduction = process.env.NODE_ENV === 'production'
       const secureFlag = isProduction ? 'secure;' : ''
@@ -71,9 +67,6 @@ export async function loginWithEmail(credentials: LoginCredentials): Promise<{
   }
 }
 
-/**
- * Faz login com Google
- */
 export async function loginWithGoogle(): Promise<{
   user: FirebaseUser
   token: string
@@ -84,14 +77,12 @@ export async function loginWithGoogle(): Promise<{
     const result = await signInWithPopup(auth, provider)
     const token = await result.user.getIdToken()
 
-    // Store token in cookie for SSR support
     if (typeof document !== 'undefined') {
       const isProduction = process.env.NODE_ENV === 'production'
       const secureFlag = isProduction ? 'secure;' : ''
       document.cookie = `firebase-token=${token}; path=/; ${secureFlag} samesite=strict; max-age=${24 * 60 * 60}`
     }
 
-    // Try backend authentication, but continue if it fails
     let backendData = null
     try {
       const response = await fetch(
@@ -111,9 +102,7 @@ export async function loginWithGoogle(): Promise<{
           backendData = data.data
         }
       }
-    } catch {
-      // Backend not available, continue with Firebase only
-    }
+    } catch {}
 
     return {
       user: result.user,
@@ -126,9 +115,6 @@ export async function loginWithGoogle(): Promise<{
   }
 }
 
-/**
- * Registra novo usuário
- */
 export async function registerUser(
   userData: RegisterData,
   password: string,
@@ -137,15 +123,12 @@ export async function registerUser(
   backendData?: unknown
 }> {
   try {
-    // Cria no Firebase PRIMEIRO (antes de chamar a API)
     const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password)
 
-    // Update Firebase profile
     await updateProfile(userCredential.user, {
       displayName: userData.displayName,
     })
 
-    // Agora chama a API APENAS com email e displayName (SEM senha)
     let backendData = null
     try {
       const response = await fetch(
@@ -165,11 +148,8 @@ export async function registerUser(
           backendData = data.data
         }
       }
-    } catch {
-      // Backend not available, continue with Firebase only
-    }
+    } catch {}
 
-    // Sign out to force manual login
     await signOut(auth)
 
     return {
@@ -182,14 +162,10 @@ export async function registerUser(
   }
 }
 
-/**
- * Envia email de reset de senha
- */
 export async function resetPassword(email: string): Promise<void> {
   try {
     await sendPasswordResetEmail(auth, email)
 
-    // Also notify backend
     await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/password-reset`, {
       method: 'POST',
       headers: {
@@ -203,14 +179,10 @@ export async function resetPassword(email: string): Promise<void> {
   }
 }
 
-/**
- * Faz logout
- */
 export async function logout(): Promise<void> {
   try {
     await signOut(auth)
 
-    // Remove token from cookie
     if (typeof document !== 'undefined') {
       document.cookie = 'firebase-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
     }
@@ -220,9 +192,6 @@ export async function logout(): Promise<void> {
   }
 }
 
-/**
- * Verifica token no backend
- */
 export async function verifyToken(token: string): Promise<unknown> {
   try {
     const response = await fetch(
@@ -254,7 +223,6 @@ export async function verifyToken(token: string): Promise<unknown> {
 
     return data.data
   } catch (error) {
-    // Se for erro de rede/CORS, relança com mensagem mais específica
     if (error instanceof TypeError && error.message.includes('fetch')) {
       throw new Error('Não foi possível conectar ao servidor (CORS/Rede)')
     }
@@ -262,9 +230,6 @@ export async function verifyToken(token: string): Promise<unknown> {
   }
 }
 
-/**
- * Converte códigos de erro do Firebase em mensagens amigáveis
- */
 function getFirebaseErrorMessage(errorCode: string): string {
   switch (errorCode) {
     case 'auth/user-not-found':
