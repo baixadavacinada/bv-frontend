@@ -29,9 +29,6 @@ export interface ApiResponse<T = unknown> {
   }
 }
 
-/**
- * Faz login com email e senha
- */
 export async function loginWithEmail(credentials: LoginCredentials): Promise<{
   user: FirebaseUser
   token: string
@@ -45,7 +42,6 @@ export async function loginWithEmail(credentials: LoginCredentials): Promise<{
 
     const token = await userCredential.user.getIdToken()
 
-    // Store token in cookie for SSR support
     if (typeof document !== 'undefined') {
       const isProduction = process.env.NODE_ENV === 'production'
       const secureFlag = isProduction ? 'secure;' : ''
@@ -81,7 +77,6 @@ export async function loginWithGoogle(): Promise<{
     const result = await signInWithPopup(auth, provider)
     const token = await result.user.getIdToken()
 
-    // Store token in cookie for SSR support
     if (typeof document !== 'undefined') {
       const isProduction = process.env.NODE_ENV === 'production'
       const secureFlag = isProduction ? 'secure;' : ''
@@ -107,9 +102,7 @@ export async function loginWithGoogle(): Promise<{
           backendData = data.data
         }
       }
-    } catch {
-      // Backend not available, continue with Firebase only
-    }
+    } catch {}
 
     return {
       user: result.user,
@@ -122,9 +115,6 @@ export async function loginWithGoogle(): Promise<{
   }
 }
 
-/**
- * Registra novo usuário
- */
 export async function registerUser(
   userData: RegisterData,
   password: string,
@@ -133,15 +123,12 @@ export async function registerUser(
   backendData?: unknown
 }> {
   try {
-    // Cria no Firebase PRIMEIRO (antes de chamar a API)
     const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password)
 
-    // Update Firebase profile
     await updateProfile(userCredential.user, {
       displayName: userData.displayName,
     })
 
-    // Agora chama a API APENAS com email e displayName (SEM senha)
     let backendData = null
     try {
       const response = await fetch(
@@ -161,11 +148,8 @@ export async function registerUser(
           backendData = data.data
         }
       }
-    } catch {
-      // Backend not available, continue with Firebase only
-    }
+    } catch {}
 
-    // Sign out to force manual login
     await signOut(auth)
 
     if (typeof document !== 'undefined') {

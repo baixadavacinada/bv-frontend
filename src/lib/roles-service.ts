@@ -1,4 +1,4 @@
-import { UserRole, ROLE_PERMISSIONS, UserProfile } from '@/types/auth'
+import { UserRole, Permission, ROLE_PERMISSIONS, UserProfile } from '@/types/auth'
 
 interface RoleUpdateRequest {
   uid: string
@@ -53,9 +53,7 @@ export function setCachedProfile(profile: UserProfile): void {
       timestamp: Date.now(),
     }
     localStorage.setItem(`${CACHE_KEY}_${profile.uid}`, JSON.stringify(cached))
-  } catch {
-    // Ignore localStorage errors
-  }
+  } catch {}
 }
 
 export function clearCachedProfile(uid: string): void {
@@ -63,9 +61,7 @@ export function clearCachedProfile(uid: string): void {
 
   try {
     localStorage.removeItem(`${CACHE_KEY}_${uid}`)
-  } catch {
-    // Ignore localStorage errors
-  }
+  } catch {}
 }
 
 export async function fetchUserProfile(token: string, uid: string): Promise<UserProfile> {
@@ -135,8 +131,9 @@ export async function updateUserRole(
   const data: ApiResponse<UserProfile> = await response.json()
 
   if (!data.success || !data.data) {
-    throw new Error(data.error?.message || 'Falha ao atualizar função')
-  } // Update cache
+    throw new Error(data.error?.message || 'Failed to update role')
+  }
+
   setCachedProfile(data.data)
 
   return data.data
