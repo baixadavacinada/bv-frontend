@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import { BvButton } from '@/components'
 import { loginWithGoogle } from '@/lib/auth-service'
 import { useAuth } from '@/hooks/use-firebase-auth'
-import { FaArrowRight } from 'react-icons/fa6'
 import {
   Card,
   CardContent,
@@ -149,8 +148,7 @@ export default function Page() {
                   className="flex justify-start px-0 text-sm text-slate-500 hover:underline"
                   onClick={() => router.push('/inicio')}
                 >
-                  Continuar sem criar uma conta
-                  <FaArrowRight className="mr-1" />
+                  Continuar sem criar uma conta ➔
                 </Button>
               </div>
             </CardFooter>
