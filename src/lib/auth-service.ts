@@ -112,7 +112,9 @@ export async function loginWithGoogle(): Promise<{
           backendData = data.data
         }
       }
-    } catch {}
+    } catch (error) {
+      console.error('Backend login/google error:', error)
+    }
 
     return {
       user: result.user,
@@ -121,7 +123,14 @@ export async function loginWithGoogle(): Promise<{
     }
   } catch (error: unknown) {
     const firebaseError = error as { code?: string; message?: string }
-    throw new Error(getFirebaseErrorMessage(firebaseError.code || 'unknown'))
+    const errorCode = firebaseError.code
+    if (errorCode === 'auth/popup-closed-by-user') {
+      throw new Error('Login cancelado pelo usuário')
+    }
+    if (errorCode === 'auth/popup-blocked') {
+      throw new Error('Popup bloqueado pelo navegador')
+    }
+    throw new Error(getFirebaseErrorMessage(errorCode || 'unknown'))
   }
 }
 
