@@ -66,7 +66,7 @@ export function clearCachedProfile(uid: string): void {
 
 export async function fetchUserProfile(token: string, uid: string): Promise<UserProfile> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/profile`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/profile`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -184,7 +184,7 @@ export async function createUserProfile(
   firebaseUser: { uid: string; email: string | null; displayName: string | null },
 ): Promise<UserProfile> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/profile`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/profile`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
