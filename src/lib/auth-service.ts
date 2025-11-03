@@ -123,12 +123,6 @@ export async function registerUser(
   backendData?: unknown
 }> {
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password)
-
-    await updateProfile(userCredential.user, {
-      displayName: userData.displayName,
-    })
-
     let backendData = null
     try {
       const response = await fetch(
@@ -147,8 +141,19 @@ export async function registerUser(
         if (data.success) {
           backendData = data.data
         }
+      } else {
+        const data: ApiResponse = await response.json()
+        throw new Error(data.error?.message || 'Erro ao registrar no backend')
       }
-    } catch {}
+    } catch (error) {
+      throw error
+    }
+
+    const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password)
+
+    await updateProfile(userCredential.user, {
+      displayName: userData.displayName,
+    })
 
     await signOut(auth)
 
