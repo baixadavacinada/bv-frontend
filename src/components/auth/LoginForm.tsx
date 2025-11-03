@@ -42,7 +42,11 @@ export function LoginForm({ onSuccess, redirectTo = '/inicio' }: LoginFormProps)
     setError('')
 
     try {
-      await loginWithEmail(data)
+      const credentials = {
+        email: data.email,
+        password: data.password,
+      }
+      await loginWithEmail(credentials)
 
       if (onSuccess) {
         onSuccess()

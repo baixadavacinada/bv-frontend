@@ -48,6 +48,16 @@ export async function loginWithEmail(credentials: LoginCredentials): Promise<{
       document.cookie = `firebase-token=${token}; path=/; ${secureFlag} samesite=strict; max-age=${24 * 60 * 60}`
     }
 
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken: token }),
+      })
+    } catch {}
+
     return {
       user: userCredential.user,
       token: token,
@@ -160,6 +170,60 @@ export async function registerUser(
     if (typeof document !== 'undefined') {
       document.cookie = 'firebase-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
     }
+
+    return {
+      user: userCredential.user,
+      backendData: backendData,
+    }
+  } catch (error: unknown) {
+    const firebaseError = error as { code?: string; message?: string }
+    throw new Error(getFirebaseErrorMessage(firebaseError.code || 'unknown'))
+  }
+}
+
+export async function registerUserConcurrent(
+  userData: RegisterData,
+  password: string,
+): Promise<{
+  user: FirebaseUser
+  backendData?: unknown
+}> {
+  try {
+    const results = await Promise.allSettled([
+      createUserWithEmailAndPassword(auth, userData.email, password),
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      }),
+    ])
+
+    const firebaseResult = results[0]
+    const backendResult = results[1]
+
+    if (firebaseResult.status === 'rejected') {
+      throw new Error(
+        getFirebaseErrorMessage((firebaseResult.reason as { code?: string })?.code || 'unknown'),
+      )
+    }
+
+    let backendData = null
+    if (backendResult.status === 'fulfilled' && backendResult.value.ok) {
+      const data: ApiResponse = await backendResult.value.json()
+      if (data.success) {
+        backendData = data.data
+      }
+    }
+
+    const userCredential = firebaseResult.value as unknown as { user: FirebaseUser }
+
+    await updateProfile(userCredential.user, {
+      displayName: userData.displayName,
+    })
+
+    await signOut(auth)
 
     return {
       user: userCredential.user,
