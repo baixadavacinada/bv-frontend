@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BvButton, BvFormInput } from '@/components'
-import { registerUserConcurrent } from '@/lib/auth-service'
+import { registerUser } from '@/lib/auth-service'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -48,7 +48,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     setError('')
 
     try {
-      await registerUserConcurrent(
+      await registerUser(
         {
           email: data.email,
           displayName: data.displayName,
