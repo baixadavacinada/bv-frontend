@@ -122,6 +122,9 @@ export async function loginWithGoogle(): Promise<{
   }
 }
 
+/**
+ * Registra novo usuário
+ */
 export async function registerUser(
   userData: RegisterData,
   password: string,
@@ -130,37 +133,39 @@ export async function registerUser(
   backendData?: unknown
 }> {
   try {
+    // Cria no Firebase PRIMEIRO (antes de chamar a API)
     const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password)
 
+    // Update Firebase profile
     await updateProfile(userCredential.user, {
       displayName: userData.displayName,
     })
 
-    const token = await userCredential.user.getIdToken()
-
+    // Agora chama a API APENAS com email e displayName (SEM senha)
     let backendData = null
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/sync`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/register`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
         },
-        body: JSON.stringify({
-          email: userData.email,
-          displayName: userData.displayName,
-        }),
-      })
+      )
 
-      const data: ApiResponse = await response.json()
-
-      if (response.ok && data.success) {
-        backendData = data.data
+      if (response.ok) {
+        const data: ApiResponse = await response.json()
+        if (data.success) {
+          backendData = data.data
+        }
       }
     } catch {
-      // Backend sync failed, continue with Firebase only
+      // Backend not available, continue with Firebase only
     }
 
+    // Sign out to force manual login
     await signOut(auth)
 
     if (typeof document !== 'undefined') {

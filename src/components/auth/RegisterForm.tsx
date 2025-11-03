@@ -101,6 +101,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     setError('')
 
     try {
+      // Passa senha como parâmetro separado - NUNCA será enviada para a API
       await registerUser(
         {
           email: data.email,
