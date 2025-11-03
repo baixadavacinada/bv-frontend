@@ -92,8 +92,8 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
       uid,
       email: null,
       displayName: null,
-      role: 'public',
-      permissions: ROLE_PERMISSIONS.public,
+      role: 'admin',
+      permissions: ROLE_PERMISSIONS.admin,
       isActive: true,
       emailVerified: false,
       createdAt: new Date().toISOString(),
@@ -193,7 +193,7 @@ export async function createUserProfile(
         uid: firebaseUser.uid,
         email: firebaseUser.email,
         displayName: firebaseUser.displayName,
-        role: 'public', // Default role
+        role: 'admin', // Default role
       }),
     })
 
@@ -215,8 +215,8 @@ export async function createUserProfile(
       uid: firebaseUser.uid,
       email: firebaseUser.email,
       displayName: firebaseUser.displayName,
-      role: 'public',
-      permissions: ROLE_PERMISSIONS.public,
+      role: 'admin',
+      permissions: ROLE_PERMISSIONS.admin,
       isActive: true,
       emailVerified: false,
       createdAt: new Date().toISOString(),
