@@ -17,7 +17,6 @@ export interface LoginCredentials {
 
 export interface RegisterData {
   email: string
-  password: string
   displayName: string
 }
 
@@ -130,7 +129,10 @@ export async function loginWithGoogle(): Promise<{
 /**
  * Registra novo usuário
  */
-export async function registerUser(userData: RegisterData): Promise<{
+export async function registerUser(
+  userData: RegisterData,
+  password: string,
+): Promise<{
   user: FirebaseUser
   backendData?: unknown
 }> {
@@ -145,7 +147,10 @@ export async function registerUser(userData: RegisterData): Promise<{
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(userData),
+          body: JSON.stringify({
+            email: userData.email,
+            displayName: userData.displayName,
+          }),
         },
       )
 
@@ -160,11 +165,7 @@ export async function registerUser(userData: RegisterData): Promise<{
     }
 
     // Registra no Firebase
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      userData.email,
-      userData.password,
-    )
+    const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password)
 
     // Update Firebase profile
     await updateProfile(userCredential.user, {
