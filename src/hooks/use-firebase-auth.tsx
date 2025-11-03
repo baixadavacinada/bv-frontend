@@ -5,12 +5,7 @@ import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { logout as authLogout } from '@/lib/auth-service'
 import { UserRole, Permission, UserClaims } from '@/types/auth'
-import {
-  fetchUserProfile,
-  getCachedProfile,
-  clearCachedProfile,
-  createUserProfile,
-} from '@/lib/roles-service'
+import { fetchUserProfile, getCachedProfile, clearCachedProfile } from '@/lib/roles-service'
 
 export type { UserRole, Permission, UserClaims } from '@/types/auth'
 
@@ -175,17 +170,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
           // Try to get profile from cache first
           let userProfile = getCachedProfile(firebaseUser.uid)
 
-          // If no cache, try to fetch from backend or create if new user
+          // If no cache, try to fetch from backend
           if (!userProfile) {
             try {
               userProfile = await fetchUserProfile(token, firebaseUser.uid)
             } catch {
-              // If fetch fails, try to create profile (for new users)
-              userProfile = await createUserProfile(token, {
+              // Se não encontrar, usa perfil padrão
+              userProfile = {
                 uid: firebaseUser.uid,
                 email: firebaseUser.email,
                 displayName: firebaseUser.displayName,
-              })
+                role: 'public',
+                permissions: [],
+                isActive: true,
+                emailVerified: false,
+                createdAt: new Date().toISOString(),
+              }
             }
           }
 

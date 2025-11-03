@@ -9,6 +9,7 @@ import {
   User as FirebaseUser,
 } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
+import { createUserProfile } from '@/lib/roles-service'
 
 export interface LoginCredentials {
   email: string
@@ -174,7 +175,23 @@ export async function registerUser(
       displayName: userData.displayName,
     })
 
-    await signOut(auth)
+    const token = await userCredential.user.getIdToken()
+
+    try {
+      await createUserProfile(token, {
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        displayName: userCredential.user.displayName,
+      })
+    } catch {
+      // Se createUserProfile falhar, continua (já foi criado na API antes)
+    }
+
+    if (typeof document !== 'undefined') {
+      const isProduction = process.env.NODE_ENV === 'production'
+      const secureFlag = isProduction ? 'secure;' : ''
+      document.cookie = `firebase-token=${token}; path=/; ${secureFlag} samesite=strict; max-age=${24 * 60 * 60}`
+    }
 
     if (typeof document !== 'undefined') {
       document.cookie = 'firebase-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
