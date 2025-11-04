@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { BvButton, BvFormInput } from '@/components'
-import { registerUser } from '@/lib/auth-service'
+import { registerUser, logout } from '@/lib/auth-service'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -109,10 +109,11 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         data.password,
       )
 
+      await logout()
+
       if (onSuccess) {
         onSuccess()
       } else {
-        // Redireciona para login com sucesso
         router.push('/login?registered=true')
       }
     } catch (err: unknown) {

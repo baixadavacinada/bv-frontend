@@ -9,6 +9,7 @@ import {
   User as FirebaseUser,
 } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
+import { createUserProfile } from '@/lib/roles-service'
 
 export interface LoginCredentials {
   email: string
@@ -29,9 +30,6 @@ export interface ApiResponse<T = unknown> {
   }
 }
 
-/**
- * Faz login com email e senha
- */
 export async function loginWithEmail(credentials: LoginCredentials): Promise<{
   user: FirebaseUser
   token: string
@@ -45,12 +43,21 @@ export async function loginWithEmail(credentials: LoginCredentials): Promise<{
 
     const token = await userCredential.user.getIdToken()
 
-    // Store token in cookie for SSR support
     if (typeof document !== 'undefined') {
       const isProduction = process.env.NODE_ENV === 'production'
       const secureFlag = isProduction ? 'secure;' : ''
       document.cookie = `firebase-token=${token}; path=/; ${secureFlag} samesite=strict; max-age=${24 * 60 * 60}`
     }
+
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken: token }),
+      })
+    } catch {}
 
     return {
       user: userCredential.user,
@@ -81,7 +88,6 @@ export async function loginWithGoogle(): Promise<{
     const result = await signInWithPopup(auth, provider)
     const token = await result.user.getIdToken()
 
-    // Store token in cookie for SSR support
     if (typeof document !== 'undefined') {
       const isProduction = process.env.NODE_ENV === 'production'
       const secureFlag = isProduction ? 'secure;' : ''
@@ -107,8 +113,8 @@ export async function loginWithGoogle(): Promise<{
           backendData = data.data
         }
       }
-    } catch {
-      // Backend not available, continue with Firebase only
+    } catch (error) {
+      console.error('Backend login/google error:', error)
     }
 
     return {
@@ -118,7 +124,14 @@ export async function loginWithGoogle(): Promise<{
     }
   } catch (error: unknown) {
     const firebaseError = error as { code?: string; message?: string }
-    throw new Error(getFirebaseErrorMessage(firebaseError.code || 'unknown'))
+    const errorCode = firebaseError.code
+    if (errorCode === 'auth/popup-closed-by-user') {
+      throw new Error('Login cancelado pelo usuário')
+    }
+    if (errorCode === 'auth/popup-blocked') {
+      throw new Error('Popup bloqueado pelo navegador')
+    }
+    throw new Error(getFirebaseErrorMessage(errorCode || 'unknown'))
   }
 }
 
@@ -130,6 +143,34 @@ export async function registerUser(
   backendData?: unknown
 }> {
   try {
+    // First, register in backend
+    let backendData = null
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/register`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        },
+      )
+
+      if (response.ok) {
+        const data: ApiResponse = await response.json()
+        if (data.success) {
+          backendData = data.data
+        }
+      } else {
+        const data: ApiResponse = await response.json()
+        throw new Error(data.error?.message || 'Erro ao registrar no backend')
+      }
+    } catch (error) {
+      throw error
+    }
+
+    // Then create Firebase user
     const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password)
 
     await updateProfile(userCredential.user, {
@@ -138,33 +179,20 @@ export async function registerUser(
 
     const token = await userCredential.user.getIdToken()
 
-    let backendData = null
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/sync`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          email: userData.email,
-          displayName: userData.displayName,
-        }),
+      await createUserProfile(token, {
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        displayName: userCredential.user.displayName,
       })
-
-      const data: ApiResponse = await response.json()
-
-      if (response.ok && data.success) {
-        backendData = data.data
-      }
     } catch {
-      // Backend sync failed, continue with Firebase only
+      // Se createUserProfile falhar, continua (já foi criado na API antes)
     }
 
-    await signOut(auth)
-
     if (typeof document !== 'undefined') {
-      document.cookie = 'firebase-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+      const isProduction = process.env.NODE_ENV === 'production'
+      const secureFlag = isProduction ? 'secure;' : ''
+      document.cookie = `firebase-token=${token}; path=/; ${secureFlag} samesite=strict; max-age=${24 * 60 * 60}`
     }
 
     return {

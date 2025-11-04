@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import { BvButton } from '@/components'
 import { loginWithGoogle } from '@/lib/auth-service'
 import { useAuth } from '@/hooks/use-firebase-auth'
-
 import {
   Card,
   CardContent,
@@ -15,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 export default function Page() {
   const DoctorIllustration = '/img-inicio.svg'
@@ -142,6 +142,14 @@ export default function Page() {
                   disabled={isLoading}
                   title="Outras formas"
                 />
+
+                <Button
+                  variant="link"
+                  className="flex justify-start px-0 text-sm text-slate-500 hover:underline"
+                  onClick={() => router.push('/inicio')}
+                >
+                  Continuar sem criar uma conta ➔
+                </Button>
               </div>
             </CardFooter>
           </div>

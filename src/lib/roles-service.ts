@@ -53,9 +53,7 @@ export function setCachedProfile(profile: UserProfile): void {
       timestamp: Date.now(),
     }
     localStorage.setItem(`${CACHE_KEY}_${profile.uid}`, JSON.stringify(cached))
-  } catch {
-    // Ignore localStorage errors
-  }
+  } catch {}
 }
 
 export function clearCachedProfile(uid: string): void {
@@ -63,9 +61,7 @@ export function clearCachedProfile(uid: string): void {
 
   try {
     localStorage.removeItem(`${CACHE_KEY}_${uid}`)
-  } catch {
-    // Ignore localStorage errors
-  }
+  } catch {}
 }
 
 export async function fetchUserProfile(token: string, uid: string): Promise<UserProfile> {

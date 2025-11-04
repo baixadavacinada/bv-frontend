@@ -75,7 +75,6 @@ export function setupAPIClient(
 
 export const api = setupAPIClient()
 
-// Classe para gerenciar requisições da API com tipagem
 export class ApiClient {
   private baseURL: string
 

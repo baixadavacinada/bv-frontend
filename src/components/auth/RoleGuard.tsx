@@ -25,19 +25,16 @@ export function RoleGuard({
     return <div>Carregando...</div>
   }
 
-  // Verificar autenticação se necessário
   if (requireAuth && !user) {
     return <>{fallback}</>
   }
 
-  // Verificar roles se especificados
   if (allowedRoles && allowedRoles.length > 0) {
     if (!user || !hasRole(allowedRoles)) {
       return <>{fallback}</>
     }
   }
 
-  // Verificar permissões se especificadas
   if (requiredPermissions && requiredPermissions.length > 0) {
     if (!user || !hasPermission(requiredPermissions, requireAll)) {
       return <>{fallback}</>
