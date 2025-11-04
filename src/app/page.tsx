@@ -142,14 +142,6 @@ export default function Page() {
                   disabled={isLoading}
                   title="Outras formas"
                 />
-
-                <Button
-                  variant="link"
-                  className="flex justify-start px-0 text-sm text-slate-500 hover:underline"
-                  onClick={() => router.push('/inicio')}
-                >
-                  Continuar sem criar uma conta ➔
-                </Button>
               </div>
             </CardFooter>
           </div>
