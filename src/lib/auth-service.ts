@@ -71,9 +71,6 @@ export async function loginWithEmail(credentials: LoginCredentials): Promise<{
   }
 }
 
-/**
- * Faz login com Google
- */
 export async function loginWithGoogle(): Promise<{
   user: FirebaseUser
   token: string
@@ -91,7 +88,6 @@ export async function loginWithGoogle(): Promise<{
       document.cookie = `firebase-token=${token}; path=/; ${secureFlag} samesite=strict; max-age=${24 * 60 * 60}`
     }
 
-    // Try backend authentication, but continue if it fails
     let backendData = null
     try {
       const response = await fetch(
@@ -126,9 +122,6 @@ export async function loginWithGoogle(): Promise<{
   }
 }
 
-/**
- * Registra novo usuário
- */
 export async function registerUser(
   userData: RegisterData,
   password: string,
@@ -163,16 +156,9 @@ export async function registerUser(
 
       if (response.ok && data.success) {
         backendData = data.data
-        console.info('User synced to backend successfully', backendData)
-      } else {
-        console.warn('Backend sync warning:', {
-          status: response.status,
-          success: data.success,
-          error: data.error?.message,
-        })
       }
-    } catch (error) {
-      console.error('Backend sync failed, but Firebase user created:', error)
+    } catch {
+      // Backend sync failed, continue with Firebase only
     }
 
     await signOut(auth)
@@ -191,14 +177,10 @@ export async function registerUser(
   }
 }
 
-/**
- * Envia email de reset de senha
- */
 export async function resetPassword(email: string): Promise<void> {
   try {
     await sendPasswordResetEmail(auth, email)
 
-    // Also notify backend
     await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/password-reset`, {
       method: 'POST',
       headers: {
@@ -212,14 +194,10 @@ export async function resetPassword(email: string): Promise<void> {
   }
 }
 
-/**
- * Faz logout
- */
 export async function logout(): Promise<void> {
   try {
     await signOut(auth)
 
-    // Remove token from cookie
     if (typeof document !== 'undefined') {
       document.cookie = 'firebase-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
     }
@@ -229,9 +207,6 @@ export async function logout(): Promise<void> {
   }
 }
 
-/**
- * Verifica token no backend
- */
 export async function verifyToken(token: string): Promise<unknown> {
   try {
     const response = await fetch(
@@ -263,7 +238,6 @@ export async function verifyToken(token: string): Promise<unknown> {
 
     return data.data
   } catch (error) {
-    // Se for erro de rede/CORS, relança com mensagem mais específica
     if (error instanceof TypeError && error.message.includes('fetch')) {
       throw new Error('Não foi possível conectar ao servidor (CORS/Rede)')
     }
@@ -271,9 +245,6 @@ export async function verifyToken(token: string): Promise<unknown> {
   }
 }
 
-/**
- * Converte códigos de erro do Firebase em mensagens amigáveis
- */
 function getFirebaseErrorMessage(errorCode: string): string {
   switch (errorCode) {
     case 'auth/user-not-found':
