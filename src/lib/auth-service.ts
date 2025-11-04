@@ -9,7 +9,6 @@ import {
   User as FirebaseUser,
 } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
-import { createUserProfile } from '@/lib/roles-service'
 
 export interface LoginCredentials {
   email: string
@@ -143,34 +142,7 @@ export async function registerUser(
   backendData?: unknown
 }> {
   try {
-    // First, register in backend
-    let backendData = null
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/register`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(userData),
-        },
-      )
-
-      if (response.ok) {
-        const data: ApiResponse = await response.json()
-        if (data.success) {
-          backendData = data.data
-        }
-      } else {
-        const data: ApiResponse = await response.json()
-        throw new Error(data.error?.message || 'Erro ao registrar no backend')
-      }
-    } catch (error) {
-      throw error
-    }
-
-    // Then create Firebase user
+    // Create Firebase user first
     const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password)
 
     await updateProfile(userCredential.user, {
@@ -179,14 +151,28 @@ export async function registerUser(
 
     const token = await userCredential.user.getIdToken()
 
+    // Then sync with backend
+    let backendData = null
     try {
-      await createUserProfile(token, {
-        uid: userCredential.user.uid,
-        email: userCredential.user.email,
-        displayName: userCredential.user.displayName,
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/sync`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          email: userData.email,
+          displayName: userData.displayName,
+        }),
       })
+
+      const data: ApiResponse = await response.json()
+
+      if (response.ok && data.success) {
+        backendData = data.data
+      }
     } catch {
-      // Se createUserProfile falhar, continua (já foi criado na API antes)
+      // Backend sync failed, continue with Firebase only
     }
 
     if (typeof document !== 'undefined') {
