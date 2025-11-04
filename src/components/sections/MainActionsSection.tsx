@@ -69,7 +69,7 @@ export function MainActionsSection() {
       title: cards('manageUsers.title'),
       description: cards('manageUsers.description'),
       icon: RegisterIcon,
-      action: () => router.push('/registro-morador'),
+      action: () => router.push('/registro-usuario'),
       variant: 'stacked',
     },
 

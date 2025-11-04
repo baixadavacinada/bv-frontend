@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Rotas de autenticação que redirecionam se já logado
-const authRoutes = ['/login', '/registro-morador']
+const authRoutes = ['/login', '/registro-usuario']
 
 const REDIRECT_WHEN_NOT_AUTHENTICATED = '/login'
 const REDIRECT_WHEN_AUTHENTICATED = '/inicio'
