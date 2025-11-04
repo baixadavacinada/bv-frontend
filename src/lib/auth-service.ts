@@ -137,43 +137,49 @@ export async function registerUser(
   backendData?: unknown
 }> {
   try {
-    // Try backend registration first, but continue if it fails
-    let backendData = null
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/register`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: userData.email,
-            displayName: userData.displayName,
-          }),
-        },
-      )
-
-      if (response.ok) {
-        const data: ApiResponse = await response.json()
-        if (data.success) {
-          backendData = data.data
-        }
-      }
-    } catch {
-      // Backend not available, continue with Firebase only
-    }
-
-    // Registra no Firebase
     const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password)
 
-    // Update Firebase profile
     await updateProfile(userCredential.user, {
       displayName: userData.displayName,
     })
 
-    // Sign out to force manual login
+    const token = await userCredential.user.getIdToken()
+
+    let backendData = null
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/sync`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          email: userData.email,
+          displayName: userData.displayName,
+        }),
+      })
+
+      const data: ApiResponse = await response.json()
+
+      if (response.ok && data.success) {
+        backendData = data.data
+        console.info('User synced to backend successfully', backendData)
+      } else {
+        console.warn('Backend sync warning:', {
+          status: response.status,
+          success: data.success,
+          error: data.error?.message,
+        })
+      }
+    } catch (error) {
+      console.error('Backend sync failed, but Firebase user created:', error)
+    }
+
     await signOut(auth)
+
+    if (typeof document !== 'undefined') {
+      document.cookie = 'firebase-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    }
 
     return {
       user: userCredential.user,
