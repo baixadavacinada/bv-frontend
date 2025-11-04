@@ -4,7 +4,6 @@ import { CiSettings } from 'react-icons/ci'
 import { FaSyringe } from 'react-icons/fa'
 import { IconType } from 'react-icons'
 import {
-  BsSun,
   BsFillPersonFill,
   BsHouse,
   BsGeoAlt,
@@ -55,7 +54,7 @@ export const sidebarNavigation: NavigationItem[] = [
     id: 'user-register',
     icon: BsFileEarmarkText,
     label: 'Registro por morador',
-    href: '/registro-morador',
+    href: '/registro-usuario',
     requiredPermission: 'user-register',
     hideForRoles: ['public'],
   },
@@ -147,11 +146,11 @@ export const sidebarNavigation: NavigationItem[] = [
 
 // Ações do navbar (ícones do canto direito)
 export const navbarActions: NavigationItem[] = [
-  {
-    id: 'tema',
-    icon: BsSun,
-    href: '/',
-  },
+  // {
+  //   id: 'tema',
+  //   icon: BsSun,
+  //   href: '/',
+  // },
   {
     id: 'configuracao',
     icon: CiSettings,
