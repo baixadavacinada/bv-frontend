@@ -17,6 +17,9 @@ const barlow = Barlow({
 export const metadata: Metadata = {
   title: 'Baixada Vacinada',
   description: 'Plataforma de informações sobre vacinação',
+  other: {
+    'Content-Language': 'pt-BR',
+  },
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
