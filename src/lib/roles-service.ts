@@ -85,7 +85,7 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
     const data: ApiResponse<UserProfile> = await response.json()
 
     if (!data.success || !data.data) {
-      throw new Error(data.error?.message || 'Failed to fetch profile')
+      throw new Error(data.error?.message || 'Falha ao buscar perfil')
     }
 
     setCachedProfile(data.data)
@@ -135,10 +135,8 @@ export async function updateUserRole(
   const data: ApiResponse<UserProfile> = await response.json()
 
   if (!data.success || !data.data) {
-    throw new Error(data.error?.message || 'Failed to update role')
-  }
-
-  // Update cache
+    throw new Error(data.error?.message || 'Falha ao atualizar função')
+  } // Update cache
   setCachedProfile(data.data)
 
   return data.data
@@ -173,9 +171,8 @@ export async function listUsers(
   const data: ApiResponse = await response.json()
 
   if (!data.success) {
-    throw new Error(data.error?.message || 'Failed to list users')
+    throw new Error(data.error?.message || 'Falha ao listar usuários')
   }
-
   return data.data as {
     users: UserProfile[]
     total: number
@@ -210,7 +207,7 @@ export async function createUserProfile(
     const data: ApiResponse<UserProfile> = await response.json()
 
     if (!data.success || !data.data) {
-      throw new Error(data.error?.message || 'Failed to create profile')
+      throw new Error(data.error?.message || 'Falha ao criar perfil')
     }
 
     setCachedProfile(data.data)
