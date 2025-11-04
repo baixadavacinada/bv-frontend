@@ -20,10 +20,12 @@ function LoginPageContent() {
     // Verifica se veio da página de registro
     if (searchParams.get('registered') === 'true') {
       setShowWelcomeMessage(true)
+      // Remove o parâmetro da URL para evitar que a mensagem persista após refresh
+      router.replace('/login')
       // Remove a mensagem após 10 segundos
       setTimeout(() => setShowWelcomeMessage(false), 10000)
     }
-  }, [searchParams])
+  }, [searchParams, router])
 
   if (showResetPassword) {
     return (
@@ -107,13 +109,15 @@ function LoginPageContent() {
             className="text-primary"
             variant="ghost"
             title="Esqueceu sua senha?"
-          />
+          >
+            Esqueceu sua senha?
+          </BvButton>
 
           <div className="border-t pt-4">
             <p className="text-gray-600">
               Não tem uma conta?{' '}
               <BvButton
-                onClick={() => router.push('/registro-morador')}
+                onClick={() => router.push('/registro-usuario')}
                 className="text-primary font-medium hover:underline"
                 variant="link"
                 title="Cadastre-se aqui"
