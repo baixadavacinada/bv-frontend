@@ -1,9 +1,4 @@
-/**
- * Backend-Only Role Management Service
- * Manages user roles through backend API without Firebase Cloud Functions
- */
-
-import { UserRole, Permission, ROLE_PERMISSIONS, UserProfile } from '@/types/auth'
+import { UserRole, ROLE_PERMISSIONS, UserProfile } from '@/types/auth'
 
 interface RoleUpdateRequest {
   uid: string
@@ -21,9 +16,6 @@ interface ApiResponse<T = unknown> {
   }
 }
 
-/**
- * Cache key for localStorage
- */
 const CACHE_KEY = 'user_profile_cache'
 const CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
 
@@ -32,9 +24,6 @@ interface CachedProfile {
   timestamp: number
 }
 
-/**
- * Get cached user profile from localStorage
- */
 export function getCachedProfile(uid: string): UserProfile | null {
   if (typeof window === 'undefined') return null
 
@@ -44,7 +33,6 @@ export function getCachedProfile(uid: string): UserProfile | null {
 
     const { profile, timestamp }: CachedProfile = JSON.parse(cached)
 
-    // Check if cache is still valid
     if (Date.now() - timestamp > CACHE_DURATION) {
       localStorage.removeItem(`${CACHE_KEY}_${uid}`)
       return null
@@ -56,9 +44,6 @@ export function getCachedProfile(uid: string): UserProfile | null {
   }
 }
 
-/**
- * Cache user profile in localStorage
- */
 export function setCachedProfile(profile: UserProfile): void {
   if (typeof window === 'undefined') return
 
@@ -73,9 +58,6 @@ export function setCachedProfile(profile: UserProfile): void {
   }
 }
 
-/**
- * Clear cached profile
- */
 export function clearCachedProfile(uid: string): void {
   if (typeof window === 'undefined') return
 
@@ -86,9 +68,6 @@ export function clearCachedProfile(uid: string): void {
   }
 }
 
-/**
- * Fetch user profile from backend API
- */
 export async function fetchUserProfile(token: string, uid: string): Promise<UserProfile> {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/profile`, {
@@ -109,12 +88,10 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
       throw new Error(data.error?.message || 'Failed to fetch profile')
     }
 
-    // Cache the profile
     setCachedProfile(data.data)
 
     return data.data
   } catch {
-    // If backend fails, return default profile based on Firebase user
     const defaultProfile: UserProfile = {
       uid,
       email: null,
@@ -130,9 +107,6 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
   }
 }
 
-/**
- * Update user role via backend API (Admin only)
- */
 export async function updateUserRole(
   token: string,
   request: RoleUpdateRequest,
@@ -170,9 +144,6 @@ export async function updateUserRole(
   return data.data
 }
 
-/**
- * List all users (Admin only)
- */
 export async function listUsers(
   token: string,
   page = 1,
@@ -213,9 +184,6 @@ export async function listUsers(
   }
 }
 
-/**
- * Create user profile in backend after Firebase registration
- */
 export async function createUserProfile(
   token: string,
   firebaseUser: { uid: string; email: string | null; displayName: string | null },
@@ -245,12 +213,10 @@ export async function createUserProfile(
       throw new Error(data.error?.message || 'Failed to create profile')
     }
 
-    // Cache the profile
     setCachedProfile(data.data)
 
     return data.data
   } catch {
-    // If backend fails, return default profile
     const defaultProfile: UserProfile = {
       uid: firebaseUser.uid,
       email: firebaseUser.email,
@@ -262,20 +228,14 @@ export async function createUserProfile(
       createdAt: new Date().toISOString(),
     }
 
-    // Cache default profile
     setCachedProfile(defaultProfile)
 
     return defaultProfile
   }
 }
 
-/**
- * Refresh user profile and update cache
- */
 export async function refreshUserProfile(token: string, uid: string): Promise<UserProfile> {
-  // Clear cache first
   clearCachedProfile(uid)
 
-  // Fetch fresh profile
   return fetchUserProfile(token, uid)
 }
