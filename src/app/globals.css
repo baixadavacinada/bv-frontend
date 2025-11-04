@@ -1,6 +1,12 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* Clarear os asteriscos de campos de senha */
+input[type='password'] {
+  color: transparent;
+  text-shadow: 0 0 0 #999999;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
