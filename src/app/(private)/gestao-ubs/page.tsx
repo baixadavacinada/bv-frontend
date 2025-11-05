@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { BvTitleHeader } from '@/components'
+import { BvTitleHeader, RoleGuard } from '@/components'
 import { CollapsibleFilter } from '@/components/design/BvCollapsibleFilter'
 import { UbsCardProps, BvUbsList } from '@/components/index'
 import { Input } from '@/components/ui/input'
@@ -11,15 +11,8 @@ import { mockUbsData } from '@/mock/ubs'
 
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
-import { Toaster, toast } from 'sonner'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
-} from '@/components/ui/dialog'
+import { toast } from 'sonner'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { useRouter } from 'next/navigation'
 
 type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle' | 'onDelete'>
 
@@ -45,13 +39,12 @@ const initialUbsListData: UbsListData[] = mockUbsData.map((ubs) => ({
 
 export default function UbsScreen() {
   const [ubsList, setUbsList] = useState(initialUbsListData)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [newUbsName, setNewUbsName] = useState('')
-  const [newUbsNeighborhood, setNewUbsNeighborhood] = useState('')
   const [deleteAlert, setDeleteAlert] = useState<{ isOpen: boolean; id: number | null }>({
     isOpen: false,
     id: null,
   })
+
+  const router = useRouter()
 
   const handleFavoriteToggle = (id: number) => {
     setUbsList((currentList) =>
@@ -76,28 +69,6 @@ export default function UbsScreen() {
     setDeleteAlert({ isOpen: false, id: null })
   }
 
-  const handleCreateSubmit = (event: React.FormEvent) => {
-    event.preventDefault()
-    if (!newUbsName || !newUbsNeighborhood) {
-      toast.warning('Preencha o nome e o bairro da UBS.')
-      return
-    }
-    const newId = +1
-    const newUbs: UbsListData = {
-      id: newId,
-      component: 'private',
-      slug: newId,
-      name: newUbsName,
-      neighborhood: newUbsNeighborhood,
-      distanceInKm: 0,
-      isFavorite: false,
-    }
-    setUbsList((currentList) => [newUbs, ...currentList])
-    toast.success(`UBS "${newUbsName}" foi criada com sucesso!`)
-    setNewUbsName('')
-    setNewUbsNeighborhood('')
-    setIsCreateModalOpen(false)
-  }
   return (
     <>
       <div>
@@ -122,14 +93,14 @@ export default function UbsScreen() {
             </div>
           </CollapsibleFilter>
         </div>
-
-        <div className="mb-8 flex justify-end">
-          <Button className="w-full" onClick={() => setIsCreateModalOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar Nova UBS
-          </Button>
-        </div>
-
+        <RoleGuard allowedRoles={['admin']}>
+          <div className="mb-8 flex justify-end">
+            <Button className="w-full" onClick={() => router.push('gestao-ubs/form-ubs/novo')}>
+              <Plus className="mr-2 h-4 w-4" />
+              Adicionar Nova UBS
+            </Button>
+          </div>
+        </RoleGuard>
         <BvUbsList
           ubsList={ubsList}
           path="gestao-ubs"
@@ -139,50 +110,6 @@ export default function UbsScreen() {
           onShareRequest={(name: string) => toast.info(`Compartilhando "${name}"...`)}
         />
       </div>
-
-      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Adicionar Nova UBS</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleCreateSubmit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Nome
-                </Label>
-                <Input
-                  id="name"
-                  value={newUbsName}
-                  onChange={(e) => setNewUbsName(e.target.value)}
-                  className="col-span-3"
-                  placeholder="Ex: UBS Jardim Esperança"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="neighborhood" className="text-right">
-                  Bairro
-                </Label>
-                <Input
-                  id="neighborhood"
-                  value={newUbsNeighborhood}
-                  onChange={(e) => setNewUbsNeighborhood(e.target.value)}
-                  className="col-span-3"
-                  placeholder="Ex: Vila Oliveira"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button type="button" variant="outline">
-                  Cancelar
-                </Button>
-              </DialogClose>
-              <Button type="submit">Salvar UBS</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
 
       <AlertDialog
         open={deleteAlert.isOpen}
