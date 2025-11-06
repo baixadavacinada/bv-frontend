@@ -43,15 +43,7 @@ export const sidebarNavigation: NavigationItem[] = [
     hideForRoles: ['ADMIN'],
   },
   {
-    id: 'registro',
-    icon: BsFileEarmarkText,
-    label: 'Registro de vacinas',
-    href: '/vacinacao',
-    requiredPermission: 'vaccination',
-    hideForRoles: ['agent'],
-  },
-  {
-    id: 'user-register',
+    id: 'registration',
     icon: BsFileEarmarkText,
     label: 'Registro por morador',
     href: '/registro-usuario',

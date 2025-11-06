@@ -42,14 +42,14 @@ export function MainActionsSection() {
       action: () => router.push('/ubs'),
       variant: 'stacked',
     },
-    {
-      id: 'vaccination',
-      title: cards('vaccination.title'),
-      description: cards('vaccination.description'),
-      icon: RegisterIcon,
-      action: () => router.push('/vacinacao'),
-      variant: 'stacked',
-    },
+    // {
+    //   id: 'vaccination',
+    //   title: cards('vaccination.title'),
+    //   description: cards('vaccination.description'),
+    //   icon: RegisterIcon,
+    //   action: () => router.push('/vacinacao'),
+    //   variant: 'stacked',
+    // },
     {
       id: 'settings',
       title: cards('settings.title'),
