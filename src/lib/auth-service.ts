@@ -57,7 +57,7 @@ export async function loginWithEmail(credentials: LoginCredentials): Promise<{
     }
 
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}api/public/auth/sync`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/sync`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

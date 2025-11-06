@@ -72,7 +72,7 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}api/public/profile`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/profile`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
