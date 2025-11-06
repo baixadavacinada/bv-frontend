@@ -9,6 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { commonSchemas } from '@/schemas'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { Eye, EyeOff } from 'lucide-react'
 
 const loginSchema = z.object({
   email: commonSchemas.email,
@@ -27,6 +28,7 @@ export function LoginForm({ onSuccess, redirectTo = '/inicio' }: LoginFormProps)
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
 
   const {
@@ -103,14 +105,26 @@ export function LoginForm({ onSuccess, redirectTo = '/inicio' }: LoginFormProps)
           {...register('email')}
         />
 
-        <BvFormInput
-          label="Senha"
-          type="password"
-          placeholder="••••••••"
-          error={errors.password?.message}
-          disabled={isLoading}
-          {...register('password')}
-        />
+        <div className="relative">
+          <BvFormInput
+            label="Senha"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Digite sua senha (mínimo 6 caracteres)"
+            error={errors.password?.message}
+            disabled={isLoading}
+            {...register('password')}
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute top-9 right-3 text-gray-500 transition-colors hover:text-gray-700"
+            aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+            disabled={isLoading}
+          >
+            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       <div className="space-y-3">

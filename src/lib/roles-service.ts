@@ -131,7 +131,9 @@ export async function updateUserRole(
 
   if (!data.success || !data.data) {
     throw new Error(data.error?.message || 'Falha ao atualizar função')
-  } // Update cache
+  }
+
+  // Update cache
   setCachedProfile(data.data)
 
   return data.data
@@ -168,61 +170,12 @@ export async function listUsers(
   if (!data.success) {
     throw new Error(data.error?.message || 'Falha ao listar usuários')
   }
+
   return data.data as {
     users: UserProfile[]
     total: number
     page: number
     limit: number
-  }
-}
-
-export async function createUserProfile(
-  token: string,
-  firebaseUser: { uid: string; email: string | null; displayName: string | null },
-): Promise<UserProfile> {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/profile`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        displayName: firebaseUser.displayName,
-        role: 'public', // Default role
-      }),
-    })
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`)
-    }
-
-    const data: ApiResponse<UserProfile> = await response.json()
-
-    if (!data.success || !data.data) {
-      throw new Error(data.error?.message || 'Falha ao criar perfil')
-    }
-
-    setCachedProfile(data.data)
-
-    return data.data
-  } catch {
-    const defaultProfile: UserProfile = {
-      uid: firebaseUser.uid,
-      email: firebaseUser.email,
-      displayName: firebaseUser.displayName,
-      role: 'public',
-      permissions: ROLE_PERMISSIONS.public,
-      isActive: true,
-      emailVerified: false,
-      createdAt: new Date().toISOString(),
-    }
-
-    setCachedProfile(defaultProfile)
-
-    return defaultProfile
   }
 }
 

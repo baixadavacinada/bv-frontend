@@ -45,7 +45,7 @@ export async function loginWithEmail(credentials: LoginCredentials): Promise<{
     const decodedToken = await userCredential.user.getIdTokenResult()
     console.log('🔐 Firebase Login Successful:', {
       email: userCredential.user.email,
-      role: decodedToken.claims.role || '',
+      role: decodedToken.claims.role || 'public',
       claims: decodedToken.claims,
       timestamp: new Date().toISOString(),
     })
@@ -57,12 +57,16 @@ export async function loginWithEmail(credentials: LoginCredentials): Promise<{
     }
 
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/login`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/sync`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ idToken: token }),
+        body: JSON.stringify({
+          email: userCredential.user.email,
+          displayName: userCredential.user.displayName,
+        }),
       })
     } catch {}
 
@@ -114,16 +118,17 @@ export async function loginWithGoogle(): Promise<{
 
     let backendData = null
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/login/google`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ idToken: token }),
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/sync`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
-      )
+        body: JSON.stringify({
+          email: result.user.email,
+          displayName: result.user.displayName,
+        }),
+      })
 
       if (response.ok) {
         const data: ApiResponse = await response.json()
@@ -132,7 +137,7 @@ export async function loginWithGoogle(): Promise<{
         }
       }
     } catch (error) {
-      console.error('Backend login/google error:', error)
+      console.error('Backend sync error:', error)
     }
 
     return {
@@ -146,31 +151,46 @@ export async function loginWithGoogle(): Promise<{
     if (errorCode === 'auth/popup-closed-by-user') {
       throw new Error('Login cancelado pelo usuário')
     }
-    if (errorCode === 'auth/popup-blocked') {
-      throw new Error('Popup bloqueado pelo navegador')
-    }
     throw new Error(getFirebaseErrorMessage(errorCode || 'unknown'))
   }
 }
 
-export async function registerUser(
-  userData: RegisterData,
-  password: string,
-): Promise<{
+export async function registerUser(data: {
+  email: string
+  password: string
+  displayName?: string
+}): Promise<{
   user: FirebaseUser
   backendData?: unknown
 }> {
   try {
-    // Create Firebase user first
-    const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password)
+    const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password)
 
-    await updateProfile(userCredential.user, {
-      displayName: userData.displayName,
-    })
+    if (data.displayName) {
+      await updateProfile(userCredential.user, {
+        displayName: data.displayName,
+      })
+    }
 
     const token = await userCredential.user.getIdToken()
 
-    // Then sync with backend
+    // Log Firebase user info including custom claims
+    const decodedToken = await userCredential.user.getIdTokenResult()
+    console.log('🔐 Firebase Registration Successful:', {
+      uid: userCredential.user.uid,
+      email: userCredential.user.email,
+      displayName: userCredential.user.displayName,
+      role: decodedToken.claims.role || 'public',
+      claims: decodedToken.claims,
+      timestamp: new Date().toISOString(),
+    })
+
+    if (typeof document !== 'undefined') {
+      const isProduction = process.env.NODE_ENV === 'production'
+      const secureFlag = isProduction ? 'secure;' : ''
+      document.cookie = `firebase-token=${token}; path=/; ${secureFlag} samesite=strict; max-age=${24 * 60 * 60}`
+    }
+
     let backendData = null
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/sync`, {
@@ -180,24 +200,19 @@ export async function registerUser(
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          email: userData.email,
-          displayName: userData.displayName,
+          email: userCredential.user.email,
+          displayName: userCredential.user.displayName,
         }),
       })
 
-      const data: ApiResponse = await response.json()
-
-      if (response.ok && data.success) {
-        backendData = data.data
+      if (response.ok) {
+        const data: ApiResponse = await response.json()
+        if (data.success) {
+          backendData = data.data
+        }
       }
-    } catch {
-      // Backend sync failed, continue with Firebase only
-    }
-
-    if (typeof document !== 'undefined') {
-      const isProduction = process.env.NODE_ENV === 'production'
-      const secureFlag = isProduction ? 'secure;' : ''
-      document.cookie = `firebase-token=${token}; path=/; ${secureFlag} samesite=strict; max-age=${24 * 60 * 60}`
+    } catch (error) {
+      console.error('Backend sync error during registration:', error)
     }
 
     return {
@@ -205,7 +220,10 @@ export async function registerUser(
       backendData: backendData,
     }
   } catch (error: unknown) {
-    const firebaseError = error as { code?: string; message?: string }
+    const firebaseError = error as {
+      code?: string
+      message?: string
+    }
     throw new Error(getFirebaseErrorMessage(firebaseError.code || 'unknown'))
   }
 }
@@ -294,21 +312,15 @@ function getFirebaseErrorMessage(errorCode: string): string {
       return 'A senha deve ter pelo menos 6 caracteres'
     case 'auth/invalid-email':
       return 'Email inválido'
-    case 'auth/user-disabled':
-      return 'Conta desativada'
-    case 'auth/too-many-requests':
-      return 'Muitas tentativas. Tente novamente mais tarde'
-    case 'auth/network-request-failed':
-      return 'Erro de conexão'
-    case 'auth/popup-closed-by-user':
-      return 'Login cancelado pelo usuário'
-    case 'auth/popup-blocked':
-      return 'Popup bloqueado pelo navegador'
     case 'auth/operation-not-allowed':
       return 'Operação não permitida'
-    case 'auth/requires-recent-login':
-      return 'É necessário fazer login novamente'
+    case 'auth/too-many-requests':
+      return 'Muitas tentativas de login. Tente novamente mais tarde.'
+    case 'auth/network-request-failed':
+      return 'Erro de conexão. Verifique sua internet.'
+    case 'auth/popup-closed-by-user':
+      return 'Login cancelado pelo usuário'
     default:
-      return 'Erro inesperado. Tente novamente'
+      return 'Erro na autenticação. Tente novamente.'
   }
 }
