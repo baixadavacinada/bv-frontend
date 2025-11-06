@@ -118,11 +118,11 @@ export function LoginForm({ onSuccess, redirectTo = '/inicio' }: LoginFormProps)
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute top-9 right-3 text-gray-500 transition-colors hover:text-gray-700"
+            className="absolute right-3 bottom-3 text-gray-500 transition-colors hover:text-gray-700"
             aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
             disabled={isLoading}
           >
-            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            {showPassword ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
           </button>
         </div>
       </div>
