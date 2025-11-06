@@ -21,6 +21,7 @@ export function BvUbsList({
   component,
   onShareRequest,
   onFavoriteToggleRequest,
+  onDeleteRequest,
 }: UbsListProps) {
   useAccessibilityValidation({ enabled: true })
   const router = useRouter()
@@ -43,6 +44,8 @@ export function BvUbsList({
           onMoreInfo={() => handleMoreInfo(ubs.id || 0, path)}
           onShare={() => onShareRequest(ubs.name)}
           onFavoriteToggle={() => onFavoriteToggleRequest(ubs.id || 0)}
+          handleEditUbs={() => router.push(`gestao-ubs/form-ubs/${ubs.slug}`)}
+          onDelete={onDeleteRequest ? () => onDeleteRequest(ubs.id || 0) : undefined}
         />
       ))}
     </div>
