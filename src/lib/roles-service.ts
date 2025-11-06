@@ -72,8 +72,41 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
       return cachedProfile
     }
 
-    // Return default profile for public users
-    // Profile was already synced during registration via /auth/sync
+    // Fetch profile from backend API
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/profile`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.data) {
+          const profile: UserProfile = {
+            uid: data.data.uid,
+            email: data.data.email,
+            displayName: data.data.displayName,
+            role: data.data.role || 'public',
+            permissions: data.data.permissions || [],
+            ubsId: data.data.ubsId,
+            isActive: data.data.isActive !== false,
+            emailVerified: data.data.emailVerified || false,
+            createdAt: data.data.createdAt || new Date().toISOString(),
+          }
+          // Cache the profile
+          setCachedProfile(profile)
+          return profile
+        }
+      }
+    } catch (fetchError) {
+      // If fetch fails, continue to default profile
+      console.warn('Failed to fetch profile from backend:', fetchError)
+    }
+
+    // Return default profile as fallback
     const defaultProfile: UserProfile = {
       uid,
       email: null,
