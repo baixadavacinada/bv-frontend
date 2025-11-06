@@ -96,6 +96,7 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
             emailVerified: data.data.emailVerified || false,
             createdAt: data.data.createdAt || new Date().toISOString(),
           }
+          console.log('🎯 Profile fetched from backend:', { uid: profile.uid, role: profile.role })
           // Cache the profile
           setCachedProfile(profile)
           return profile

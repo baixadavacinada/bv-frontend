@@ -82,6 +82,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isActive: userProfile.isActive,
       }
 
+      console.log('👤 User context updated:', { uid: userData.uid, role: userData.role })
       setUser(userData)
       setError(null)
 
