@@ -11,6 +11,7 @@ import SettingsIcon from '@/assets/icons/settings.svg'
 import AlertIcon from '@/assets/icons/phone-notifications.svg'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { ActionType, usePermissions } from '@/hooks/use-permissions'
+import { useAuth } from '@/hooks/use-firebase-auth'
 import { StaticImageData } from 'next/image'
 
 interface ActionItem {
@@ -21,12 +22,14 @@ interface ActionItem {
   action: () => void
   variant?: 'stacked' | 'image-first'
   isFullWidth?: boolean
+  requiresAuth?: boolean
 }
 
 export function MainActionsSection() {
   const router = useRouter()
   const { cards } = useAppTranslations()
   const { hasPermission } = usePermissions()
+  const { user } = useAuth()
 
   useAccessibilityValidation({ enabled: true })
 
@@ -55,6 +58,7 @@ export function MainActionsSection() {
       action: () => router.push('/configuracoes'),
       variant: 'image-first',
       isFullWidth: true,
+      requiresAuth: true,
     },
     {
       id: 'guide',
@@ -124,7 +128,13 @@ export function MainActionsSection() {
   ]
 
   // Filtra as ações baseado nas permissões do usuário
-  const allowedActions = allActions.filter((action) => hasPermission(action.id))
+  const allowedActions = allActions.filter((action) => {
+    // Se a ação requer autenticação e usuário não está logado, filtra
+    if (action.requiresAuth && !user) {
+      return false
+    }
+    return hasPermission(action.id)
+  })
 
   // Separa as ações normais do guide (que tem layout especial)
   const regularActions = allowedActions.filter((action) => !action.isFullWidth)
