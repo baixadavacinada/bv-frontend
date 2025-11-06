@@ -56,23 +56,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(true)
 
       const token = await firebaseUser.getIdToken(true)
-      console.log('🔄 Refreshing user data...', { uid: firebaseUser.uid })
 
-      // Try to get profile from cache first
       let userProfile = getCachedProfile(firebaseUser.uid)
 
-      if (userProfile) {
-        console.log('📦 Using cached profile:', {
-          uid: firebaseUser.uid,
-          cachedRole: userProfile.role,
-        })
-      }
-
-      // If no cache or expired, fetch from backend
       if (!userProfile) {
-        console.log('🌐 Cache miss, fetching fresh profile from backend...', {
-          uid: firebaseUser.uid,
-        })
         userProfile = await fetchUserProfile(token, firebaseUser.uid)
       }
 
@@ -93,11 +80,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isActive: userProfile.isActive,
       }
 
-      console.log('👤 User context updated:', {
-        uid: userData.uid,
-        role: userData.role,
-        timestamp: new Date().toISOString(),
-      })
       setUser(userData)
       setError(null)
 
@@ -106,8 +88,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const secureFlag = isProduction ? 'secure;' : ''
         document.cookie = `firebase-token=${token}; path=/; ${secureFlag} samesite=strict; max-age=${24 * 60 * 60}`
       }
-    } catch (err) {
-      console.error('❌ Error refreshing user:', err)
+    } catch {
       setError('Erro ao atualizar dados do usuário')
     } finally {
       setLoading(false)
@@ -116,7 +97,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     try {
-      // Clear cache on logout
       if (user) {
         clearCachedProfile(user.uid)
       }
@@ -134,7 +114,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
-  // Helper functions para verificação de roles e permissões
   const hasRole = (role: UserRole | UserRole[]): boolean => {
     if (!user) return false
 
@@ -177,22 +156,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
           const token = await firebaseUser.getIdToken()
 
-          // Store token in cookie
           if (typeof document !== 'undefined') {
             const isProduction = process.env.NODE_ENV === 'production'
             const secureFlag = isProduction ? 'secure;' : ''
             document.cookie = `firebase-token=${token}; path=/; ${secureFlag} samesite=strict; max-age=${24 * 60 * 60}`
           }
 
-          // Try to get profile from cache first
           let userProfile = getCachedProfile(firebaseUser.uid)
 
-          // If no cache, try to fetch from backend
           if (!userProfile) {
             try {
               userProfile = await fetchUserProfile(token, firebaseUser.uid)
             } catch {
-              // Se não encontrar, usa perfil padrão
               userProfile = {
                 uid: firebaseUser.uid,
                 email: firebaseUser.email,
@@ -234,7 +209,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
         }
       } else {
-        // User logged out
         if (typeof document !== 'undefined') {
           document.cookie = 'firebase-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
         }

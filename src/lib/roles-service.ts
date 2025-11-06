@@ -66,19 +66,12 @@ export function clearCachedProfile(uid: string): void {
 
 export async function fetchUserProfile(token: string, uid: string): Promise<UserProfile> {
   try {
-    // Try to get cached profile first
     const cachedProfile = getCachedProfile(uid)
     if (cachedProfile) {
-      console.log('📦 Profile loaded from cache:', {
-        uid: cachedProfile.uid,
-        role: cachedProfile.role,
-      })
       return cachedProfile
     }
 
-    // Fetch profile from backend API
     try {
-      console.log('🔄 Fetching profile from backend API...', { uid })
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}api/public/profile`, {
         method: 'GET',
         headers: {
@@ -101,18 +94,12 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
             emailVerified: data.data.emailVerified || false,
             createdAt: data.data.createdAt || new Date().toISOString(),
           }
-          console.log('🎯 Profile fetched from backend:', { uid: profile.uid, role: profile.role })
-          // Cache the profile
           setCachedProfile(profile)
           return profile
         }
       }
-    } catch (fetchError) {
-      // If fetch fails, continue to default profile
-      console.warn('Failed to fetch profile from backend:', fetchError)
-    }
+    } catch {}
 
-    // Return default profile as fallback
     const defaultProfile: UserProfile = {
       uid,
       email: null,
@@ -124,7 +111,6 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
       createdAt: new Date().toISOString(),
     }
 
-    console.log('⚠️ Using default fallback profile:', { uid, role: defaultProfile.role })
     return defaultProfile
   } catch {
     const defaultProfile: UserProfile = {
@@ -138,7 +124,6 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
       createdAt: new Date().toISOString(),
     }
 
-    console.log('❌ Caught error, using default fallback:', { uid, role: defaultProfile.role })
     return defaultProfile
   }
 }

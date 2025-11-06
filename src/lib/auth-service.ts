@@ -57,7 +57,7 @@ export async function loginWithEmail(credentials: LoginCredentials): Promise<{
     }
 
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/auth/sync`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}api/public/auth/sync`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +99,6 @@ export async function loginWithGoogle(): Promise<{
     const result = await signInWithPopup(auth, provider)
     const token = await result.user.getIdToken()
 
-    // Log Firebase user info including custom claims
     const decodedToken = await result.user.getIdTokenResult()
     console.log('🔐 Firebase Google Login Successful:', {
       uid: result.user.uid,
@@ -136,9 +135,7 @@ export async function loginWithGoogle(): Promise<{
           backendData = data.data
         }
       }
-    } catch (error) {
-      console.error('Backend sync error:', error)
-    }
+    } catch {}
 
     return {
       user: result.user,
@@ -174,17 +171,6 @@ export async function registerUser(data: {
 
     const token = await userCredential.user.getIdToken()
 
-    // Log Firebase user info including custom claims
-    const decodedToken = await userCredential.user.getIdTokenResult()
-    console.log('🔐 Firebase Registration Successful:', {
-      uid: userCredential.user.uid,
-      email: userCredential.user.email,
-      displayName: userCredential.user.displayName,
-      role: decodedToken.claims.role || 'public',
-      claims: decodedToken.claims,
-      timestamp: new Date().toISOString(),
-    })
-
     if (typeof document !== 'undefined') {
       const isProduction = process.env.NODE_ENV === 'production'
       const secureFlag = isProduction ? 'secure;' : ''
@@ -211,9 +197,7 @@ export async function registerUser(data: {
           backendData = data.data
         }
       }
-    } catch (error) {
-      console.error('Backend sync error during registration:', error)
-    }
+    } catch {}
 
     return {
       user: userCredential.user,
