@@ -156,6 +156,7 @@ export const navbarActions: NavigationItem[] = [
     icon: CiSettings,
     href: '/configuracoes',
     requiredPermission: 'settings',
+    showOnlyForRoles: ['admin', 'agent', 'public'],
   },
   {
     id: 'profile',

@@ -18,7 +18,12 @@ export function Navbar() {
   const { user, logout } = useAuth()
 
   const { filterNavigationItems, role } = usePermissions()
-  const allowedNavigationItems = filterNavigationItems(navbarActions)
+  let allowedNavigationItems = filterNavigationItems(navbarActions)
+
+  // Mostrar configurações apenas se usuário está logado
+  if (!user) {
+    allowedNavigationItems = allowedNavigationItems.filter((item) => item.id !== 'configuracao')
+  }
 
   const shouldShowLogout = !!user
 
