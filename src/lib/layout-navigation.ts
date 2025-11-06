@@ -8,7 +8,6 @@ import {
   BsHouse,
   BsGeoAlt,
   BsFileEarmarkText,
-  BsSearch,
   BsHeart,
   BsBell,
 } from 'react-icons/bs'
@@ -91,17 +90,17 @@ export const sidebarNavigation: NavigationItem[] = [
     hideForRoles: ['MORADOR', 'AGENTE_SAUDE'],
   },
   {
-    id: 'pesquisar',
-    icon: BsSearch,
-    label: 'Pesquisar',
-    href: '/busca',
-  },
-  {
     id: 'favoritos',
     icon: BsHeart,
     label: 'Favoritos',
     href: '/favoritos',
   },
+  // {
+  //   id: 'pesquisar',
+  //   icon: BsSearch,
+  //   label: 'Pesquisar',
+  //   href: '/busca',
+  // },
   {
     id: 'materiais-educativos',
     icon: BsFileEarmarkText,
@@ -167,12 +166,12 @@ export const footerNavigation: NavigationItem[] = [
     label: 'Home',
     href: '/inicio',
   },
-  {
-    id: 'pesquisar',
-    icon: BsSearch,
-    label: 'Buscar',
-    href: '/busca',
-  },
+  // {
+  //   id: 'pesquisar',
+  //   icon: BsSearch,
+  //   label: 'Buscar',
+  //   href: '/busca',
+  // },
   {
     id: 'carteira-vacinacao',
     icon: FaSyringe,
