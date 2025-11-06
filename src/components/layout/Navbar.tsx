@@ -45,6 +45,11 @@ export function Navbar() {
     }
   }
 
+  const handleLogin = () => {
+    announceToScreenReader('Navegando para página de login', 'polite')
+    router.push('/login')
+  }
+
   return (
     <nav
       className="bg-primary text-primary-foreground sticky top-0 z-50 flex h-16 items-center justify-between px-4"
@@ -88,6 +93,17 @@ export function Navbar() {
               onClick={handleLogout}
             />
           </div>
+        )}
+
+        {!shouldShowLogout && (
+          <BvButton
+            variant="default"
+            size="sm"
+            title="Login"
+            aria-label="Fazer login na plataforma"
+            className="focus-visible:ring-2 focus-visible:ring-blue-500"
+            onClick={handleLogin}
+          />
         )}
       </div>
 
