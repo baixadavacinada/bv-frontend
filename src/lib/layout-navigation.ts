@@ -125,6 +125,7 @@ export const sidebarNavigation: NavigationItem[] = [
     label: 'Configurações',
     href: '/configuracoes',
     requiredPermission: 'settings',
+    showOnlyForRoles: ['admin', 'agent'],
   },
   {
     id: 'avaliacoes',
@@ -148,7 +149,7 @@ export const navbarActions: NavigationItem[] = [
     icon: CiSettings,
     href: '/configuracoes',
     requiredPermission: 'settings',
-    showOnlyForRoles: ['admin', 'agent', 'public'],
+    showOnlyForRoles: ['admin', 'agent'],
   },
   {
     id: 'profile',
