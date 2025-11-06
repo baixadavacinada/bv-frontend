@@ -101,13 +101,11 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     setError('')
 
     try {
-      await registerUser(
-        {
-          email: data.email,
-          displayName: data.displayName,
-        },
-        data.password,
-      )
+      await registerUser({
+        email: data.email,
+        password: data.password,
+        displayName: data.displayName,
+      })
 
       await logout()
 
