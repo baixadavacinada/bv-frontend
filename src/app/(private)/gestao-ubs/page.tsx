@@ -70,60 +70,55 @@ export default function UbsScreen() {
   }
 
   return (
-    <>
-      <RoleGuard
-        allowedRoles={['admin', 'agent']}
-        requireAuth={true}
-        fallback={
-          <div className="flex min-h-screen items-center justify-center">
-            <p className="text-slate-600">
-              Acesso negado. Você não tem permissão para acessar esta página.
-            </p>
-          </div>
-        }
-      >
-        <div>
-          <BvTitleHeader title="Unidades Básicas de Saúde" className="mb-8" />
-          <div className="mb-8">
-            <CollapsibleFilter>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <Label htmlFor="ubs-name">Nome da UBS</Label>
-                  <Input id="ubs-name" placeholder="Ex: UBS Vila Suissa" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="neighborhood">Bairro</Label>
-                  <Input id="neighborhood" placeholder="Ex: Centro" />
-                </div>
-                <div className="flex items-end">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="open-24h" />
-                    <Label htmlFor="open-24h">Aberto 24h</Label>
-                  </div>
-                </div>
-              </div>
-            </CollapsibleFilter>
-          </div>
-
-          <RoleGuard allowedRoles={['admin']}>
-            <div className="mb-8 flex justify-end">
-              <Button className="w-full" onClick={() => router.push('gestao-ubs/form-ubs/novo')}>
-                <Plus className="mr-2 h-4 w-4" />
-                Adicionar Nova UBS
-              </Button>
+    <RoleGuard
+      allowedRoles={['admin', 'agent']}
+      requireAuth={true}
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-slate-600">
+            Acesso negado. Você não tem permissão para acessar esta página.
+          </p>
+        </div>
+      }
+    >
+      <BvTitleHeader title="Unidades Básicas de Saúde" className="mb-8" />
+      <div className="mb-8">
+        <CollapsibleFilter>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="ubs-name">Nome da UBS</Label>
+              <Input id="ubs-name" placeholder="Ex: UBS Vila Suissa" />
             </div>
-          </RoleGuard>
+            <div className="space-y-2">
+              <Label htmlFor="neighborhood">Bairro</Label>
+              <Input id="neighborhood" placeholder="Ex: Centro" />
+            </div>
+            <div className="flex items-end">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="open-24h" />
+                <Label htmlFor="open-24h">Aberto 24h</Label>
+              </div>
+            </div>
+          </div>
+        </CollapsibleFilter>
+      </div>
 
-          <BvUbsList
-            ubsList={ubsList}
-            path="gestao-ubs"
-            component="private"
-            onDeleteRequest={handleDeleteRequest}
-            onFavoriteToggleRequest={handleFavoriteToggle}
-            onShareRequest={(name: string) => toast.info(`Compartilhando "${name}"...`)}
-          />
+      <RoleGuard allowedRoles={['admin']}>
+        <div className="mb-8 flex justify-end">
+          <Button className="w-full" onClick={() => router.push('gestao-ubs/form-ubs/novo')}>
+            <Plus className="mr-2 h-4 w-4" />
+            Adicionar Nova UBS
+          </Button>
         </div>
       </RoleGuard>
+      <BvUbsList
+        ubsList={ubsList}
+        path="gestao-ubs"
+        component="private"
+        onDeleteRequest={handleDeleteRequest}
+        onFavoriteToggleRequest={handleFavoriteToggle}
+        onShareRequest={(name: string) => toast.info(`Compartilhando "${name}"...`)}
+      />
 
       <AlertDialog
         open={deleteAlert.isOpen}
@@ -150,6 +145,6 @@ export default function UbsScreen() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </RoleGuard>
   )
 }
