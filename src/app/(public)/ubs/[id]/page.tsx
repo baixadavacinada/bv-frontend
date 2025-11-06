@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Syringe, Heart, Share2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import { notFound } from 'next/navigation'
+import { notFound, useRouter } from 'next/navigation'
 
 interface DetailUbsProps {
   params: Promise<{ id: string }>
@@ -19,8 +19,8 @@ interface DetailUbsProps {
 export default function DetailUbs({ params }: DetailUbsProps) {
   const resolvedParams = React.use(params)
   const ubsId = parseInt(resolvedParams.id)
-
   const initialUbsData = mockUbsData.find((ubs) => ubs.id === ubsId)
+  const route = useRouter()
 
   useAccessibilityValidation({ enabled: true })
 
@@ -62,7 +62,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   }
 
   const handleEvaluate = () => {
-    alert('Avaliar UBS')
+    route.push(`../ubs/avaliar/${ubsId}/${name.replace(/\s+/g, '-').toLowerCase()}`)
   }
 
   return (
