@@ -66,33 +66,36 @@ export function clearCachedProfile(uid: string): void {
 
 export async function fetchUserProfile(token: string, uid: string): Promise<UserProfile> {
   try {
-    // Try to get cached profile first
-    const cachedProfile = getCachedProfile(uid)
-    if (cachedProfile) {
-      return cachedProfile
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/profile`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
     }
 
-    // Return default profile for public users
-    // Profile was already synced during registration via /auth/sync
+    const data: ApiResponse<UserProfile> = await response.json()
+
+    if (!data.success || !data.data) {
+      throw new Error(data.error?.message || 'Failed to fetch profile')
+    }
+
+    // Cache the profile
+    setCachedProfile(data.data)
+
+    return data.data
+  } catch {
+    // If backend fails, return default profile based on Firebase user
     const defaultProfile: UserProfile = {
       uid,
       email: null,
       displayName: null,
       role: 'public',
       permissions: ROLE_PERMISSIONS.public,
-      isActive: true,
-      emailVerified: false,
-      createdAt: new Date().toISOString(),
-    }
-
-    return defaultProfile
-  } catch {
-    const defaultProfile: UserProfile = {
-      uid,
-      email: null,
-      displayName: null,
-      role: 'admin',
-      permissions: ROLE_PERMISSIONS.admin,
       isActive: true,
       emailVerified: false,
       createdAt: new Date().toISOString(),
@@ -182,7 +185,7 @@ export async function createUserProfile(
   firebaseUser: { uid: string; email: string | null; displayName: string | null },
 ): Promise<UserProfile> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/profile`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/profile`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -192,7 +195,7 @@ export async function createUserProfile(
         uid: firebaseUser.uid,
         email: firebaseUser.email,
         displayName: firebaseUser.displayName,
-        role: 'admin', // Default role
+        role: 'public', // Default role
       }),
     })
 
@@ -203,24 +206,27 @@ export async function createUserProfile(
     const data: ApiResponse<UserProfile> = await response.json()
 
     if (!data.success || !data.data) {
-      throw new Error(data.error?.message || 'Falha ao criar perfil')
+      throw new Error(data.error?.message || 'Failed to create profile')
     }
 
+    // Cache the profile
     setCachedProfile(data.data)
 
     return data.data
   } catch {
+    // If backend fails, return default profile
     const defaultProfile: UserProfile = {
       uid: firebaseUser.uid,
       email: firebaseUser.email,
       displayName: firebaseUser.displayName,
-      role: 'admin',
-      permissions: ROLE_PERMISSIONS.admin,
+      role: 'public',
+      permissions: ROLE_PERMISSIONS.public,
       isActive: true,
       emailVerified: false,
       createdAt: new Date().toISOString(),
     }
 
+    // Cache default profile
     setCachedProfile(defaultProfile)
 
     return defaultProfile
