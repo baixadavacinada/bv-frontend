@@ -56,12 +56,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(true)
 
       const token = await firebaseUser.getIdToken(true)
+      console.log('🔄 Refreshing user data...', { uid: firebaseUser.uid })
 
       // Try to get profile from cache first
       let userProfile = getCachedProfile(firebaseUser.uid)
 
+      if (userProfile) {
+        console.log('📦 Using cached profile:', {
+          uid: firebaseUser.uid,
+          cachedRole: userProfile.role,
+        })
+      }
+
       // If no cache or expired, fetch from backend
       if (!userProfile) {
+        console.log('🌐 Cache miss, fetching fresh profile from backend...', {
+          uid: firebaseUser.uid,
+        })
         userProfile = await fetchUserProfile(token, firebaseUser.uid)
       }
 
@@ -82,7 +93,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isActive: userProfile.isActive,
       }
 
-      console.log('👤 User context updated:', { uid: userData.uid, role: userData.role })
+      console.log('👤 User context updated:', {
+        uid: userData.uid,
+        role: userData.role,
+        timestamp: new Date().toISOString(),
+      })
       setUser(userData)
       setError(null)
 
@@ -91,7 +106,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const secureFlag = isProduction ? 'secure;' : ''
         document.cookie = `firebase-token=${token}; path=/; ${secureFlag} samesite=strict; max-age=${24 * 60 * 60}`
       }
-    } catch {
+    } catch (err) {
+      console.error('❌ Error refreshing user:', err)
       setError('Erro ao atualizar dados do usuário')
     } finally {
       setLoading(false)

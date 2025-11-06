@@ -69,12 +69,17 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
     // Try to get cached profile first
     const cachedProfile = getCachedProfile(uid)
     if (cachedProfile) {
+      console.log('📦 Profile loaded from cache:', {
+        uid: cachedProfile.uid,
+        role: cachedProfile.role,
+      })
       return cachedProfile
     }
 
     // Fetch profile from backend API
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/profile`, {
+      console.log('🔄 Fetching profile from backend API...', { uid })
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}api/public/profile`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -119,6 +124,7 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
       createdAt: new Date().toISOString(),
     }
 
+    console.log('⚠️ Using default fallback profile:', { uid, role: defaultProfile.role })
     return defaultProfile
   } catch {
     const defaultProfile: UserProfile = {
@@ -132,6 +138,7 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
       createdAt: new Date().toISOString(),
     }
 
+    console.log('❌ Caught error, using default fallback:', { uid, role: defaultProfile.role })
     return defaultProfile
   }
 }
