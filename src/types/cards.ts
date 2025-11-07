@@ -11,6 +11,7 @@ export interface EducationalMaterial {
   title: string
   description: string
   image: string
+  downloadUrl?: string
   onClick?: () => void
 }
 

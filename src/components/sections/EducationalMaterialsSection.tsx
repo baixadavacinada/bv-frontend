@@ -5,6 +5,7 @@ import { BvCardSecondary } from '@/components/design/BvCardSecondary'
 import { EducationalMaterial } from '@/types/cards'
 import { useAppTranslations } from '@/hooks/use-translations'
 import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
+import { handleSmartDownload } from '@/utils/deviceDetection'
 
 interface EducationalMaterialsSectionProps {
   materials: EducationalMaterial[]
@@ -22,12 +23,13 @@ export const EducationalMaterialsSection: React.FC<EducationalMaterialsSectionPr
   useAccessibilityValidation()
 
   const handleMaterialInteraction = (material: EducationalMaterial) => {
-    console.log(`Material ${material.id} clicked`)
     announceToScreenReader(
       accessibility('educationalMaterials.materialOpened', { title: material.title }),
     )
-    // TODO: Implementar navegação
-    // router.push(`/materiais/${material.id}`)
+
+    if (material.downloadUrl) {
+      handleSmartDownload(material.downloadUrl, `${material.title}.pdf`)
+    }
   }
 
   const handleKeyDown = (event: React.KeyboardEvent, material: EducationalMaterial) => {
