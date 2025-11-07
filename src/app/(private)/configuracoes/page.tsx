@@ -13,6 +13,7 @@ import { usePermissions } from '@/hooks/use-permissions'
 import { useAuth } from '@/hooks/use-firebase-auth'
 import { toast } from 'sonner'
 import { getAuth } from 'firebase/auth'
+import { ApiClient } from '@/services/api'
 
 export default function SettingsScreen() {
   const { role } = usePermissions()
@@ -68,25 +69,15 @@ export default function SettingsScreen() {
 
     try {
       setIsLoading(true)
-      const token = await firebaseAuth.currentUser.getIdToken()
 
-      const response = await fetch('/api/auth/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: data.name,
-          phone: data.phone,
-          cpf: data.cpf,
-          notifications: data.notifications,
-        }),
+      const apiClient = new ApiClient()
+
+      await apiClient.put('/api/auth/profile', {
+        name: data.name,
+        phone: data.phone,
+        cpf: data.cpf,
+        notifications: data.notifications,
       })
-
-      if (!response.ok) {
-        throw new Error('Erro ao salvar dados')
-      }
 
       await refreshUser()
 

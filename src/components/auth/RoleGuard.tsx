@@ -22,7 +22,7 @@ export function RoleGuard({
   const { user, loading, hasRole, hasPermission } = useAuth()
 
   if (loading) {
-    return <div>Carregando...</div>
+    return <div suppressHydrationWarning>{fallback}</div>
   }
 
   if (requireAuth && !user) {
