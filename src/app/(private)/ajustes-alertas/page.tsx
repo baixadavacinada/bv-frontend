@@ -108,6 +108,15 @@ export default function AlertSettingsPage() {
                 </div>
               </TitleSection>
               */}
+              <TitleSection icon={DataIcon} title="Notificações para usuários finais (moradores)">
+                <div className="space-y-4">
+                  <BvNotificationToggle
+                    label="Lembretes da segunda dose"
+                    checked={notifications.newSecondDoseReminders}
+                    onChange={() => toggleNotification('newSecondDoseReminders')}
+                  />
+                </div>
+              </TitleSection>
               <TitleSection icon={DataIcon} title="Alertas para segunda dose">
                 <div className="space-y-4">
                   <p className="text-base font-normal">
