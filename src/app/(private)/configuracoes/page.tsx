@@ -44,7 +44,6 @@ export default function SettingsScreen() {
     },
   })
 
-  // Preencher dados quando user é carregado
   useEffect(() => {
     if (user) {
       setValue('name', user.displayName || '')
@@ -55,7 +54,6 @@ export default function SettingsScreen() {
   const notifications = watch('notifications')
   const watchedValues = watch()
 
-  // Verificar quais campos estão vazios
   const emptyFields = {
     name: !watchedValues.name || watchedValues.name.trim() === '',
     phone: !watchedValues.phone || watchedValues.phone.trim() === '',
@@ -82,7 +80,6 @@ export default function SettingsScreen() {
           name: data.name,
           phone: data.phone,
           cpf: data.cpf,
-          notifications: data.notifications,
         }),
       })
 
@@ -90,7 +87,6 @@ export default function SettingsScreen() {
         throw new Error('Erro ao salvar dados')
       }
 
-      // Atualizar contexto do usuário
       await refreshUser()
 
       toast.success('Configurações salvas com sucesso!')
