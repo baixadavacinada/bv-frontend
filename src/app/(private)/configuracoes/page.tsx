@@ -55,6 +55,13 @@ export default function SettingsScreen() {
   const notifications = watch('notifications')
   const watchedValues = watch()
 
+  // Verificar quais campos estão vazios
+  const emptyFields = {
+    name: !watchedValues.name || watchedValues.name.trim() === '',
+    phone: !watchedValues.phone || watchedValues.phone.trim() === '',
+    cpf: !watchedValues.cpf || watchedValues.cpf.trim() === '',
+  }
+
   const onSave = async (data: typeof watchedValues) => {
     if (!firebaseAuth.currentUser) {
       toast.error('Usuário não autenticado')
@@ -114,20 +121,24 @@ export default function SettingsScreen() {
               {/* Dados Pessoais - Exibe para qualquer usuário logado */}
               <TitleSection icon={DataIcon} title="Dados pessoais">
                 <div className="space-y-4">
-                  <BvFormInput
-                    label="Nome:"
-                    {...register('name')}
-                    placeholder="Digite seu nome completo"
-                    error={errors.name?.message}
-                  />
-                  <BvFormInput
-                    label="Telefone:"
-                    mask="(00) 00000-0000"
-                    {...register('phone')}
-                    value={watchedValues.phone}
-                    placeholder="Digite seu telefone"
-                    error={errors.phone?.message}
-                  />
+                  <div className={emptyFields.name ? 'border-l-4 border-yellow-500 pl-3' : ''}>
+                    <BvFormInput
+                      label="Nome:"
+                      {...register('name')}
+                      placeholder="Digite seu nome completo"
+                      error={errors.name?.message}
+                    />
+                  </div>
+                  <div className={emptyFields.phone ? 'border-l-4 border-yellow-500 pl-3' : ''}>
+                    <BvFormInput
+                      label="Telefone:"
+                      mask="(00) 00000-0000"
+                      {...register('phone')}
+                      value={watchedValues.phone}
+                      placeholder="Digite seu telefone"
+                      error={errors.phone?.message}
+                    />
+                  </div>
                   <BvFormInput
                     label="E-mail:"
                     type="email"
@@ -135,14 +146,16 @@ export default function SettingsScreen() {
                     placeholder="Digite seu e-mail"
                     error={errors.email?.message}
                   />
-                  <BvFormInput
-                    label="CPF:"
-                    mask="000.000.000-00"
-                    {...register('cpf')}
-                    value={watchedValues.cpf}
-                    placeholder="Digite seu CPF"
-                    error={errors.cpf?.message}
-                  />
+                  <div className={emptyFields.cpf ? 'border-l-4 border-yellow-500 pl-3' : ''}>
+                    <BvFormInput
+                      label="CPF:"
+                      mask="000.000.000-00"
+                      {...register('cpf')}
+                      value={watchedValues.cpf}
+                      placeholder="Digite seu CPF"
+                      error={errors.cpf?.message}
+                    />
+                  </div>
                 </div>
               </TitleSection>
 
