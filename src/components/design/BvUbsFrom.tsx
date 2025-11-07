@@ -18,6 +18,9 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
+const DEFAULT_LAT = -22.643
+const DEFAULT_LON = -43.655
+
 const formSchema = z.object({
   nome: z.string().min(2, 'Nome é obrigatório'),
   cep: z.string().length(9, 'CEP deve ter 9 dígitos (00000-000)'),
@@ -25,14 +28,12 @@ const formSchema = z.object({
   numero: z.string().min(1, 'Número é obrigatório'),
   bairro: z.string().min(2, 'Bairro é obrigatório'),
   cidade: z.string().min(2, 'Cidade é obrigatória'),
-  latitude: z.coerce.number(),
-  longitude: z.coerce.number(),
+  latitude: z.number(),
+  longitude: z.number(),
 })
 
 type UbsFormValues = z.infer<typeof formSchema>
 
-const DEFAULT_LAT = -22.643
-const DEFAULT_LON = -43.655
 const defaultValues = {
   nome: '',
   cep: '',
@@ -52,10 +53,23 @@ export function UbsForm({ initialData }: UbsFormProps) {
   const router = useRouter()
   useAccessibilityValidation({ enabled: true })
 
+  const formData = initialData
+    ? {
+        nome: String(initialData.nome || ''),
+        cep: String(initialData.cep || ''),
+        logradouro: String(initialData.logradouro || ''),
+        numero: String(initialData.numero || ''),
+        bairro: String(initialData.bairro || ''),
+        cidade: String(initialData.cidade || 'Rio de Janeiro'),
+        latitude: Number(initialData.latitude) || DEFAULT_LAT,
+        longitude: Number(initialData.longitude) || DEFAULT_LON,
+      }
+    : defaultValues
+
   const form = useForm<UbsFormValues>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
-    defaultValues: initialData || defaultValues,
+    defaultValues: formData,
   })
 
   const [lat, lon] = form.watch(['latitude', 'longitude'])
