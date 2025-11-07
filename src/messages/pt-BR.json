@@ -90,10 +90,6 @@
       "title": "Ajustes de notificações",
       "description": "Gerencie respostas às mensagens enviadas ao suporte e configure sua conta."
     },
-    "manageUsers": {
-      "title": "Registro por morador",
-      "description": "Visualize ou atualize o registro de vacinação por morador."
-    },
     "ubsManagement": {
       "title": "Gestão de UBSs",
       "description": "Adicione novas UBSs, visualize informações e localização das unidades e atualize dados sempre que necessário."

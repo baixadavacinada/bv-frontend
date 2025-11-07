@@ -41,14 +41,14 @@ export const sidebarNavigation: NavigationItem[] = [
     requiredPermission: 'ubs',
     hideForRoles: ['admin'],
   },
-  {
-    id: 'registration',
-    icon: BsFileEarmarkText,
-    label: 'Registro por morador',
-    href: '/registro-usuario',
-    requiredPermission: 'user-register',
-    hideForRoles: ['public'],
-  },
+  // {
+  //   id: 'registration',
+  //   icon: BsFileEarmarkText,
+  //   label: 'Registro por morador',
+  //   href: '/registro-usuario',
+  //   requiredPermission: 'user-register',
+  //   hideForRoles: ['public'],
+  // },
   {
     id: 'alert-settings',
     icon: BsBell,

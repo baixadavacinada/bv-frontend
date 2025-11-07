@@ -87,6 +87,7 @@ export default function AlertSettingsPage() {
                   />
                 </div>
               </TitleSection>
+              {/* 
               <TitleSection icon={DataIcon} title="Notificações para usuários finais (moradores)">
                 <div className="space-y-4">
                   <BvNotificationToggle
@@ -106,6 +107,7 @@ export default function AlertSettingsPage() {
                   />
                 </div>
               </TitleSection>
+              */}
               <TitleSection icon={DataIcon} title="Alertas para segunda dose">
                 <div className="space-y-4">
                   <p className="text-base font-normal">
