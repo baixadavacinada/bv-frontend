@@ -32,8 +32,8 @@ async function getUbsById(id: string): Promise<UbsData | null> {
   }
 }
 
-export default async function UbsPage({ params }: { params: { id: string } }) {
-  const id = params.id
+export default async function UbsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const isNew = id === 'novo'
 
   let initialData: UbsData | undefined = undefined
