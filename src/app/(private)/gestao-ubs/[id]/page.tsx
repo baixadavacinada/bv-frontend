@@ -1,5 +1,5 @@
 'use client'
-import { BvTitleHeader } from '@/components'
+import { BvTitleHeader, RoleGuard } from '@/components'
 import { BvTitleIco } from '@/components/design/BvTitleIco'
 import CaledarIco from '@/assets/icons/calendar.svg'
 import SyringeIco from '@/assets/icons/syringe.svg'
@@ -116,7 +116,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   }
 
   return (
-    <>
+    <RoleGuard allowedRoles={['admin', 'agent']}>
       <div>
         <BvTitleHeader title={`SOBRE: ${name}`} className="mb-8" />
 
@@ -298,6 +298,6 @@ export default function DetailUbs({ params }: DetailUbsProps) {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </>
+    </RoleGuard>
   )
 }
