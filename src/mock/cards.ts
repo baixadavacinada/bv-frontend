@@ -31,8 +31,7 @@ export const educationalMaterialsData: Omit<EducationalMaterial, 'onClick'>[] = 
     title: 'Unidades de Saúde de Japeri',
     description: 'Conheça as unidades de saúde disponíveis em Japeri e seus respectivos serviços.',
     image: '/placeholder-image.svg',
-    downloadUrl:
-      'https://docs.google.com/document/d/1GI9Djx68F2acEW9vbCfeewGJoffWYP50/edit?usp=sharing&ouid=109375697118600219724&rtpof=true&sd=true',
+    downloadUrl: 'https://www.japeri.rj.gov.br/service/unidades-saude/',
   },
   {
     id: '2',

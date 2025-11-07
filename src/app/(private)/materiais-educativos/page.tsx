@@ -1,10 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { BvButton, BvTitleHeader } from '@/components'
-import { PlusIcon, X } from 'lucide-react'
+import { PlusIcon, X, Download } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DeleteModal } from '@/components/common/DeleteModal'
 import { toast } from 'sonner'
@@ -14,32 +13,74 @@ interface EducationalContent {
   title: string
   description: string
   imageUrl?: string
+  downloadUrl?: string
 }
 
 const MOCK_DATA: EducationalContent[] = [
   {
     id: '1',
-    title: 'Conteúdo educativo',
-    description:
-      'Lorem ipsum dolor sit amet consectetur. Enim integer ipsum habitasse vulputate sed non. In eu diam morbi tellus lacus magnis.',
+    title: 'Unidades de Saúde de Japeri',
+    description: 'Conheça as unidades de saúde disponíveis em Japeri e seus respectivos serviços.',
+    downloadUrl: 'https://www.japeri.rj.gov.br/service/unidades-saude/',
   },
   {
     id: '2',
-    title: 'Conteúdo educativo',
+    title: 'Política Nacional de Saúde Integral da População',
     description:
-      'Lorem ipsum dolor sit amet consectetur. Enim integer ipsum habitasse vulputate sed non. In eu diam morbi tellus lacus magnis.',
+      'Política que orienta as ações de saúde pública no país, assegurando acesso igualitário e integral.',
+    downloadUrl:
+      'https://drive.google.com/file/d/1sWYYr9MK0Ncrnb8m91c4u3Xo8XULPFhK/view?usp=sharing',
   },
   {
     id: '3',
-    title: 'Conteúdo educativo',
+    title: 'Justiça Reprodutiva',
     description:
-      'Lorem ipsum dolor sit amet consectetur. Enim integer ipsum habitasse vulputate sed non. In eu diam morbi tellus lacus magnis.',
+      'Documento que aborda os direitos reprodutivos e a importância da autonomia na saúde reprodutiva.',
+    downloadUrl:
+      'https://drive.google.com/file/d/1BuyopBD93fAn41bZLGixKShiE_D0Un8_/view?usp=drive_link',
   },
   {
     id: '4',
-    title: 'Conteúdo educativo',
+    title: 'Carta dos Direitos dos Usuários da Saúde',
     description:
-      'Lorem ipsum dolor sit amet consectetur. Enim integer ipsum habitasse vulputate sed non. In eu diam morbi tellus lacus magnis.',
+      'Carta que estabelece os direitos fundamentais de todos os usuários dos serviços de saúde.',
+    downloadUrl:
+      'https://drive.google.com/file/d/1-VEuodHRUpGAi_p6VxjHpv-0B6n8zWLv/view?usp=sharing',
+  },
+  {
+    id: '5',
+    title: 'Calendário Técnico de Vacinação - Idoso',
+    description: 'Calendário de vacinação recomendado para a população idosa.',
+    downloadUrl:
+      'https://drive.google.com/file/d/1ANuXNfmuuZN-Cu6WH7_mu7RATHgo8r6H/view?usp=sharing',
+  },
+  {
+    id: '6',
+    title: 'Calendário Técnico de Vacinação - Gestante',
+    description: 'Calendário de vacinação recomendado durante a gestação.',
+    downloadUrl:
+      'https://drive.google.com/file/d/1VHZCql1FC0b5SslNPBw8j8R_kpv0zdX7/view?usp=sharing',
+  },
+  {
+    id: '7',
+    title: 'Calendário Técnico de Vacinação - Criança',
+    description: 'Calendário completo de vacinação para crianças de 0 a 12 anos.',
+    downloadUrl:
+      'https://drive.google.com/file/d/1yJ-fW1WV7EalG4XzPP-snHvzLmDIVHyH/view?usp=sharing',
+  },
+  {
+    id: '8',
+    title: 'Calendário Técnico de Vacinação - Adulto',
+    description: 'Calendário de vacinação recomendado para adultos.',
+    downloadUrl:
+      'https://drive.google.com/file/d/1tgqmoRoa9Yp3EQLmU-1i-nmuwwIXe3cY/view?usp=sharing',
+  },
+  {
+    id: '9',
+    title: 'Calendário Técnico de Vacinação - Adolescentes e Jovens',
+    description: 'Calendário de vacinação recomendado para adolescentes e jovens.',
+    downloadUrl:
+      'https://drive.google.com/file/d/1j5UuzXquXgeZEHJL6dn_ha1Ii6hSGzAA/view?usp=sharing',
   },
 ]
 
@@ -51,30 +92,42 @@ interface ContentCardProps {
 
 const ContentCard: React.FC<ContentCardProps> = ({ content, onEdit, onDelete }) => {
   return (
-    <Card className="relative rounded-sm bg-white shadow-sm transition-shadow hover:shadow-md">
+    <Card className="relative flex h-full flex-col overflow-hidden rounded-sm bg-white shadow-sm transition-shadow hover:shadow-md">
       <BvButton
         variant="ghost"
         size="icon"
-        className="absolute top-4 right-4 h-6 w-6 rounded-full hover:bg-gray-100"
+        className="absolute top-4 right-4 z-10 h-6 w-6 rounded-full hover:bg-gray-100"
         onClick={() => onDelete(content.id)}
         aria-label="Excluir conteúdo"
         leftIcon={<X className="size-4" />}
       />
 
-      <CardHeader className="pb-4">
-        <CardTitle className="pr-8 text-xl font-bold">{content.title}</CardTitle>
+      <CardHeader className="flex-shrink-0 pb-2">
+        <CardTitle className="line-clamp-2 pr-8 text-lg font-bold">{content.title}</CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        <CardDescription className="text-base leading-relaxed">
+      <CardContent className="flex flex-1 flex-col space-y-3 overflow-hidden pb-4">
+        <CardDescription className="line-clamp-3 flex-shrink-0 text-sm leading-relaxed">
           {content.description}
         </CardDescription>
 
-        <div className="flex h-32 items-center justify-center rounded-sm bg-[#F7F7F7]">
+        {/* Imagem do card comentada - mantém cards com tamanho uniforme */}
+        {/* <div className="flex flex-1 items-center justify-center rounded-sm bg-[#F7F7F7] min-h-16">
           <Image src="/placeholder-image.svg" alt={content.title} width={48} height={48} priority />
-        </div>
+        </div> */}
 
-        <BvButton onClick={() => onEdit(content.id)} title="Editar" className="w-full" />
+        <div className="mt-auto flex flex-shrink-0 flex-col gap-2">
+          <BvButton onClick={() => onEdit(content.id)} title="Editar" className="w-full text-sm" />
+          {content.downloadUrl && (
+            <BvButton
+              onClick={() => window.open(content.downloadUrl, '_blank')}
+              title="Download"
+              variant="outline"
+              className="w-full text-sm"
+              rightIcon={<Download className="size-4" />}
+            />
+          )}
+        </div>
       </CardContent>
     </Card>
   )
