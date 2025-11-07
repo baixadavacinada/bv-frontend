@@ -38,7 +38,7 @@ export function Navbar() {
       announceToScreenReader(accessibility('actionCompleted') + ': Saindo da conta', 'assertive')
 
       await logout()
-      router.push('/')
+      router.push('/inicio')
       router.refresh()
     } catch {
       // Error handling can be added here if needed

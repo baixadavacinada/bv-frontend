@@ -3,7 +3,6 @@
 import React, { forwardRef } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import Image from 'next/image'
 import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
 import {
   AccessibilityLoadingIndicator,
@@ -22,18 +21,14 @@ interface CardSecondaryProps extends CardAccessibilityProps {
   onKeyDown?: (event: React.KeyboardEvent) => void
 }
 
-interface CardImageProps {
-  image: string
-  title: string
-  className?: string
-}
-
 interface CardTextContentProps {
   title: string
   description: string
 }
 
 // Componente para renderizar a imagem do card
+// Comentado - imagens desabilitadas para manter cards com tamanho uniforme
+/* 
 const CardImage: React.FC<CardImageProps> = ({ image, title, className = '' }) => {
   const isPlaceholder = image.includes('placeholder')
   const titleId = `card-title-${title.replace(/\s+/g, '-').toLowerCase()}`
@@ -57,6 +52,7 @@ const CardImage: React.FC<CardImageProps> = ({ image, title, className = '' }) =
     </figure>
   )
 }
+*/
 
 // Componente para renderizar o conteúdo textual
 const CardTextContent: React.FC<CardTextContentProps> = ({ title, description }) => {
@@ -79,12 +75,12 @@ const CardTextContent: React.FC<CardTextContentProps> = ({ title, description })
 const LoadingCard = forwardRef<HTMLDivElement>((props, ref) => (
   <Card
     ref={ref}
-    className="w-64 shrink-0 cursor-pointer transition-shadow hover:shadow-md"
+    className="h-64 w-64 shrink-0 cursor-pointer transition-shadow hover:shadow-md"
     aria-hidden="true"
     aria-label="Carregando conteúdo do card"
     {...props}
   >
-    <CardContent className="p-4">
+    <CardContent className="flex h-full flex-col p-4">
       <Skeleton className="mb-3 h-32 w-full rounded" aria-hidden="true" />
       <Skeleton className="mb-2 h-4 w-3/4" aria-hidden="true" />
       <Skeleton className="h-3 w-full" aria-hidden="true" />
@@ -100,7 +96,6 @@ export const BvCardSecondary = forwardRef<HTMLDivElement, CardSecondaryProps>(
     {
       title,
       description,
-      image,
       onClick,
       onKeyDown,
       loading = false,
@@ -131,7 +126,7 @@ export const BvCardSecondary = forwardRef<HTMLDivElement, CardSecondaryProps>(
     return (
       <Card
         ref={ref}
-        className="w-64 flex-shrink-0 cursor-pointer transition-shadow hover:shadow-md focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+        className="h-64 w-64 flex-shrink-0 cursor-pointer transition-shadow hover:shadow-md focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         onClick={onClick}
         onKeyDown={(event) => {
           handleKeyDown(event)
@@ -143,9 +138,10 @@ export const BvCardSecondary = forwardRef<HTMLDivElement, CardSecondaryProps>(
         aria-describedby={descId}
         {...props}
       >
-        <CardContent className="gap-2 p-4">
+        <CardContent className="flex h-full flex-col gap-2 p-4">
           <CardTextContent title={title} description={description} />
-          {image && <CardImage image={image} title={title} />}
+          {/* Imagem do card comentada - mantém cards com tamanho uniforme */}
+          {/* {image && <CardImage image={image} title={title} />} */}
 
           <AccessibilityLoadingIndicator isValidating={isValidating} />
         </CardContent>

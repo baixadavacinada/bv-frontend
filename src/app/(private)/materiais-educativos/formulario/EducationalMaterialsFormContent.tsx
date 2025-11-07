@@ -5,16 +5,23 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useEffect, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Textarea } from '@/components/ui/textarea'
-import FileUpload, { type FileUploadRef } from '@/components/common/FileUpload'
+import { useGoogleDrivePicker } from '@/hooks/use-google-drive-picker'
+import { FileUp, X } from 'lucide-react'
 
 const formSchema = z.object({
   title: z.string().min(2).max(100).nonempty(),
   author: z.string().min(2).max(100).nonempty(),
   description: z.string().min(10).max(500).nonempty(),
-  file: z.instanceof(File).optional(),
+  driveFile: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      url: z.string(),
+    })
+    .optional(),
 })
 
 type EducationalMaterialsFormData = z.infer<typeof formSchema>
@@ -23,13 +30,24 @@ export function EducationalMaterialsFormContent() {
   useAccessibilityValidation()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const fileUploadRef = useRef<FileUploadRef>(null)
+  const [selectedFile, setSelectedFile] = useState<{
+    id: string
+    name: string
+    url: string
+  } | null>(null)
 
   const contentId = searchParams.get('id')
   const isEdit = !!contentId
 
   const pageTitle = isEdit ? 'Editar conteúdo' : 'Adicionar conteúdo'
   const buttonText = isEdit ? 'Salvar' : 'Adicionar'
+
+  // Google Drive Picker
+  const { openPicker } = useGoogleDrivePicker({
+    apiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '',
+    clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+    folderId: process.env.NEXT_PUBLIC_GOOGLE_DRIVE_FOLDER_ID,
+  })
 
   const {
     register,
@@ -61,43 +79,53 @@ export function EducationalMaterialsFormContent() {
     }
   }, [isEdit, contentId, reset])
 
-  const handleFileSelect = (file: File | null) => {
-    if (file) {
-      clearErrors('file')
+  const handleOpenPicker = () => {
+    if (!process.env.NEXT_PUBLIC_GOOGLE_API_KEY) {
+      toast.error('Google API Key não configurada')
+      return
     }
+
+    openPicker(
+      (file) => {
+        setSelectedFile({
+          id: file.id,
+          name: file.name,
+          url: file.webViewLink,
+        })
+        clearErrors('driveFile')
+        toast.success(`Arquivo "${file.name}" selecionado`)
+      },
+      (error) => {
+        toast.error(`Erro ao selecionar arquivo: ${error}`)
+      },
+    )
   }
 
   const onSubmit = async (data: EducationalMaterialsFormData) => {
     // Validar se arquivo foi selecionado
-    const file = fileUploadRef.current?.getFile()
-
-    if (!file) {
-      setError('file', {
+    if (!selectedFile) {
+      setError('driveFile', {
         type: 'required',
-        message: 'Por favor, selecione um arquivo',
+        message: 'Por favor, selecione um arquivo do Google Drive',
       })
       return
     }
 
     try {
-      const formData = new FormData()
-      formData.append('title', data.title)
-      formData.append('author', data.author)
-      formData.append('description', data.description)
-      formData.append('file', file)
+      const payload = {
+        title: data.title,
+        author: data.author,
+        description: data.description,
+        fileId: selectedFile.id,
+        fileName: selectedFile.name,
+        fileUrl: selectedFile.url,
+      }
 
       if (isEdit) {
-        console.log(
-          'TODO: Atualizando conteúdo com ID:',
-          contentId,
-          'com dados:',
-          data,
-          'e arquivo:',
-          file.name,
-        )
+        console.log('TODO: Atualizando conteúdo com ID:', contentId, 'com dados:', payload)
         toast.success('Conteúdo atualizado com sucesso!')
       } else {
-        console.log('TODO: Criando novo conteúdo com dados:', data, 'e arquivo:', file.name)
+        console.log('TODO: Criando novo conteúdo com dados:', payload)
         toast.success('Conteúdo criado com sucesso!')
       }
 
@@ -161,11 +189,40 @@ export function EducationalMaterialsFormContent() {
               )}
             </div>
 
-            <FileUpload
-              ref={fileUploadRef}
-              onFileSelect={handleFileSelect}
-              error={errors.file?.message}
-            />
+            <div>
+              <label className="mb-2 block text-base font-semibold text-gray-900">
+                Arquivo do Google Drive
+              </label>
+              <div className="space-y-3">
+                {selectedFile && (
+                  <div className="flex items-center justify-between rounded-md border border-green-200 bg-green-50 p-3">
+                    <div className="text-sm text-green-800">
+                      <p className="font-medium">Arquivo selecionado:</p>
+                      <p className="break-all">{selectedFile.name}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedFile(null)}
+                      className="ml-2 text-green-600 hover:text-green-800"
+                    >
+                      <X className="size-4" />
+                    </button>
+                  </div>
+                )}
+
+                <BvButton
+                  type="button"
+                  title={selectedFile ? 'Alterar Arquivo' : 'Selecionar Arquivo do Google Drive'}
+                  onClick={() => handleOpenPicker()}
+                  leftIcon={<FileUp className="size-4" />}
+                  className="w-full"
+                />
+
+                {errors.driveFile && (
+                  <p className="text-sm text-red-500">{errors.driveFile.message}</p>
+                )}
+              </div>
+            </div>
 
             <div className="mt-10 flex flex-col gap-4 lg:flex-row lg:justify-end">
               <BvButton type="submit" isLoading={isSubmitting} title={buttonText} />
