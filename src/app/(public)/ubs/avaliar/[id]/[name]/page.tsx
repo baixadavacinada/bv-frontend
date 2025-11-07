@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -29,16 +30,9 @@ const formSchema = z.object({
   rating: z.number().min(1, 'Selecione pelo menos 1 estrela').max(5),
 })
 
-interface PageProps {
-  params: {
-    id: string
-    name: string
-  }
-}
-
-export default function OrderDetailsPage({ params }: PageProps) {
-  // Acesso direto aos dois IDs
-  const { id, name } = params
+export default function OrderDetailsPage() {
+  const params = useParams()
+  const name = params.name as string
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
