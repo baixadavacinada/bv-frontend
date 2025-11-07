@@ -68,14 +68,14 @@ export function MainActionsSection() {
       action: () => router.push('/cartilha-vacinas'),
       variant: 'stacked',
     },
-    {
-      id: 'user-register',
-      title: cards('manageUsers.title'),
-      description: cards('manageUsers.description'),
-      icon: RegisterIcon,
-      action: () => router.push('/registro-usuario'),
-      variant: 'stacked',
-    },
+    // {
+    //   id: 'user-register',
+    //   title: cards('manageUsers.title'),
+    //   description: cards('manageUsers.description'),
+    //   icon: RegisterIcon,
+    //   action: () => router.push('/registro-usuario'),
+    //   variant: 'stacked',
+    // },
 
     {
       id: 'ubs-management',
