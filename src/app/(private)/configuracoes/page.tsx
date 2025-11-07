@@ -72,7 +72,6 @@ export default function SettingsScreen() {
       setIsLoading(true)
       const token = await firebaseAuth.currentUser.getIdToken()
 
-      // Atualizar dados no backend
       const response = await fetch('/api/auth/profile', {
         method: 'PUT',
         headers: {
@@ -126,6 +125,7 @@ export default function SettingsScreen() {
                       label="Nome:"
                       {...register('name')}
                       placeholder="Ex: João da Silva"
+                      className="placeholder:text-gray-400"
                       error={errors.name?.message}
                     />
                   </div>
@@ -136,6 +136,7 @@ export default function SettingsScreen() {
                       {...register('phone')}
                       value={watchedValues.phone}
                       placeholder="Ex: (21) 98765-4321"
+                      className="placeholder:text-gray-400"
                       error={errors.phone?.message}
                     />
                   </div>
@@ -144,6 +145,7 @@ export default function SettingsScreen() {
                     type="email"
                     {...register('email')}
                     placeholder="Digite seu e-mail"
+                    className="placeholder:text-gray-400"
                     error={errors.email?.message}
                   />
                   <div className={emptyFields.cpf ? 'border-l-4 border-yellow-500 pl-3' : ''}>
@@ -153,6 +155,7 @@ export default function SettingsScreen() {
                       {...register('cpf')}
                       value={watchedValues.cpf}
                       placeholder="Ex: 123.456.789-00"
+                      className="placeholder:text-gray-400"
                       error={errors.cpf?.message}
                     />
                   </div>
