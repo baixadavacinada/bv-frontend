@@ -125,7 +125,7 @@ export default function SettingsScreen() {
                     <BvFormInput
                       label="Nome:"
                       {...register('name')}
-                      placeholder="Digite seu nome completo"
+                      placeholder="Ex: João da Silva"
                       error={errors.name?.message}
                     />
                   </div>
@@ -135,7 +135,7 @@ export default function SettingsScreen() {
                       mask="(00) 00000-0000"
                       {...register('phone')}
                       value={watchedValues.phone}
-                      placeholder="Digite seu telefone"
+                      placeholder="Ex: (21) 98765-4321"
                       error={errors.phone?.message}
                     />
                   </div>
@@ -152,7 +152,7 @@ export default function SettingsScreen() {
                       mask="000.000.000-00"
                       {...register('cpf')}
                       value={watchedValues.cpf}
-                      placeholder="Digite seu CPF"
+                      placeholder="Ex: 123.456.789-00"
                       error={errors.cpf?.message}
                     />
                   </div>
