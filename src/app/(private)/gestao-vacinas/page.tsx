@@ -1,6 +1,6 @@
 'use client'
 
-import { BvButton, BvTitleHeader } from '@/components'
+import { BvButton, BvTitleHeader, RoleGuard } from '@/components'
 import { DeleteModal } from '@/components/common/DeleteModal'
 import { ManagementTable } from '@/components/common/ManagementTable'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
@@ -69,50 +69,62 @@ export default function VaccineManagementPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-6xl pb-4 lg:mx-0 lg:ml-0 lg:max-w-2xl">
-        <BvTitleHeader title="Gestão de vacinas" className="mb-8" />
-
-        <div className="space-y-8">
-          <p className="text-base font-normal">
-            Aqui você pode adicionar e remover as vacinas. Também pode atualizar os dados de vacinas
-            com segundas doses.
+    <RoleGuard
+      allowedRoles={['admin', 'agent']}
+      requireAuth={true}
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-slate-600">
+            Acesso negado. Você não tem permissão para acessar esta página.
           </p>
+        </div>
+      }
+    >
+      <div className="min-h-screen">
+        <div className="mx-auto max-w-6xl pb-4 lg:mx-0 lg:ml-0 lg:max-w-2xl">
+          <BvTitleHeader title="Gestão de vacinas" className="mb-8" />
 
-          <BvButton
-            title="Adicionar vacina"
-            className="mt-8 w-full lg:w-min"
-            onClick={handleAddVaccine}
-            rightIcon={<PlusIcon />}
+          <div className="space-y-8">
+            <p className="text-base font-normal">
+              Aqui você pode adicionar e remover as vacinas. Também pode atualizar os dados de
+              vacinas com segundas doses.
+            </p>
+
+            <BvButton
+              title="Adicionar vacina"
+              className="mt-8 w-full lg:w-min"
+              onClick={handleAddVaccine}
+              rightIcon={<PlusIcon />}
+            />
+
+            <p className="mt-8 mb-6 text-xl font-bold">Lista de vacinas</p>
+          </div>
+
+          <ManagementTable<Vaccine>
+            data={vaccines}
+            onEdit={handleEdit}
+            onDelete={handleDeleteClick}
+            tableHeader={{
+              left: 'Vacina | Doses',
+              right: 'Ações',
+            }}
+            searchConfig={{
+              enabled: true,
+              placeholder: 'Buscar vacina',
+              searchKeys: ['name', 'dosage'],
+              emptyMessage: 'Nenhuma vacina encontrada na lista',
+            }}
+            getItemFields={getVaccineFields}
           />
-
-          <p className="mt-8 mb-6 text-xl font-bold">Lista de vacinas</p>
         </div>
 
-        <ManagementTable<Vaccine>
-          data={vaccines}
-          onEdit={handleEdit}
-          onDelete={handleDeleteClick}
-          tableHeader={{
-            left: 'Vacina | Doses',
-            right: 'Ações',
-          }}
-          searchConfig={{
-            enabled: true,
-            placeholder: 'Buscar vacina',
-            searchKeys: ['name', 'dosage'],
-            emptyMessage: 'Nenhuma vacina encontrada na lista',
-          }}
-          getItemFields={getVaccineFields}
+        <DeleteModal
+          isOpen={showDeleteModal}
+          onClose={handleCloseModal}
+          onConfirm={handleConfirmDelete}
+          itemName={vaccineToDelete ? `"${vaccineToDelete.name}"` : 'a vacina selecionada'}
         />
       </div>
-
-      <DeleteModal
-        isOpen={showDeleteModal}
-        onClose={handleCloseModal}
-        onConfirm={handleConfirmDelete}
-        itemName={vaccineToDelete ? `"${vaccineToDelete.name}"` : 'a vacina selecionada'}
-      />
-    </div>
+    </RoleGuard>
   )
 }

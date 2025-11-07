@@ -1,6 +1,6 @@
 'use client'
 
-import { BvButton, BvTitleHeader } from '@/components'
+import { BvButton, BvTitleHeader, RoleGuard } from '@/components'
 import { DeleteModal } from '@/components/common/DeleteModal'
 import { ManagementTable } from '@/components/common/ManagementTable'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
@@ -67,50 +67,62 @@ export default function UserManagementPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-6xl pb-4 lg:mx-0 lg:ml-0 lg:max-w-2xl">
-        <BvTitleHeader title="Gestão de usuários" className="mb-8" />
-
-        <div className="space-y-8">
-          <p className="text-base font-normal">
-            Aqui você pode adicionar e remover usuários. Também é possível editar e validar
-            alterações nas carteiras de vacinação dos moradores.
+    <RoleGuard
+      allowedRoles={['admin', 'agent']}
+      requireAuth={true}
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-slate-600">
+            Acesso negado. Você não tem permissão para acessar esta página.
           </p>
+        </div>
+      }
+    >
+      <div className="min-h-screen">
+        <div className="mx-auto max-w-6xl pb-4 lg:mx-0 lg:ml-0 lg:max-w-2xl">
+          <BvTitleHeader title="Gestão de usuários" className="mb-8" />
 
-          <BvButton
-            title="Adicionar usuário"
-            className="mt-8 w-full lg:w-min"
-            onClick={handleAddUser}
-            rightIcon={<PlusIcon />}
+          <div className="space-y-8">
+            <p className="text-base font-normal">
+              Aqui você pode adicionar e remover usuários. Também é possível editar e validar
+              alterações nas carteiras de vacinação dos moradores.
+            </p>
+
+            <BvButton
+              title="Adicionar usuário"
+              className="mt-8 w-full lg:w-min"
+              onClick={handleAddUser}
+              rightIcon={<PlusIcon />}
+            />
+
+            <p className="mt-8 mb-6 text-xl font-bold">Lista de usuários</p>
+          </div>
+
+          <ManagementTable<User>
+            data={users}
+            onEdit={handleEdit}
+            onDelete={handleDeleteClick}
+            tableHeader={{
+              left: 'Nome | Perfil',
+              right: 'Ações',
+            }}
+            searchConfig={{
+              enabled: true,
+              placeholder: 'Buscar usuário',
+              searchKeys: ['name', 'perfil'],
+              emptyMessage: 'Nenhum usuário encontrado na lista',
+            }}
+            getItemFields={getUserFields}
           />
-
-          <p className="mt-8 mb-6 text-xl font-bold">Lista de usuários</p>
         </div>
 
-        <ManagementTable<User>
-          data={users}
-          onEdit={handleEdit}
-          onDelete={handleDeleteClick}
-          tableHeader={{
-            left: 'Nome | Perfil',
-            right: 'Ações',
-          }}
-          searchConfig={{
-            enabled: true,
-            placeholder: 'Buscar usuário',
-            searchKeys: ['name', 'perfil'],
-            emptyMessage: 'Nenhum usuário encontrado na lista',
-          }}
-          getItemFields={getUserFields}
+        <DeleteModal
+          isOpen={showDeleteModal}
+          onClose={handleCloseModal}
+          onConfirm={handleConfirmDelete}
+          itemName={userToDelete ? `"${userToDelete.name}"` : 'o usuário selecionado'}
         />
       </div>
-
-      <DeleteModal
-        isOpen={showDeleteModal}
-        onClose={handleCloseModal}
-        onConfirm={handleConfirmDelete}
-        itemName={userToDelete ? `"${userToDelete.name}"` : 'o usuário selecionado'}
-      />
-    </div>
+    </RoleGuard>
   )
 }

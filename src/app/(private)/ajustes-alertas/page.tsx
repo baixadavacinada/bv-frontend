@@ -1,7 +1,7 @@
 'use client'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { BvButton, BvTitleHeader } from '@/components'
+import { BvButton, BvTitleHeader, RoleGuard } from '@/components'
 import { BvNotificationToggle } from '@/components/design/BvNotificationToggle'
 import { TitleSection } from '@/components/sections/TitleSection'
 import DataIcon from '@/assets/icons/profile.svg'
@@ -52,42 +52,53 @@ export default function AlertSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-6xl pb-4">
-        <BvTitleHeader title="Ajustes de notificações" className="mb-8" />
+    <RoleGuard
+      allowedRoles={['admin', 'agent']}
+      requireAuth={true}
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-slate-600">
+            Acesso negado. Você não tem permissão para acessar esta página.
+          </p>
+        </div>
+      }
+    >
+      <div className="min-h-screen">
+        <div className="mx-auto max-w-6xl pb-4">
+          <BvTitleHeader title="Ajustes de notificações" className="mb-8" />
 
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-            <div className="space-y-8">
-              <TitleSection icon={DataIcon} title="Notificações do sistema">
-                <div className="space-y-4">
-                  <BvNotificationToggle
-                    label="Lembretes para todos os usuários"
-                    checked={notifications.allUsers}
-                    onChange={() => toggleNotification('allUsers')}
-                  />
-                </div>
-              </TitleSection>
-              <TitleSection icon={DataIcon} title="Notificações para agentes de saúde">
-                <div className="space-y-4">
-                  <BvNotificationToggle
-                    label="Alertas de novos cadastros de usuários"
-                    checked={notifications.newUsers}
-                    onChange={() => toggleNotification('newUsers')}
-                  />
-                  <BvNotificationToggle
-                    label="Alerta de novas vacinas adicionadas na aplicação"
-                    checked={notifications.newVaccines}
-                    onChange={() => toggleNotification('newVaccines')}
-                  />
-                  <BvNotificationToggle
-                    label="Alerta de novas UBSs cadastradas"
-                    checked={notifications.newUBS}
-                    onChange={() => toggleNotification('newUBS')}
-                  />
-                </div>
-              </TitleSection>
-              {/* 
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <div className="space-y-8">
+                <TitleSection icon={DataIcon} title="Notificações do sistema">
+                  <div className="space-y-4">
+                    <BvNotificationToggle
+                      label="Lembretes para todos os usuários"
+                      checked={notifications.allUsers}
+                      onChange={() => toggleNotification('allUsers')}
+                    />
+                  </div>
+                </TitleSection>
+                <TitleSection icon={DataIcon} title="Notificações para agentes de saúde">
+                  <div className="space-y-4">
+                    <BvNotificationToggle
+                      label="Alertas de novos cadastros de usuários"
+                      checked={notifications.newUsers}
+                      onChange={() => toggleNotification('newUsers')}
+                    />
+                    <BvNotificationToggle
+                      label="Alerta de novas vacinas adicionadas na aplicação"
+                      checked={notifications.newVaccines}
+                      onChange={() => toggleNotification('newVaccines')}
+                    />
+                    <BvNotificationToggle
+                      label="Alerta de novas UBSs cadastradas"
+                      checked={notifications.newUBS}
+                      onChange={() => toggleNotification('newUBS')}
+                    />
+                  </div>
+                </TitleSection>
+                {/* 
               <TitleSection icon={DataIcon} title="Notificações para usuários finais (moradores)">
                 <div className="space-y-4">
                   <BvNotificationToggle
@@ -108,41 +119,42 @@ export default function AlertSettingsPage() {
                 </div>
               </TitleSection>
               */}
-              <TitleSection icon={DataIcon} title="Notificações para usuários finais (moradores)">
-                <div className="space-y-4">
-                  <BvNotificationToggle
-                    label="Lembretes da segunda dose"
-                    checked={notifications.newSecondDoseReminders}
-                    onChange={() => toggleNotification('newSecondDoseReminders')}
-                  />
-                </div>
-              </TitleSection>
-              <TitleSection icon={DataIcon} title="Alertas para segunda dose">
-                <div className="space-y-4">
-                  <p className="text-base font-normal">
-                    Escolha quais vacinas terão lembrete automático para aplicação da 2ª dose.
-                  </p>
-
-                  <div className="grid grid-cols-2 gap-4 py-6">
-                    {vaccines.map((vaccine) => (
-                      <Tag key={vaccine} label={vaccine} />
-                    ))}
+                <TitleSection icon={DataIcon} title="Notificações para usuários finais (moradores)">
+                  <div className="space-y-4">
+                    <BvNotificationToggle
+                      label="Lembretes da segunda dose"
+                      checked={notifications.newSecondDoseReminders}
+                      onChange={() => toggleNotification('newSecondDoseReminders')}
+                    />
                   </div>
+                </TitleSection>
+                <TitleSection icon={DataIcon} title="Alertas para segunda dose">
+                  <div className="space-y-4">
+                    <p className="text-base font-normal">
+                      Escolha quais vacinas terão lembrete automático para aplicação da 2ª dose.
+                    </p>
 
-                  <BvButton
-                    title="Adicionar vacina"
-                    rightIcon={<PlusIcon />}
-                    onClick={() => setShowSecondDoseModal(true)}
-                    className="w-full"
-                  />
-                </div>
-              </TitleSection>
+                    <div className="grid grid-cols-2 gap-4 py-6">
+                      {vaccines.map((vaccine) => (
+                        <Tag key={vaccine} label={vaccine} />
+                      ))}
+                    </div>
+
+                    <BvButton
+                      title="Adicionar vacina"
+                      rightIcon={<PlusIcon />}
+                      onClick={() => setShowSecondDoseModal(true)}
+                      className="w-full"
+                    />
+                  </div>
+                </TitleSection>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <SecondDoseModal isOpen={showSecondDoseModal} onClose={() => setShowSecondDoseModal(false)} />
-    </div>
+    </RoleGuard>
   )
 }

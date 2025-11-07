@@ -3,7 +3,7 @@
 import React, { useMemo, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { BvButton, BvTitleHeader } from '@/components'
+import { BvButton, BvTitleHeader, RoleGuard } from '@/components'
 import DataIcon from '@/assets/icons/profile.svg'
 import { getPersonalDataSchema } from '@/schemas/personal-data-schema'
 import { BvFormInput } from '@/components/design/BvFormInput'
@@ -80,6 +80,7 @@ export default function SettingsScreen() {
           name: data.name,
           phone: data.phone,
           cpf: data.cpf,
+          notifications: data.notifications,
         }),
       })
 
@@ -105,92 +106,103 @@ export default function SettingsScreen() {
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-6xl">
-        <BvTitleHeader title="Configurações" className="mb-8" />
+    <RoleGuard
+      allowedRoles={['admin', 'agent', 'public']}
+      requireAuth={true}
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-slate-600">
+            Acesso negado. Você não tem permissão para acessar esta página.
+          </p>
+        </div>
+      }
+    >
+      <div className="min-h-screen">
+        <div className="mx-auto max-w-6xl">
+          <BvTitleHeader title="Configurações" className="mb-8" />
 
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-            {/* Coluna Esquerda */}
-            <div className="space-y-8">
-              {/* Dados Pessoais - Exibe para qualquer usuário logado */}
-              <TitleSection icon={DataIcon} title="Dados pessoais">
-                <div className="space-y-4">
-                  <div className={emptyFields.name ? 'border-l-4 border-yellow-500 pl-3' : ''}>
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              {/* Coluna Esquerda */}
+              <div className="space-y-8">
+                {/* Dados Pessoais - Exibe para qualquer usuário logado */}
+                <TitleSection icon={DataIcon} title="Dados pessoais">
+                  <div className="space-y-4">
+                    <div className={emptyFields.name ? 'border-l-4 border-yellow-500 pl-3' : ''}>
+                      <BvFormInput
+                        label="Nome:"
+                        {...register('name')}
+                        placeholder="Ex: João da Silva"
+                        className="placeholder:text-gray-400"
+                        error={errors.name?.message}
+                      />
+                    </div>
+                    <div className={emptyFields.phone ? 'border-l-4 border-yellow-500 pl-3' : ''}>
+                      <BvFormInput
+                        label="Telefone:"
+                        mask="(00) 00000-0000"
+                        {...register('phone')}
+                        value={watchedValues.phone}
+                        placeholder="Ex: (21) 98765-4321"
+                        className="placeholder:text-gray-400"
+                        error={errors.phone?.message}
+                      />
+                    </div>
                     <BvFormInput
-                      label="Nome:"
-                      {...register('name')}
-                      placeholder="Ex: João da Silva"
+                      label="E-mail:"
+                      type="email"
+                      {...register('email')}
+                      placeholder="Digite seu e-mail"
                       className="placeholder:text-gray-400"
-                      error={errors.name?.message}
+                      error={errors.email?.message}
                     />
+                    <div className={emptyFields.cpf ? 'border-l-4 border-yellow-500 pl-3' : ''}>
+                      <BvFormInput
+                        label="CPF:"
+                        mask="000.000.000-00"
+                        {...register('cpf')}
+                        value={watchedValues.cpf}
+                        placeholder="Ex: 123.456.789-00"
+                        className="placeholder:text-gray-400"
+                        error={errors.cpf?.message}
+                      />
+                    </div>
                   </div>
-                  <div className={emptyFields.phone ? 'border-l-4 border-yellow-500 pl-3' : ''}>
-                    <BvFormInput
-                      label="Telefone:"
-                      mask="(00) 00000-0000"
-                      {...register('phone')}
-                      value={watchedValues.phone}
-                      placeholder="Ex: (21) 98765-4321"
-                      className="placeholder:text-gray-400"
-                      error={errors.phone?.message}
-                    />
-                  </div>
-                  <BvFormInput
-                    label="E-mail:"
-                    type="email"
-                    {...register('email')}
-                    placeholder="Digite seu e-mail"
-                    className="placeholder:text-gray-400"
-                    error={errors.email?.message}
-                  />
-                  <div className={emptyFields.cpf ? 'border-l-4 border-yellow-500 pl-3' : ''}>
-                    <BvFormInput
-                      label="CPF:"
-                      mask="000.000.000-00"
-                      {...register('cpf')}
-                      value={watchedValues.cpf}
-                      placeholder="Ex: 123.456.789-00"
-                      className="placeholder:text-gray-400"
-                      error={errors.cpf?.message}
-                    />
-                  </div>
-                </div>
-              </TitleSection>
+                </TitleSection>
 
-              {/* Notificações */}
-              <TitleSection icon={DataIcon} title="Notificações">
-                <div className="space-y-2">
-                  <BvNotificationToggle
-                    label="Lembretes da segunda dose"
-                    checked={notifications.secondDose}
-                    onChange={() => toggleNotification('secondDose')}
-                  />
-                  {/* <BvNotificationToggle
+                {/* Notificações */}
+                <TitleSection icon={DataIcon} title="Notificações">
+                  <div className="space-y-2">
+                    <BvNotificationToggle
+                      label="Lembretes da segunda dose"
+                      checked={notifications.secondDose}
+                      onChange={() => toggleNotification('secondDose')}
+                    />
+                    {/* <BvNotificationToggle
                     label="Lembretes de agendamento"
                     checked={notifications.appointment}
                     onChange={() => toggleNotification('appointment')}
                   /> */}
-                  <BvNotificationToggle
-                    label="Novos registros de vacinação"
-                    checked={notifications.newVaccines}
-                    onChange={() => toggleNotification('newVaccines')}
-                  />
-                </div>
+                    <BvNotificationToggle
+                      label="Novos registros de vacinação"
+                      checked={notifications.newVaccines}
+                      onChange={() => toggleNotification('newVaccines')}
+                    />
+                  </div>
 
-                <div className="mt-6">
-                  <BvButton
-                    title="Salvar"
-                    onClick={handleSaveSettings}
-                    disabled={isLoading}
-                    className="w-full"
-                  />
-                </div>
-              </TitleSection>
-            </div>
+                  <div className="mt-6">
+                    <BvButton
+                      title="Salvar"
+                      onClick={handleSaveSettings}
+                      disabled={isLoading}
+                      className="w-full"
+                    />
+                  </div>
+                </TitleSection>
+              </div>
 
-            {/* Coluna Direita (Suporte) */}
-            {/* <div>
+              {/* Coluna Direita (Suporte) */}
+              {/* <div>
               <TitleSection icon={SupportIcon} title="Suporte">
                 <div className="space-y-4">
                   <p className="text-base text-gray-700">
@@ -223,9 +235,10 @@ export default function SettingsScreen() {
                 </div>
               </TitleSection>
             </div> */}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </RoleGuard>
   )
 }
