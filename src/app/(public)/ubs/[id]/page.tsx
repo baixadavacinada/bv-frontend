@@ -4,13 +4,14 @@ import { BvTitleIco } from '@/components/design/BvTitleIco'
 import CaledarIco from '@/assets/icons/calendar.svg'
 import SyringeIco from '@/assets/icons/syringe.svg'
 import React from 'react'
-import { mockUbsData } from '@/mock/ubs'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { Button } from '@/components/ui/button'
 import { Syringe, Heart, Share2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { notFound, useRouter } from 'next/navigation'
+import { useHealthUnits } from '@/hooks/use-health-units' // Importar o hook e o tipo
+import { HealthUnit } from '@/types/health-units'
 
 interface DetailUbsProps {
   params: Promise<{ id: string }>
@@ -18,40 +19,85 @@ interface DetailUbsProps {
 
 export default function DetailUbs({ params }: DetailUbsProps) {
   const resolvedParams = React.use(params)
-  const ubsId = parseInt(resolvedParams.id)
-  const initialUbsData = mockUbsData.find((ubs) => ubs.id === ubsId)
   const route = useRouter()
-
   useAccessibilityValidation({ enabled: true })
 
-  if (!initialUbsData) {
+  const { data, isLoading, error } = useHealthUnits()
+
+  const ubsDataFromApi = React.useMemo(() => {
+    if (!data) return undefined
+    return data.find((unit: HealthUnit) => unit._id === resolvedParams.id)
+  }, [data, resolvedParams.id])
+  const [ubs, setUbs] = React.useState<HealthUnit | null>(null)
+
+  React.useEffect(() => {
+    if (ubsDataFromApi) {
+      const transformedData: HealthUnit = {
+        id: ubsDataFromApi._id,
+        name: ubsDataFromApi.name,
+        neighborhood: ubsDataFromApi.neighborhood,
+        address: ubsDataFromApi.address || 'Endereço não informado',
+        phone: ubsDataFromApi.phone || 'Telefone não informado',
+        isFavorite: ubsDataFromApi.isFavorite || false,
+        geolocation: ubsDataFromApi.geolocation,
+        operatingHours: {
+          monday: ubsDataFromApi.operatingHours?.monday || '08:00 - 17:00',
+          tuesday: ubsDataFromApi.operatingHours?.tuesday || '08:00 - 17:00',
+          wednesday: ubsDataFromApi.operatingHours?.wednesday || '08:00 - 17:00',
+          thursday: ubsDataFromApi.operatingHours?.thursday || '08:00 - 17:00',
+          friday: ubsDataFromApi.operatingHours?.friday || '08:00 - 17:00',
+          saturday: ubsDataFromApi.operatingHours?.saturday || '08:00 - 12:00',
+          sunday: ubsDataFromApi.operatingHours?.sunday || 'Fechado',
+        },
+        averageWaitTime: '30 minutos',
+        availableVaccines: !ubsDataFromApi.availableVaccines || [
+          'Influenza',
+          'Covid-19',
+          'Hepatite B',
+          'Sarampo',
+          'Febre Amarela',
+          'Tétano',
+        ],
+      }
+      setUbs(transformedData)
+    }
+  }, [ubsDataFromApi]) // Roda quando ubsDataFromApi for encontrado
+
+  // 5. Lidar com estados de carregamento e erro
+  if (isLoading) {
+    return <div>Carregando...</div>
+  }
+
+  if (error) {
+    return <div>Erro ao carregar dados: {error instanceof Error ? error : String(error)}</div>
+  }
+
+  // 6. Lidar com 'não encontrado' APÓS o carregamento
+  // Se não está carregando e 'ubsDataFromApi' ainda é 'undefined', não foi encontrado
+  if (!ubsDataFromApi) {
     notFound()
   }
-  const [ubs, setUbs] = React.useState(initialUbsData)
+
+  if (!ubs) {
+    return <div>Carregando...</div>
+  }
+
   const {
     name,
     neighborhood,
-    address = 'Endereço não informado',
-    phone = 'Telefone não informado',
-    openingHours = {
-      monday: '08:00 - 17:00',
-      tuesday: '08:00 - 17:00',
-      wednesday: '08:00 - 17:00',
-      thursday: '08:00 - 17:00',
-      friday: '08:00 - 17:00',
-      saturday: '08:00 - 12:00',
-      sunday: 'Fechado',
-    },
-    averageWaitTime = '30 minutos',
-    vaccines = ['Influenza', 'Covid-19', 'Hepatite B', 'Sarampo', 'Febre Amarela', 'Tétano'],
+    address,
+    phone,
+    operatingHours,
+    averageWaitTime,
+    availableVaccines,
     isFavorite,
   } = ubs
 
   const handleFavoriteToggle = () => {
-    setUbs((prev) => ({
-      ...prev,
-      isFavorite: !prev.isFavorite,
-    }))
+    setUbs((prev) => {
+      if (!prev) return null
+      return { ...prev, isFavorite: !prev.isFavorite }
+    })
     toast.success(
       !isFavorite ? `"${name}" adicionada aos favoritos!` : `"${name}" removida dos favoritos.`,
     )
@@ -62,7 +108,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   }
 
   const handleEvaluate = () => {
-    route.push(`../ubs/avaliar/${ubsId}/${name.replace(/\s+/g, '-').toLowerCase()}`)
+    route.push(`../ubs/avaliar/${ubs.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
   }
 
   return (
@@ -113,7 +159,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
 
         <div>
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d470857.1325203243!2d-43.732171476060785!3d-22.781279808959898!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x99a1342b7a7239%3A0x59ce0e8ead817aa7!2sBaixada%20Fluminense%2C%20RJ!5e0!3m2!1spt-BR!2sbr!4v1757530920571!5m2!1spt-BR!2sbr"
+            src={`https://maps.google.com/maps?q=${ubs.geolocation.lat},${ubs.geolocation.lng}&z=15&output=embed`}
             width="100%"
             height="450"
             style={{ border: 0, borderRadius: '8px' }} // Borda arredondada
@@ -131,13 +177,13 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         className="mt-12 mb-6"
       />
       <div className="grid grid-cols-1 gap-4 rounded-lg bg-gray-50 p-6 md:grid-cols-3">
-        <p>Segunda: {openingHours.monday}</p>
-        <p>Terça: {openingHours.tuesday}</p>
-        <p>Quarta: {openingHours.wednesday}</p>
-        <p>Quinta: {openingHours.thursday}</p>
-        <p>Sexta: {openingHours.friday}</p>
-        <p>Sábado: {openingHours.saturday}</p>
-        <p>Domingo: {openingHours.sunday}</p>
+        <p>Segunda: {operatingHours.monday}</p>
+        <p>Terça: {operatingHours.tuesday}</p>
+        <p>Quarta: {operatingHours.wednesday}</p>
+        <p>Quinta: {operatingHours.thursday}</p>
+        <p>Sexta: {operatingHours.friday}</p>
+        <p>Sábado: {operatingHours.saturday}</p>
+        <p>Domingo: {operatingHours.sunday}</p>
       </div>
 
       <BvTitleIco
@@ -147,9 +193,9 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         className="mt-12 mb-6"
       />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-        {vaccines.map((vaccine) => (
+        {availableVaccines.map((vaccine, index: number) => (
           <div
-            key={vaccine}
+            key={index}
             className="flex items-start gap-3 rounded-lg bg-green-600 p-3 text-white shadow-md"
           >
             <Syringe className="mt-1 h-5 w-5 flex-shrink-0" />

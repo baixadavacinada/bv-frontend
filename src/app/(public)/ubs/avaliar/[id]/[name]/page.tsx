@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { submitSurvey } from '@/app/(public)/ubs/actions' // Importando a server action
+import { submitSurvey } from '@/services/actions/ubs-actions' // Importando a server action
 import { BvTitleHeader } from '@/components'
 
 // Schema de validação

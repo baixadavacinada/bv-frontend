@@ -6,10 +6,10 @@ import { Button } from '../ui/button'
 
 export interface UbsCardProps {
   id?: number
+  slug?: string | undefined
   name: string
   neighborhood: string
   distanceInKm: number
-  slug: string | number
   isFavorite?: boolean
   component: 'private' | 'public'
   onDelete?: () => void
@@ -23,7 +23,6 @@ export function BvUbsCard({
   name,
   neighborhood,
   distanceInKm,
-  slug,
   component,
   isFavorite = false,
   onMoreInfo,

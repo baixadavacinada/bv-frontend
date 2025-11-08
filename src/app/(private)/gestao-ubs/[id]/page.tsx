@@ -11,7 +11,7 @@ import { Edit, Plus, Syringe, X, Heart, Share2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { BvAddVaccineModal } from '@/components/design/BvAddVaccineModal'
 import { BvHoursModal } from '@/components/design/BvHoursModal'
-import { Toaster, toast } from 'sonner'
+import { toast } from 'sonner'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -152,12 +152,6 @@ export default function DetailUbs({ params }: DetailUbsProps) {
             className="text-purple-700 hover:bg-purple-100 hover:text-purple-800"
           >
             <Heart className={cn('h-6 w-6', isFavorite && 'fill-purple-700 text-purple-700')} />
-          </Button>
-          <Button
-            onClick={() => alert('Avaliar UBS')}
-            className="bg-purple-700 text-white hover:bg-purple-800"
-          >
-            Avaliar
           </Button>
         </div>
 
