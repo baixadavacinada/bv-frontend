@@ -1,14 +1,12 @@
 import * as z from 'zod'
 import { commonSchemas } from '.'
-import type { UserRole } from '@/types/auth'
 
-// Schema base unificado que funciona para todas as roles
-const createPersonalDataSchema = (isResident: boolean) => {
+const createPersonalDataSchema = () => {
   return z.object({
-    name: isResident ? z.string().optional().or(z.literal('')) : commonSchemas.name,
-    phone: isResident ? z.string().optional().or(z.literal('')) : commonSchemas.phone,
-    email: isResident ? z.string().optional().or(z.literal('')) : commonSchemas.email,
-    cpf: isResident ? z.string().optional().or(z.literal('')) : commonSchemas.cpf,
+    name: z.string().optional().or(z.literal('')),
+    phone: z.string().optional().or(z.literal('')),
+    email: z.string().optional().or(z.literal('')),
+    cpf: z.string().optional().or(z.literal('')),
     notifications: z.object({
       secondDose: z.boolean(),
       appointment: z.boolean(),
@@ -18,12 +16,10 @@ const createPersonalDataSchema = (isResident: boolean) => {
   })
 }
 
-// Schema padrão
-export const personalDataSchema = createPersonalDataSchema(false)
+export const personalDataSchema = createPersonalDataSchema()
 
-// Obter o schema baseado na role
-export const getPersonalDataSchema = (userRole: UserRole) => {
-  return createPersonalDataSchema(userRole === 'public')
+export const getPersonalDataSchema = () => {
+  return createPersonalDataSchema()
 }
 
 export type PersonalDataFormData = z.infer<typeof personalDataSchema>
