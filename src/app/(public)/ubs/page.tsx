@@ -1,38 +1,40 @@
 'use client'
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { CollapsibleFilter } from '@/components/design/BvCollapsibleFilter'
 import { UbsCardProps, BvUbsList, BvTitleHeader } from '@/components/index'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { mockUbsData } from '@/mock/ubs'
 import { toast } from 'sonner'
+import { useHealthUnits } from '@/hooks/use-health-units'
+import { HealthUnit } from '@/types/health-units'
 
 type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle' | 'onDelete'>
 
-const initialUbsListData: UbsListData[] = mockUbsData.map((ubs) => ({
-  id: ubs.id,
-  slug: ubs.id,
-  component: 'public',
-  name: ubs.name,
-  neighborhood: ubs.neighborhood,
-  distanceInKm: Math.floor(Math.random() * 20) + 1,
-  isFavorite: ubs.isFavorite || false,
-}))
-
 export default function UbsScreen() {
-  const [ubsList, setUbsList] = useState(initialUbsListData)
-  const [deleteAlert, setDeleteAlert] = useState<{ isOpen: boolean; id: number | null }>({
-    isOpen: false,
-    id: null,
-  })
-
+  const [ubsList, setUbsList] = useState<UbsListData[]>([])
+  const { data, isLoading, error } = useHealthUnits()
   const [filters, setFilters] = useState({
     name: '',
     neighborhood: '',
     open24h: false,
   })
 
+  useEffect(() => {
+    if (data) {
+      const transformedData: UbsListData[] = data.map((unit: HealthUnit, index: number) => ({
+        id: index,
+        slug: unit._id,
+        component: 'public',
+        name: unit.name,
+        neighborhood: unit.neighborhood,
+        distanceInKm: Math.floor(Math.random() * 20) + 1,
+        isFavorite: unit.isFavorite || false,
+      }))
+
+      setUbsList(transformedData)
+    }
+  }, [data])
   const handleFavoriteToggle = (id: number) => {
     const ubs = ubsList.find((u) => u.id === id)
     if (!ubs) return
@@ -45,7 +47,7 @@ export default function UbsScreen() {
     )
 
     toast.success(
-      !ubsList.find((u) => u.id === id)?.isFavorite
+      !isCurrentlyFavorite
         ? `"${ubsName}" adicionada aos favoritos!`
         : `"${ubsName}" removida dos favoritos.`,
     )
@@ -53,18 +55,6 @@ export default function UbsScreen() {
 
   const handleShare = (name: string) => {
     toast.info(`Compartilhando "${name}"...`)
-  }
-
-  const handleDeleteRequest = (id: number) => {
-    setDeleteAlert({ isOpen: true, id: id })
-  }
-
-  const handleConfirmDelete = () => {
-    if (deleteAlert.id === null) return
-    const ubsToRemove = ubsList.find((ubs) => ubs.id === deleteAlert.id)
-    setUbsList((currentList) => currentList.filter((ubs) => ubs.id !== deleteAlert.id))
-    toast.error(`UBS "${ubsToRemove?.name}" foi removida.`)
-    setDeleteAlert({ isOpen: false, id: null })
   }
 
   const filteredUbsList = useMemo(() => {
@@ -83,6 +73,14 @@ export default function UbsScreen() {
       return nameMatch && neighborhoodMatch
     })
   }, [ubsList, filters])
+
+  if (isLoading) {
+    return <div>Carregando...</div>
+  }
+
+  if (error) {
+    return <div>Erro ao carregar dados: {error instanceof Error ? error : String(error)}</div>
+  }
 
   return (
     <div>
@@ -127,10 +125,8 @@ export default function UbsScreen() {
       <BvUbsList
         ubsList={filteredUbsList}
         onFavoriteToggleRequest={handleFavoriteToggle}
-        onDeleteRequest={handleDeleteRequest}
         onShareRequest={handleShare}
         path="/ubs"
-        component="public"
       />
     </div>
   )

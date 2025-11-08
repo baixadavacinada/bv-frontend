@@ -2,6 +2,8 @@
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
+const baseUrl = 'https://bv-backend-ruby.vercel.app/api'
+
 export type SurveyData = {
   vaccineSuccess: string
   waitTime: string
@@ -12,7 +14,6 @@ export type SurveyData = {
 }
 
 export async function submitSurvey(data: SurveyData) {
-  // Simula processamento no servidor
   await wait(1000)
 
   console.log('Dados recebidos no servidor:', data)
@@ -33,4 +34,20 @@ export async function submitSurvey(data: SurveyData) {
   */
 
   return { success: true, message: 'Avaliação enviada com sucesso!' }
+}
+
+export const listHealthUnits = async () => {
+  const url = `${baseUrl}/public/health-units?isActive=true`
+
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`Erro na requisição: ${response.status}`)
+    }
+    const data = await response.json()
+    return data.data
+  } catch (error) {
+    console.error('Falha ao buscar unidades de saúde:', error)
+    throw error
+  }
 }
