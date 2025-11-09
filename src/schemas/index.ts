@@ -180,7 +180,9 @@ export const commonSchemas = {
   // Dados pessoais
   email,
   phone,
+  optionalPhone,
   cpf,
+  optionalCPF,
 
   // Segurança
   password,

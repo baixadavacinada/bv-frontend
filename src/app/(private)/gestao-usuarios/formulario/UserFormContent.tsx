@@ -22,12 +22,10 @@ const userSchema = z.object({
     }),
   perfil: z.string().min(1, 'Perfil é obrigatório'),
   email: z.string().min(1, 'Email é obrigatório'),
-  cpf: z
-    .string()
-    .min(1, 'CPF é obrigatório')
-    .refine((val) => cpf.safeParse(val).success, {
-      message: 'CPF inválido',
-    }),
+  cpf: z.string().min(1, 'CPF é obrigatório'),
+  // .refine((val) => cpf.safeParse(val).success, {
+  //   message: 'CPF inválido',
+  // }),
   address: z.string().min(1, 'Endereço é obrigatório'),
   neighborhood: z.string().optional(),
   cep: z
