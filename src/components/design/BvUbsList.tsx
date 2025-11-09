@@ -7,8 +7,8 @@ interface UbsListProps {
   ubsList: Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle' | 'onDelete'>[]
   path: string
   onDeleteRequest?: (id: number) => void
-  onFavoriteToggleRequest: (id: number) => void
-  onShareRequest: (name: string) => void
+  onFavoriteToggleRequest?: (id: number) => void
+  onShareRequest?: (name: string) => void
 }
 
 export function BvUbsList({
