@@ -7,7 +7,6 @@ import React from 'react'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { Button } from '@/components/ui/button'
 import { Syringe, Heart, Share2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { notFound, useRouter } from 'next/navigation'
 import { useHealthUnits } from '@/hooks/use-health-units' // Importar o hook e o tipo
@@ -82,53 +81,51 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     return <div>Carregando...</div>
   }
 
-  const {
-    name,
-    neighborhood,
-    address,
-    phone,
-    operatingHours,
-    averageWaitTime,
-    availableVaccines,
-    isFavorite,
-  } = ubs
+  const { name, neighborhood, address, phone, operatingHours, averageWaitTime, availableVaccines } =
+    ubs
 
-  const handleFavoriteToggle = () => {
-    setUbs((prev) => {
-      if (!prev) return null
-      return { ...prev, isFavorite: !prev.isFavorite }
-    })
-    toast.success(
-      !isFavorite ? `"${name}" adicionada aos favoritos!` : `"${name}" removida dos favoritos.`,
-    )
+  // const handleFavoriteToggle = () => {
+  //   setUbs((prev) => {
+  //     if (!prev) return null
+  //     return { ...prev, isFavorite: !prev.isFavorite }
+  //   })
+  //   toast.success(
+  //     !isFavorite ? `"${name}" adicionada aos favoritos!` : `"${name}" removida dos favoritos.`,
+  //   )
+  // }
+
+  const handleShare = async () => {
+    try {
+      // Tenta escrever o texto para a área de transferência
+      await navigator.clipboard.writeText(`https://https://baixadavacinada.com/usb/${ubs.id}`)
+      toast.info(`Compartilhando "${name}"...`)
+    } catch (err) {
+      console.error('Falha ao copiar o texto: ', err)
+    }
   }
 
-  const handleShare = () => {
-    toast.info(`Compartilhando "${name}"...`)
-  }
-
-  const handleEvaluate = () => {
-    route.push(`../ubs/avaliar/${ubs.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
-  }
+  // const handleEvaluate = () => {
+  //   route.push(`../ubs/avaliar/${ubs.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
+  // }
 
   return (
     <div>
       <BvTitleHeader title={`SOBRE: ${name}`} className="mb-6" />
 
-      {/* <div className="mb-8 flex justify-end gap-2">
-        <Button
+      <div className="mb-8 flex justify-end gap-2">
+        {/* <Button
           variant="transparent"
           size="icon"
           onClick={handleFavoriteToggle}
           aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
         >
           <Heart className={cn('h-5 w-5', isFavorite && 'fill-red-500 text-red-500')} />
-        </Button>
+        </Button> */}
         <Button variant="transparent" size="icon" onClick={handleShare} aria-label="Compartilhar">
           <Share2 className="h-5 w-5" />
         </Button>
-        <Button onClick={handleEvaluate}>Avaliar</Button>
-      </div> */}
+        {/* <Button onClick={handleEvaluate}>Avaliar</Button> */}
+      </div>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <div className="flex flex-col gap-6">

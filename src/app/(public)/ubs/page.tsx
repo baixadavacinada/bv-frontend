@@ -53,8 +53,14 @@ export default function UbsScreen() {
     )
   }
 
-  const handleShare = (name: string) => {
-    toast.info(`Compartilhando "${name}"...`)
+  const handleShare = async (name: string) => {
+    try {
+      // Tenta escrever o texto para a área de transferência
+      await navigator.clipboard.writeText(`https://https://baixadavacinada.com/usb/${ubs.id}`)
+      toast.info(`Compartilhando "${name}"...`)
+    } catch (err) {
+      console.error('Falha ao copiar o texto: ', err)
+    }
   }
 
   const filteredUbsList = useMemo(() => {
@@ -122,7 +128,7 @@ export default function UbsScreen() {
         </CollapsibleFilter>
       </div>
 
-      <BvUbsList ubsList={filteredUbsList} path="/ubs" />
+      <BvUbsList ubsList={filteredUbsList} path="/ubs" onShareRequest={handleShare} />
     </div>
   )
 }

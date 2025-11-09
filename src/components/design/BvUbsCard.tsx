@@ -82,16 +82,17 @@ export function BvUbsCard({
           Mais informações
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
-        {component === 'private' ? (
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => handleIconClick(e, onShare)}
-              aria-label="Compartilhar"
-            >
-              <Share2 className="h-5 w-5 text-slate-500" />
-            </Button>
+
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => handleIconClick(e, onShare)}
+            aria-label="Compartilhar"
+          >
+            <Share2 className="h-5 w-5 text-slate-500" />
+          </Button>
+          {component === 'private' ? (
             <Button
               variant="ghost"
               size="icon"
@@ -105,8 +106,8 @@ export function BvUbsCard({
                 )}
               />
             </Button>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </CardFooter>
     </Card>
   )
