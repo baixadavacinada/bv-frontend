@@ -14,24 +14,24 @@ export type OperatingHours = {
 }
 
 export type HealthUnit = {
-  _id: string
+  _id?: string
   id?: string | number
   address: string
   component?: string
   availableVaccines: string[]
   city: string
   geolocation: Geolocation
-  isActive: boolean
+  isActive?: boolean
   isFavorite: boolean
   name: string
   neighborhood: string
-  number: string | number
+  number?: string | number
   operatingHours: OperatingHours
   phone: string
   state: string
   zipCode: string
   averageWaitTime: string
-  __v: number
+  __v?: number
 }
 
 export type CreateHealthUnits = {

@@ -58,6 +58,9 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         phone: ubsDataFromApi.phone || 'Telefone não informado',
         isFavorite: ubsDataFromApi.isFavorite || false,
         geolocation: ubsDataFromApi.geolocation,
+        city: ubsDataFromApi.city,
+        state: ubsDataFromApi.state,
+        zipCode: ubsDataFromApi.zipCode,
         operatingHours: {
           monday: ubsDataFromApi.operatingHours?.monday || '08:00 - 17:00',
           tuesday: ubsDataFromApi.operatingHours?.tuesday || '08:00 - 17:00',
