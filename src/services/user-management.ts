@@ -50,30 +50,30 @@ export function useUserManagement() {
         hasHealthInfo: false,
         profileCompleteness: firebaseUser?.displayName ? 75 : 25,
         personalData: {
-          name: firebaseUser?.displayName || '',
+          name: firebaseUser?.displayName || 'Usuário',
         },
       },
     }
   }, [firebaseUser])
 
   // Converte dados da API para UserProfile
-  const convertApiToUserProfile = useCallback((data: ApiUserData): UserProfile => {
+  const convertApiToUserProfile = useCallback((apiUser: ApiUserData): UserProfile => {
     return {
-      uid: data.uid || data._id || data.id || `user_${Date.now()}`,
-      email: data.email || '',
-      displayName: data.displayName || data.name || 'Usuário',
-      role: data.role || 'public',
-      permissions: data.permissions || [],
-      isActive: data.isActive !== false,
-      emailVerified: data.emailVerified || false,
-      createdAt: data.createdAt || data.created_at || new Date().toISOString(),
-      lastSignIn: data.lastSignIn || data.last_sign_in,
-      profile: data.profile || {
-        hasBasicInfo: !!(data.displayName || data.name),
+      uid: apiUser.uid || apiUser.id || apiUser._id || '',
+      email: apiUser.email || '',
+      displayName: apiUser.displayName || apiUser.name || null,
+      role: (apiUser.role as UserRole) || 'public',
+      permissions: apiUser.permissions || [],
+      isActive: apiUser.isActive !== false,
+      emailVerified: apiUser.emailVerified || false,
+      createdAt: apiUser.createdAt || apiUser.created_at || new Date().toISOString(),
+      lastSignIn: apiUser.lastSignIn || apiUser.last_sign_in,
+      profile: apiUser.profile || {
+        hasBasicInfo: !!(apiUser.displayName || apiUser.name),
         hasHealthInfo: false,
-        profileCompleteness: data.displayName || data.name ? 75 : 25,
-        personalData: data.personalData || {
-          name: data.displayName || data.name || '',
+        profileCompleteness: apiUser.displayName || apiUser.name ? 75 : 25,
+        personalData: apiUser.personalData || {
+          name: apiUser.displayName || apiUser.name,
         },
       },
     }
@@ -84,7 +84,7 @@ export function useUserManagement() {
     const mergedUsers = [...apiUsers]
 
     localUsers.forEach((localUser) => {
-      const existingIndex = mergedUsers.findIndex((u) => u.uid === localUser.uid)
+      const existingIndex = mergedUsers.findIndex((user) => user.uid === localUser.uid)
       if (existingIndex >= 0) {
         mergedUsers[existingIndex] = localUser
       } else {
@@ -135,12 +135,19 @@ export function useUserManagement() {
    * Lista usuários com busca
    */
   const listUsers = useCallback(
-    async (search?: string): Promise<UserListResponse> => {
+    async (search?: string, page = 1, limit = 20, role?: string): Promise<UserListResponse> => {
       try {
         const params = new URLSearchParams()
 
+        params.append('page', page.toString())
+        params.append('limit', limit.toString())
+
         if (search?.trim()) {
           params.append('search', search.trim())
+        }
+
+        if (role?.trim()) {
+          params.append('role', role.trim())
         }
 
         const responseData = await apiClient.get<
@@ -164,9 +171,9 @@ export function useUserManagement() {
         return {
           users,
           total: users.length,
-          page: 1,
-          limit: users.length,
-          totalPages: 1,
+          page,
+          limit,
+          totalPages: Math.ceil(users.length / limit),
         }
       } catch (error) {
         console.warn('Erro ao listar usuários, usando fallback:', error)
@@ -182,18 +189,24 @@ export function useUserManagement() {
   const getUserById = useCallback(
     async (uid: string): Promise<UserProfile> => {
       const localUser = localUsers.get(uid)
-      if (localUser) return localUser
-
-      if (uid === firebaseUser?.uid) {
-        return createUserFromFirebase()
+      if (localUser) {
+        return localUser
       }
 
+      // Busca na lista geral de usuários primeiro (incluindo usuário atual)
       try {
         const { users } = await listUsers()
         const foundUser = users.find((user) => user.uid === uid)
-        if (foundUser) return foundUser
+        if (foundUser) {
+          return foundUser
+        }
       } catch (error) {
         console.warn('Erro ao buscar usuário:', error)
+      }
+
+      // Fallback para usuário atual apenas se não encontrou na API
+      if (uid === firebaseUser?.uid) {
+        return createUserFromFirebase()
       }
 
       // Cria usuário simulado para IDs temporários
@@ -235,6 +248,7 @@ export function useUserManagement() {
           email: userData.email,
           password: 'TempPassword123!',
           displayName: userData.displayName,
+          role: userData.role,
         })
 
         let apiUser: ApiUserData
@@ -295,124 +309,148 @@ export function useUserManagement() {
   }, [])
 
   /**
-   * Atualiza usuário existente
+   * Atualiza role do usuário usando a estratégia correta baseada no role
+   */
+  const updateUserRole = useCallback(async (uid: string, newRole: string): Promise<UserProfile> => {
+    if (newRole === 'admin') {
+      try {
+        const payload = { role: newRole }
+
+        const result = await apiClient.patch<UserProfile>(`/api/admin/users/${uid}/role`, payload)
+
+        return result
+      } catch (err) {
+        console.error('❌ Falha ao atualizar para admin via /api/admin/users/:uid/role:', err)
+        throw err
+      }
+    } else {
+      try {
+        const payload = {
+          role: newRole,
+          permissions: newRole === 'agent' ? ['read_users', 'manage_appointments'] : [],
+          reason: `Updated role to ${newRole}`,
+        }
+
+        const result = await apiClient.put<UserProfile>(`/api/public/users/${uid}/role`, payload)
+        return result
+      } catch (err) {
+        console.error('❌ Falha ao atualizar via /api/public/users/:uid/role:', err)
+        throw err
+      }
+    }
+  }, [])
+
+  /**
+   * Atualiza claims do usuário (role, permissions, ubsId, isActive)
+   */
+  const updateUserClaims = useCallback(
+    async (uid: string, userData: UpdateUserRequest): Promise<UserProfile> => {
+      try {
+        const payload = {
+          uid,
+          role: userData.role,
+          permissions:
+            userData.role === 'agent'
+              ? ['read_users', 'manage_appointments']
+              : userData.role === 'admin'
+                ? ['all']
+                : [],
+          ubsId: userData.ubsId || null,
+          isActive: userData.isActive !== false,
+        }
+
+        const result = await apiClient.put<UserProfile>('/api/admin/claims', payload)
+        return result
+      } catch (err) {
+        console.error('Erro ao atualizar claims:', err)
+        throw err
+      }
+    },
+    [],
+  )
+
+  /**
+   * Atualiza perfil do usuário
+   */
+  const updateProfile = useCallback(
+    async (profileData: UpdateUserRequest['personalData']): Promise<UserProfile> => {
+      // Se não há dados de perfil para atualizar, apenas retorna null
+      if (!profileData?.name && !profileData?.phone && !profileData?.cpf && !profileData?.address) {
+        throw new Error('Nenhum dado de perfil para atualizar')
+      }
+
+      try {
+        const payload = {
+          name: profileData?.name,
+          phone: profileData?.phone,
+          cpf: profileData?.cpf,
+          ...(profileData?.address && {
+            address: {
+              street: profileData.address,
+              neighborhood: profileData.neighborhood || '',
+              zipCode: profileData.cep || '',
+              city: 'Duque de Caxias',
+              state: 'RJ',
+              number: '1',
+            },
+          }),
+        }
+
+        const responseData = await apiClient.put<
+          { data?: ApiUserData; user?: ApiUserData } | ApiUserData
+        >('/api/auth/profile', payload)
+
+        let apiUser: ApiUserData
+        if ('data' in responseData && responseData.data) {
+          apiUser = responseData.data
+        } else if ('user' in responseData && responseData.user) {
+          apiUser = responseData.user
+        } else {
+          apiUser = responseData as ApiUserData
+        }
+
+        return convertApiToUserProfile(apiUser)
+      } catch (error) {
+        console.error('Erro ao atualizar perfil via API:', error)
+        throw error
+      }
+    },
+    [convertApiToUserProfile],
+  )
+
+  /**
+   * Atualiza usuário existente (apenas role e status - limitação atual da API)
    */
   const updateUser = useCallback(
     async (uid: string, userData: UpdateUserRequest): Promise<UserProfile> => {
       try {
         const existingUser = await getUserById(uid)
 
-        const statusChanged =
-          userData.isActive !== undefined && userData.isActive !== existingUser.isActive
+        if (userData.role || userData.isActive !== undefined) {
+          const claimsResult = await updateUserClaims(uid, {
+            role: userData.role || existingUser.role,
+            isActive: userData.isActive !== undefined ? userData.isActive : existingUser.isActive,
+          })
 
-        if (statusChanged) {
-          if (userData.isActive) {
-            const activatedUser = await activateUser(uid)
-
-            if (userData.displayName || userData.role || userData.personalData) {
-              const updatedUser: UserProfile = {
-                ...activatedUser,
-                displayName: userData.displayName || activatedUser.displayName,
-                role: (userData.role as UserRole) || activatedUser.role,
-                profile: {
-                  hasBasicInfo: !!(userData.displayName || userData.personalData?.name),
-                  hasHealthInfo: activatedUser.profile?.hasHealthInfo || false,
-                  profileCompleteness:
-                    userData.displayName || userData.personalData?.name ? 75 : 25,
-                  personalData: {
-                    ...activatedUser.profile?.personalData,
-                    ...userData.personalData,
-                    name:
-                      userData.displayName ||
-                      userData.personalData?.name ||
-                      activatedUser.profile?.personalData?.name,
-                  },
-                },
-              }
-
-              localUsers.set(uid, updatedUser)
-              return updatedUser
-            }
-
-            return activatedUser
-          } else {
-            const deactivatedUser = await deactivateUser(uid)
-
-            if (userData.displayName || userData.role || userData.personalData) {
-              const updatedUser: UserProfile = {
-                ...deactivatedUser,
-                displayName: userData.displayName || deactivatedUser.displayName,
-                role: (userData.role as UserRole) || deactivatedUser.role,
-                profile: {
-                  hasBasicInfo: !!(userData.displayName || userData.personalData?.name),
-                  hasHealthInfo: deactivatedUser.profile?.hasHealthInfo || false,
-                  profileCompleteness:
-                    userData.displayName || userData.personalData?.name ? 75 : 25,
-                  personalData: {
-                    ...deactivatedUser.profile?.personalData,
-                    ...userData.personalData,
-                    name:
-                      userData.displayName ||
-                      userData.personalData?.name ||
-                      deactivatedUser.profile?.personalData?.name,
-                  },
-                },
-              }
-
-              localUsers.set(uid, updatedUser)
-              return updatedUser
-            }
-
-            return deactivatedUser
+          // Salva no cache local
+          const updatedUser = {
+            ...existingUser,
+            ...claimsResult,
+            role: (userData.role || existingUser.role) as UserRole,
+            isActive: userData.isActive !== undefined ? userData.isActive : existingUser.isActive,
           }
+
+          localUsers.set(uid, updatedUser)
+          return updatedUser
         }
 
-        // Se não houve mudança no status, tenta atualizar via API geral (se disponível)
-        // Por enquanto, fallback para atualização local
-        const updatedUser: UserProfile = {
-          ...existingUser,
-          displayName: userData.displayName || existingUser.displayName,
-          role: (userData.role as UserRole) || existingUser.role,
-          isActive: userData.isActive !== undefined ? userData.isActive : existingUser.isActive,
-          profile: {
-            hasBasicInfo: !!(userData.displayName || userData.personalData?.name),
-            hasHealthInfo: existingUser.profile?.hasHealthInfo || false,
-            profileCompleteness: userData.displayName || userData.personalData?.name ? 75 : 25,
-            personalData: {
-              ...existingUser.profile?.personalData,
-              ...userData.personalData,
-              name:
-                userData.displayName ||
-                userData.personalData?.name ||
-                existingUser.profile?.personalData?.name,
-            },
-          },
-        }
-
-        localUsers.set(uid, updatedUser)
-        await new Promise((resolve) => setTimeout(resolve, 800))
-
-        return updatedUser
+        return existingUser
       } catch (error) {
         console.error('Erro ao atualizar usuário:', error)
         throw error
       }
     },
-    [getUserById, activateUser, deactivateUser],
-  )
-
-  /**
-   * Atualiza role do usuário
-   */
-  const updateUserRole = useCallback(
-    async (uid: string, role: string, ubsId?: string): Promise<UserProfile> => {
-      const data = await apiClient.patch<UserProfile>(`/api/admin/users/${uid}/role`, {
-        role,
-        ubsId,
-      })
-      return data
-    },
-    [],
+    [getUserById, updateUserClaims],
   )
 
   /**
@@ -440,7 +478,9 @@ export function useUserManagement() {
     getUserById,
     createUser,
     updateUser,
+    updateProfile,
     updateUserRole,
+    updateUserClaims,
     deleteUser,
     reactivateUser,
     activateUser,

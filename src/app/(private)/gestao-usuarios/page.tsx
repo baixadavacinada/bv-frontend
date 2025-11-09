@@ -251,6 +251,7 @@ export default function UserManagementPage() {
                   : 'Nenhum usuário cadastrado no sistema',
               }}
               getItemFields={getUserTableFields}
+              isDeleteDisabled={(user) => !user.isActive}
             />
           )}
         </div>

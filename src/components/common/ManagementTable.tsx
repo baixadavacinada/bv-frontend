@@ -30,6 +30,7 @@ interface ManagementTableProps<T> {
   searchConfig?: SearchConfig<T>
   className?: string
   getItemFields?: (item: T) => ItemField[]
+  isDeleteDisabled?: (item: T) => boolean
 }
 
 // Reusable ManagementTable Component
@@ -41,6 +42,7 @@ export function ManagementTable<T extends { id: string }>({
   searchConfig,
   className = '',
   getItemFields,
+  isDeleteDisabled,
 }: ManagementTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
@@ -127,39 +129,46 @@ export function ManagementTable<T extends { id: string }>({
               : 'Nenhum item para exibir.'}
           </div>
         ) : (
-          filteredData.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center justify-between gap-4 rounded-sm bg-white p-6 shadow-sm"
-            >
-              {/* Content com estilização padrão */}
-              <div className="flex-1">{renderStandardColumn(item)}</div>
+          filteredData.map((item) => {
+            const deleteDisabled = isDeleteDisabled ? isDeleteDisabled(item) : false
 
-              {/* Actions */}
-              <div className={`flex items-center justify-end gap-2`}>
-                {onEdit && (
-                  <BvButton
-                    onClick={() => onEdit(item)}
-                    leftIcon={<BsPencilSquare className="size-5" />}
-                    aria-label="Editar"
-                    variant="ghost"
-                    size="icon"
-                    className="inline-flex h-10 w-10 items-center justify-center"
-                  />
-                )}
-                {onDelete && (
-                  <BvButton
-                    onClick={() => onDelete(item)}
-                    aria-label="Deletar"
-                    variant="ghost"
-                    size="icon"
-                    leftIcon={<BsTrash className="size-5" />}
-                    className="inline-flex h-10 w-10 items-center justify-center"
-                  />
-                )}
+            return (
+              <div
+                key={item.id}
+                className="flex items-center justify-between gap-4 rounded-sm bg-white p-6 shadow-sm"
+              >
+                {/* Content com estilização padrão */}
+                <div className="flex-1">{renderStandardColumn(item)}</div>
+
+                {/* Actions */}
+                <div className={`flex items-center justify-end gap-2`}>
+                  {onEdit && (
+                    <BvButton
+                      onClick={() => onEdit(item)}
+                      leftIcon={<BsPencilSquare className="size-5" />}
+                      aria-label="Editar"
+                      variant="ghost"
+                      size="icon"
+                      className="inline-flex h-10 w-10 items-center justify-center"
+                    />
+                  )}
+                  {onDelete && (
+                    <BvButton
+                      onClick={() => onDelete(item)}
+                      aria-label={
+                        deleteDisabled ? 'Não é possível excluir usuário inativo' : 'Deletar'
+                      }
+                      variant="ghost"
+                      size="icon"
+                      leftIcon={<BsTrash className="size-5" />}
+                      className="inline-flex h-10 w-10 items-center justify-center"
+                      disabled={deleteDisabled}
+                    />
+                  )}
+                </div>
               </div>
-            </div>
-          ))
+            )
+          })
         )}
       </div>
 

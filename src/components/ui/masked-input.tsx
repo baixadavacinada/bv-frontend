@@ -29,24 +29,32 @@ const MaskedInput = React.forwardRef<
 
     if (onChange && inputRef.current) {
       const syntheticEvent = {
-        target: inputRef.current,
+        target: {
+          ...inputRef.current,
+          value: value,
+          name: inputRef.current.name || '',
+        },
         currentTarget: inputRef.current,
+        type: 'change',
+        bubbles: true,
+        cancelable: true,
+        defaultPrevented: false,
+        eventPhase: 2,
+        isTrusted: true,
+        preventDefault: () => {},
+        stopPropagation: () => {},
+        nativeEvent: {} as Event,
+        persist: () => {},
+        timeStamp: Date.now(),
       } as React.ChangeEvent<HTMLInputElement>
 
-      inputRef.current.value = value
       onChange(syntheticEvent)
     }
   }
 
-  const handleComplete = (value: string) => {
-    if (onChange && inputRef.current) {
-      const syntheticEvent = {
-        target: inputRef.current,
-        currentTarget: inputRef.current,
-      } as React.ChangeEvent<HTMLInputElement>
-
-      inputRef.current.value = value
-      onChange(syntheticEvent)
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    if (onBlur) {
+      onBlur(event)
     }
   }
 
@@ -55,9 +63,10 @@ const MaskedInput = React.forwardRef<
       mask={mask}
       value={value || ''}
       onAccept={handleAccept}
-      onComplete={handleComplete}
-      onBlur={onBlur}
+      onBlur={handleBlur}
       inputRef={inputRef}
+      unmask={false}
+      lazy={false}
       {...props}
       className={cn(
         'border-input ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-12 w-full rounded-sm border bg-white px-3 py-2 text-base file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',

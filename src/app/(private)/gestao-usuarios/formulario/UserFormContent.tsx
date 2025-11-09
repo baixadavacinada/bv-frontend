@@ -13,16 +13,18 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { useUserManagement } from '@/services/user-management'
 import { UserRole, ROLE_DISPLAY_NAMES } from '@/types/auth'
+import { Label } from '@/components/ui/label'
+import { commonSchemas } from '@/schemas'
 
 const userFormSchema = z.object({
-  displayName: z.string().min(1, 'Nome do usuário é obrigatório'),
-  email: z.string().min(1, 'Email é obrigatório').email('Email inválido'),
+  displayName: commonSchemas.fullName,
+  email: commonSchemas.email,
   role: z.enum(['public', 'agent', 'admin']),
-  phone: z.string().optional(),
-  cpf: z.string().optional(),
+  phone: commonSchemas.optionalPhone,
+  cpf: commonSchemas.optionalCPF,
   address: z.string().optional(),
   neighborhood: z.string().optional(),
-  cep: z.string().optional(),
+  cep: commonSchemas.optionalCEP,
   isActive: z.boolean(),
 })
 
@@ -122,27 +124,18 @@ export function UserFormContent() {
   }
 
   /**
-   * Atualiza usuário existente
+   * Atualiza usuário existente (apenas role e status)
    */
   const handleUpdateUser = async (data: UserFormData) => {
     if (!userId) return
 
     const updateData = {
-      displayName: data.displayName,
       role: data.role as UserRole,
       isActive: data.isActive,
-      personalData: {
-        name: data.displayName,
-        phone: data.phone || undefined,
-        cpf: data.cpf || undefined,
-        address: data.address || undefined,
-        neighborhood: data.neighborhood || undefined,
-        cep: data.cep || undefined,
-      },
     }
 
     await updateUser(userId, updateData)
-    toast.success(`Usuário "${data.displayName}" atualizado com sucesso!`)
+    toast.success(`Usuário atualizado com sucesso!`)
   }
 
   /**
@@ -201,6 +194,16 @@ export function UserFormContent() {
 
         <BvTitleHeader title={pageTitle} className="mb-8" />
 
+        {isEditMode && (
+          <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <p className="text-sm text-amber-800">
+              <strong>Limitação atual:</strong> Apenas o perfil (role) e status do usuário podem ser
+              editados. A edição de dados pessoais (nome, email, telefone, etc.) está desabilitada
+              no momento.
+            </p>
+          </div>
+        )}
+
         <section aria-labelledby="form-heading">
           <h2 id="form-heading" className="sr-only">
             Formulário de {isEditMode ? 'edição' : 'cadastro'} de usuário
@@ -217,6 +220,7 @@ export function UserFormContent() {
                   placeholder="Digite o nome do usuário"
                   required
                   error={errors.displayName?.message}
+                  disabled={isEditMode}
                   {...register('displayName')}
                 />
               </div>
@@ -248,7 +252,9 @@ export function UserFormContent() {
               <BvFormInput
                 label="Telefone"
                 placeholder="(99) 99999-9999"
+                mask="(00) 00000-0000"
                 error={errors.phone?.message}
+                disabled={isEditMode}
                 {...register('phone')}
               />
 
@@ -256,7 +262,9 @@ export function UserFormContent() {
               <BvFormInput
                 label="CPF"
                 placeholder="999.999.999-99"
+                mask="000.000.000-00"
                 error={errors.cpf?.message}
+                disabled={isEditMode}
                 {...register('cpf')}
               />
 
@@ -265,6 +273,7 @@ export function UserFormContent() {
                 label="Endereço"
                 placeholder="Digite o endereço do usuário"
                 error={errors.address?.message}
+                disabled={isEditMode}
                 {...register('address')}
               />
 
@@ -273,6 +282,7 @@ export function UserFormContent() {
                 label="Bairro"
                 placeholder="Digite o bairro do usuário"
                 error={errors.neighborhood?.message}
+                disabled={isEditMode}
                 {...register('neighborhood')}
               />
 
@@ -280,14 +290,16 @@ export function UserFormContent() {
               <BvFormInput
                 label="CEP"
                 placeholder="99999-999"
+                mask="00000-000"
                 error={errors.cep?.message}
+                disabled={isEditMode}
                 {...register('cep')}
               />
 
               {/* Status do usuário (apenas em modo de edição) */}
               {isEditMode && (
                 <div className="lg:col-span-2">
-                  <label className="flex items-center gap-2">
+                  <Label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                     <Checkbox
                       checked={watch('isActive')}
                       onCheckedChange={(value) => setValue('isActive', value as boolean)}
@@ -295,8 +307,8 @@ export function UserFormContent() {
                       className="border-gray-300 bg-white"
                       aria-label="Usuário ativo"
                     />
-                    <span className="text-sm font-medium text-gray-700">Usuário ativo</span>
-                  </label>
+                    Usuário ativo
+                  </Label>
                 </div>
               )}
             </fieldset>
