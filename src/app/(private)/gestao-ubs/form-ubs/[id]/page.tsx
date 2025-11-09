@@ -6,7 +6,7 @@ import { HealthUnit } from '@/types/health-units'
 import { notFound } from 'next/navigation'
 import { Suspense, useEffect } from 'react'
 
-export default function UbsPage({ params }: { params: Promise<{ id: string }> }) {
+export default function UbsPage({ params }: { params: { id: string } }) {
   const { data, isLoading, error } = useHealthUnits()
   const { id } = params
   const isNew = id === 'novo'
