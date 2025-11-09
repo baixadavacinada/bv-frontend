@@ -3,15 +3,12 @@
 import { useRouter } from 'next/navigation'
 import { BvCardPrimary } from '@/components/design/BvCardPrimary'
 import { useAppTranslations } from '@/hooks/use-translations'
-
 import HospitalIcon from '@/assets/icons/hospital.svg'
 import RegisterIcon from '@/assets/icons/register.svg'
-import SyringeIcon from '@/assets/icons/syringe.svg'
 import SettingsIcon from '@/assets/icons/settings.svg'
 import AlertIcon from '@/assets/icons/phone-notifications.svg'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { ActionType, usePermissions } from '@/hooks/use-permissions'
-import { useAuth } from '@/hooks/use-firebase-auth'
 import { StaticImageData } from 'next/image'
 
 interface ActionItem {
@@ -22,19 +19,17 @@ interface ActionItem {
   action: () => void
   variant?: 'stacked' | 'image-first'
   isFullWidth?: boolean
-  requiresAuth?: boolean
 }
 
 export function MainActionsSection() {
   const router = useRouter()
   const { cards } = useAppTranslations()
-  const { hasPermission } = usePermissions()
-  const { user } = useAuth()
+  const { getAllowedActions } = usePermissions()
 
   useAccessibilityValidation({ enabled: true })
 
-  const allActions: ActionItem[] = [
-    {
+  const actionMap: Record<ActionType, ActionItem> = {
+    ubs: {
       id: 'ubs',
       title: cards('ubs.title'),
       description: cards('ubs.description'),
@@ -42,15 +37,7 @@ export function MainActionsSection() {
       action: () => router.push('/ubs'),
       variant: 'stacked',
     },
-    // {
-    //   id: 'vaccination',
-    //   title: cards('vaccination.title'),
-    //   description: cards('vaccination.description'),
-    //   icon: RegisterIcon,
-    //   action: () => router.push('/vacinacao'),
-    //   variant: 'stacked',
-    // },
-    {
+    settings: {
       id: 'settings',
       title: cards('settings.title'),
       description: cards('settings.description'),
@@ -58,26 +45,16 @@ export function MainActionsSection() {
       action: () => router.push('/configuracoes'),
       variant: 'image-first',
       isFullWidth: true,
-      requiresAuth: true,
     },
-    {
-      id: 'guide',
-      title: cards('guide.title'),
-      description: cards('guide.description'),
-      icon: SyringeIcon,
-      action: () => router.push('/cartilha-vacinas'),
+    notifications: {
+      id: 'notifications',
+      title: cards('notifications.title'),
+      description: cards('notifications.description'),
+      icon: AlertIcon,
+      action: () => router.push('/notificacoes'),
       variant: 'stacked',
     },
-    // {
-    //   id: 'user-register',
-    //   title: cards('manageUsers.title'),
-    //   description: cards('manageUsers.description'),
-    //   icon: RegisterIcon,
-    //   action: () => router.push('/registro-usuario'),
-    //   variant: 'stacked',
-    // },
-
-    {
+    'ubs-management': {
       id: 'ubs-management',
       title: cards('ubsManagement.title'),
       description: cards('ubsManagement.description'),
@@ -85,7 +62,7 @@ export function MainActionsSection() {
       action: () => router.push('/gestao-ubs'),
       variant: 'stacked',
     },
-    {
+    'user-management': {
       id: 'user-management',
       title: cards('userManagement.title'),
       description: cards('userManagement.description'),
@@ -93,7 +70,7 @@ export function MainActionsSection() {
       action: () => router.push('/gestao-usuarios'),
       variant: 'stacked',
     },
-    {
+    'vaccine-management': {
       id: 'vaccine-management',
       title: cards('vaccineManagement.title'),
       description: cards('vaccineManagement.description'),
@@ -101,42 +78,12 @@ export function MainActionsSection() {
       action: () => router.push('/gestao-vacinas'),
       variant: 'stacked',
     },
-    {
-      id: 'educational-materials',
-      title: cards('educationalMaterials.title'),
-      description: cards('educationalMaterials.description'),
-      icon: AlertIcon,
-      action: () => router.push('/materiais-educativos'),
-      variant: 'stacked',
-    },
-    {
-      id: 'alert-settings',
-      title: cards('alertSettings.title'),
-      description: cards('alertSettings.description'),
-      icon: SettingsIcon,
-      action: () => router.push('/ajustes-alertas'),
-      variant: 'stacked',
-    },
-    {
-      id: 'assessments',
-      title: cards('assessments.title'),
-      description: cards('assessments.description'),
-      icon: SettingsIcon,
-      action: () => router.push('/avaliacao'),
-      variant: 'stacked',
-    },
-  ]
+  }
 
-  // Filtra as ações baseado nas permissões do usuário
-  const allowedActions = allActions.filter((action) => {
-    // Se a ação requer autenticação e usuário não está logado, filtra
-    if (action.requiresAuth && !user) {
-      return false
-    }
-    return hasPermission(action.id)
-  })
+  const allowedActions = getAllowedActions()
+    .map((actionId) => actionMap[actionId])
+    .filter(Boolean)
 
-  // Separa as ações normais do guide (que tem layout especial)
   const regularActions = allowedActions.filter((action) => !action.isFullWidth)
   const fullWidthActions = allowedActions.filter((action) => action.isFullWidth)
 
@@ -160,7 +107,7 @@ export function MainActionsSection() {
             />
           ))}
 
-          {/* Para mobile: mostra guide no grid se existir */}
+          {/* Para mobile: mostra actions em fullwidth no grid se existir */}
           {fullWidthActions.map((action) => (
             <div key={`${action.id}-mobile`} className="lg:hidden">
               <BvCardPrimary
@@ -174,7 +121,7 @@ export function MainActionsSection() {
         </div>
       )}
 
-      {/* Para desktop: mostra guide em largura total */}
+      {/* Para desktop: mostra actions em largura total */}
       {fullWidthActions.map((action) => (
         <div key={`${action.id}-desktop`} className="hidden lg:block">
           <BvCardPrimary

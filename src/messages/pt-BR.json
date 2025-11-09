@@ -109,6 +109,10 @@
     "assessments": {
       "title": "Avaliações",
       "description": "Visualize avaliações dos usuários sobre a aplicação e exporte os dados para análise."
+    },
+    "notifications": {
+      "title": "Notificações",
+      "description": "Configure suas preferências de notificações para lembretes de vacinas e agendamentos."
     }
   }
 }
