@@ -3,12 +3,13 @@ import { BvTitleHeader } from '@/components'
 import { UbsForm } from '@/components/design/BvUbsFrom' // Ajuste o caminho para seu UbsForm
 import { useHealthUnits } from '@/hooks/use-health-units'
 import { HealthUnit } from '@/types/health-units'
-import { notFound } from 'next/navigation'
-import { Suspense, useEffect } from 'react'
+import { notFound, useParams } from 'next/navigation'
+import { Suspense } from 'react'
 
-export default function UbsPage({ params }: { params: { id: string } }) {
-  const { data, isLoading, error } = useHealthUnits()
-  const { id } = params
+export default function UbsPage() {
+  const params = useParams()
+  const { data, isLoading } = useHealthUnits()
+  const id = params.id as string
   const isNew = id === 'novo'
   let initialData: HealthUnit | undefined = undefined
   let title = ''
