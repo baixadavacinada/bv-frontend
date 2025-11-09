@@ -69,17 +69,7 @@ export default function VaccineManagementPage() {
   }
 
   return (
-    <RoleGuard
-      allowedRoles={['admin', 'agent']}
-      requireAuth={true}
-      fallback={
-        <div className="flex min-h-screen items-center justify-center">
-          <p className="text-slate-600">
-            Acesso negado. Você não tem permissão para acessar esta página.
-          </p>
-        </div>
-      }
-    >
+    <RoleGuard allowedRoles={['admin', 'agent']} requireAuth>
       <div className="min-h-screen">
         <div className="mx-auto max-w-6xl pb-4 lg:mx-0 lg:ml-0 lg:max-w-2xl">
           <BvTitleHeader title="Gestão de vacinas" className="mb-8" />

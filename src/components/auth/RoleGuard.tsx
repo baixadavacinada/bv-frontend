@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth, UserRole, Permission } from '@/hooks/use-firebase-auth'
+import AccessDenied from './AccessDenied'
 
 interface RoleGuardProps {
   allowedRoles?: UserRole[]
@@ -16,28 +17,31 @@ export function RoleGuard({
   requiredPermissions,
   requireAll = false,
   requireAuth = false,
-  fallback = null,
+  fallback,
   children,
 }: RoleGuardProps) {
   const { user, loading, hasRole, hasPermission } = useAuth()
 
+  // Define o fallback padrão como AccessDenied se não for fornecido
+  const defaultFallback = fallback !== undefined ? fallback : <AccessDenied />
+
   if (loading) {
-    return <div suppressHydrationWarning>{fallback}</div>
+    return <div suppressHydrationWarning>{defaultFallback}</div>
   }
 
   if (requireAuth && !user) {
-    return <>{fallback}</>
+    return <>{defaultFallback}</>
   }
 
   if (allowedRoles && allowedRoles.length > 0) {
     if (!user || !hasRole(allowedRoles)) {
-      return <>{fallback}</>
+      return <>{defaultFallback}</>
     }
   }
 
   if (requiredPermissions && requiredPermissions.length > 0) {
     if (!user || !hasPermission(requiredPermissions, requireAll)) {
-      return <>{fallback}</>
+      return <>{defaultFallback}</>
     }
   }
 
