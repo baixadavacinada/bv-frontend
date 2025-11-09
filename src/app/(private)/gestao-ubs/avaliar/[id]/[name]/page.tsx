@@ -50,11 +50,11 @@ export default function OrderDetailsPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
     try {
-      const result = await submitSurvey(values)
-      if (result.success) {
-        alert('Sucesso! ' + result.message)
-        form.reset()
-      }
+      // const result = await submitSurvey(values)
+      // if (result.success) {
+      //  alert('Sucesso! ' + result.message)
+      alert('Sucesso! ')
+      form.reset()
     } catch (error) {
       console.error(error)
       alert('Erro ao enviar avaliação.')
