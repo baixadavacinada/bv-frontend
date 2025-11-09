@@ -69,7 +69,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   }
 
   if (error) {
-    return <div>Erro ao carregar dados: {error instanceof Error ? error : String(error)}</div>
+    return <div>Erro ao carregar dados:</div>
   }
 
   // 6. Lidar com 'não encontrado' APÓS o carregamento
@@ -115,7 +115,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     <div>
       <BvTitleHeader title={`SOBRE: ${name}`} className="mb-6" />
 
-      <div className="mb-8 flex justify-end gap-2">
+      {/* <div className="mb-8 flex justify-end gap-2">
         <Button
           variant="transparent"
           size="icon"
@@ -128,7 +128,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
           <Share2 className="h-5 w-5" />
         </Button>
         <Button onClick={handleEvaluate}>Avaliar</Button>
-      </div>
+      </div> */}
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <div className="flex flex-col gap-6">

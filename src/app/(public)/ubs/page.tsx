@@ -122,12 +122,7 @@ export default function UbsScreen() {
         </CollapsibleFilter>
       </div>
 
-      <BvUbsList
-        ubsList={filteredUbsList}
-        onFavoriteToggleRequest={handleFavoriteToggle}
-        onShareRequest={handleShare}
-        path="/ubs"
-      />
+      <BvUbsList ubsList={filteredUbsList} path="/ubs" />
     </div>
   )
 }

@@ -22,6 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { useRouter } from 'next/router'
 
 interface DetailUbsProps {
   params: Promise<{ id: string }>
@@ -34,7 +35,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   const ubsId = parseInt(resolvedParams.id)
   const initialUbsData = mockUbsData.find((ubs) => ubs.id === ubsId)
   useAccessibilityValidation({ enabled: true })
-
+  const route = useRouter()
   const [ubsData, setUbsData] = useState<UbsData | undefined>(initialUbsData)
   const [isHoursModalOpen, setIsHoursModalOpen] = useState(false)
   const [isVaccineModalOpen, setIsVaccineModalOpen] = useState(false)
@@ -115,6 +116,10 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     toast.info(`Compartilhando "${name}"...`)
   }
 
+  const handleEvaluate = () => {
+    route.push(`../ubs/avaliar/${ubsData.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
+  }
+
   return (
     <RoleGuard allowedRoles={['admin', 'agent']}>
       <div>
@@ -153,6 +158,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
           >
             <Heart className={cn('h-6 w-6', isFavorite && 'fill-purple-700 text-purple-700')} />
           </Button>
+          <Button onClick={handleEvaluate}>Avaliar</Button>
         </div>
 
         <iframe

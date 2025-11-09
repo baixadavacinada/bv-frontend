@@ -14,8 +14,8 @@ export interface UbsCardProps {
   component: 'private' | 'public'
   onDelete?: () => void
   onMoreInfo: () => void
-  onShare: () => void
-  onFavoriteToggle: () => void
+  onShare?: () => void
+  onFavoriteToggle?: () => void
   className?: string
 }
 
@@ -82,29 +82,31 @@ export function BvUbsCard({
           Mais informações
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => handleIconClick(e, onShare)}
-            aria-label="Compartilhar"
-          >
-            <Share2 className="h-5 w-5 text-slate-500" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => handleIconClick(e, onFavoriteToggle)}
-            aria-label={isFavorite ? 'Desfavoritar' : 'Favoritar'}
-          >
-            <Heart
-              className={cn(
-                'h-5 w-5',
-                isFavorite && 'fill-red-500 text-red-500', // Estilo dinâmico
-              )}
-            />
-          </Button>
-        </div>
+        {component === 'private' ? (
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => handleIconClick(e, onShare)}
+              aria-label="Compartilhar"
+            >
+              <Share2 className="h-5 w-5 text-slate-500" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => handleIconClick(e, onFavoriteToggle)}
+              aria-label={isFavorite ? 'Desfavoritar' : 'Favoritar'}
+            >
+              <Heart
+                className={cn(
+                  'h-5 w-5',
+                  isFavorite && 'fill-red-500 text-red-500', // Estilo dinâmico
+                )}
+              />
+            </Button>
+          </div>
+        ) : null}
       </CardFooter>
     </Card>
   )
