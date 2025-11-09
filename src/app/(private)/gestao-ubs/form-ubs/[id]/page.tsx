@@ -1,54 +1,35 @@
+'use client'
 import { BvTitleHeader } from '@/components'
 import { UbsForm } from '@/components/design/BvUbsFrom' // Ajuste o caminho para seu UbsForm
+import { useHealthUnits } from '@/hooks/use-health-units'
+import { HealthUnit } from '@/types/health-units'
 import { notFound } from 'next/navigation'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 
-type UbsData = {
-  nome: string
-  cep: string
-  logradouro: string
-  numero: string
-  bairro: string
-  cidade: string
-  latitude: number
-  longitude: number
-}
-
-async function getUbsById(id: string): Promise<UbsData | null> {
-  try {
-    const res = await fetch(`https://sua-api.com/api/ubs/${id}`, {
-      cache: 'no-store',
-    })
-
-    if (!res.ok) {
-      return null
-    }
-
-    const data = await res.json()
-    return data
-  } catch (error) {
-    console.error('Erro ao buscar UBS:', error)
-    return null
-  }
-}
-
-export default async function UbsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+export default function UbsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { data, isLoading, error } = useHealthUnits()
+  const { id } = params
   const isNew = id === 'novo'
-
-  let initialData: UbsData | undefined = undefined
+  let initialData: HealthUnit | undefined = undefined
   let title = ''
 
+  if (isLoading) {
+    return <div>Carregando...</div>
+  }
+  if (!data) {
+    return <div>Falha ao carregar os dados.</div>
+  }
+  console.log(data)
   if (isNew) {
     title = 'Adicionar UBS'
   } else {
     title = 'Editar UBS'
-    const data = await getUbsById(id)
+    const result = data.find((ubs) => ubs._id === id)
 
-    if (!data) {
+    if (!result) {
       notFound()
     }
-    initialData = data
+    initialData = result
   }
   return (
     <Suspense fallback={<div>Carregando...</div>}>

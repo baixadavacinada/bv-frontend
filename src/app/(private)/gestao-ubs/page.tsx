@@ -1,18 +1,14 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { BvTitleHeader, RoleGuard } from '@/components'
 import { CollapsibleFilter } from '@/components/design/BvCollapsibleFilter'
-import { UbsCardProps, BvUbsList } from '@/components/index'
+import { BvUbsList } from '@/components/index'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Checkbox } from '@radix-ui/react-checkbox'
-import { mockUbsData } from '@/mock/ubs'
-
+import { Checkbox } from '@/components/ui/checkbox' // Verifique se este é o caminho correto
 import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
-import { toast } from 'sonner'
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,22 +19,32 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { useRouter } from 'next/navigation'
 
-type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle' | 'onDelete'>
+import { Plus } from 'lucide-react'
+import { toast } from 'sonner'
+import { useHealthUnits } from '@/hooks/use-health-units' // Ajuste o caminho se necessário
+import { HealthUnit } from '@/types/health-units'
 
-const initialUbsListData: UbsListData[] = mockUbsData.map((ubs) => ({
-  id: ubs.id,
-  slug: ubs.id,
-  name: ubs.name,
-  component: 'private',
-  neighborhood: ubs.neighborhood,
-  distanceInKm: Math.floor(Math.random() * 20) + 1,
-  isFavorite: ubs.isFavorite || false,
-}))
+type UbsListData = {
+  id: number
+  slug: number | string
+  name: string
+  component: 'private' | 'public'
+  neighborhood: string
+  distanceInKm: number
+  isFavorite: boolean
+  isOpen24h?: boolean
+}
 
 export default function UbsScreen() {
-  const [ubsList, setUbsList] = useState(initialUbsListData)
+  const { data, isLoading, error } = useHealthUnits()
+  const [ubsList, setUbsList] = useState<UbsListData[]>([])
+  const [filters, setFilters] = useState({
+    name: '',
+    neighborhood: '',
+    open24h: false,
+  })
+
   const [deleteAlert, setDeleteAlert] = useState<{ isOpen: boolean; id: number | null }>({
     isOpen: false,
     id: null,
@@ -46,16 +52,64 @@ export default function UbsScreen() {
 
   const router = useRouter()
 
+  useEffect(() => {
+    if (data) {
+      const transformedData: UbsListData[] = data.map((unit: HealthUnit, index: number) => ({
+        id: index,
+        slug: unit._id,
+        component: 'private',
+        name: unit.name,
+        neighborhood: unit.neighborhood,
+        distanceInKm: Math.floor(Math.random() * 20) + 1,
+        isFavorite: unit.isFavorite || false,
+      }))
+
+      setUbsList(transformedData)
+    }
+  }, [data])
   const handleFavoriteToggle = (id: number) => {
+    const ubs = ubsList.find((u) => u.id === id)
+    if (!ubs) return
+
+    const isCurrentlyFavorite = ubs.isFavorite
+    const ubsName = ubs.name
+
     setUbsList((currentList) =>
-      currentList.map((ubs) => (ubs.id === id ? { ...ubs, isFavorite: !ubs.isFavorite } : ubs)),
+      currentList.map((u) => (u.id === id ? { ...u, isFavorite: !u.isFavorite } : u)),
     )
+
     toast.success(
-      !ubsList.find((ubs) => ubs.id === id)?.isFavorite
-        ? `"${ubsList.find((ubs) => ubs.id === id)?.name}" adicionada aos favoritos!`
-        : `"${ubsList.find((ubs) => ubs.id === id)?.name}" removida dos favoritos.`,
+      !isCurrentlyFavorite
+        ? `"${ubsName}" adicionada aos favoritos!`
+        : `"${ubsName}" removida dos favoritos.`,
     )
   }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFilters((prev) => ({ ...prev, [name]: value }))
+  }
+  const handleCheckboxChange = (checked: boolean | 'indeterminate') => {
+    setFilters((prev) => ({ ...prev, open24h: checked === true }))
+  }
+  const filteredUbsList = useMemo(() => {
+    let list = ubsList
+
+    if (filters.name) {
+      list = list.filter((ubs) => ubs.name.toLowerCase().includes(filters.name.toLowerCase()))
+    }
+
+    if (filters.neighborhood) {
+      list = list.filter((ubs) =>
+        ubs.neighborhood.toLowerCase().includes(filters.neighborhood.toLowerCase()),
+      )
+    }
+
+    if (filters.open24h) {
+      list = list.filter((ubs) => ubs.isOpen24h === true)
+    }
+
+    return list
+  }, [ubsList, filters])
 
   const handleDeleteRequest = (id: number) => {
     setDeleteAlert({ isOpen: true, id: id })
@@ -69,55 +123,86 @@ export default function UbsScreen() {
     setDeleteAlert({ isOpen: false, id: null })
   }
 
+  const handleShare = async (name: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(`https://https://baixadavacinada.com/usb/${id}`)
+      toast.info(`Compartilhando "${name}"...`)
+    } catch (err) {
+      console.error('Falha ao copiar o texto: ', err)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <>
+        <BvTitleHeader title="Unidades Básicas de Saúde" className="mb-8" />
+        <p>Carregando unidades...</p>
+      </>
+    )
+  }
+
+  if (error) {
+    return (
+      <>
+        <BvTitleHeader title="Unidades Básicas de Saúde" className="mb-8" />
+        <p className="text-red-600">Erro ao carregar os dados. Tente novamente mais tarde.</p>
+      </>
+    )
+  }
+
   return (
-    <RoleGuard
-      allowedRoles={['admin', 'agent']}
-      requireAuth={true}
-      fallback={
-        <div className="flex min-h-screen items-center justify-center">
-          <p className="text-slate-600">
-            Acesso negado. Você não tem permissão para acessar esta página.
-          </p>
-        </div>
-      }
-    >
+    <>
       <BvTitleHeader title="Unidades Básicas de Saúde" className="mb-8" />
       <div className="mb-8">
         <CollapsibleFilter>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="ubs-name">Nome da UBS</Label>
-              <Input id="ubs-name" placeholder="Ex: UBS Vila Suissa" />
+              <Input
+                id="ubs-name"
+                name="name"
+                placeholder="Ex: UBS Vila Suissa"
+                value={filters.name}
+                onChange={handleInputChange}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="neighborhood">Bairro</Label>
-              <Input id="neighborhood" placeholder="Ex: Centro" />
+              <Input
+                id="neighborhood"
+                name="neighborhood"
+                placeholder="Ex: Centro"
+                value={filters.neighborhood}
+                onChange={handleInputChange}
+              />
             </div>
             <div className="flex items-end">
               <div className="flex items-center space-x-2">
-                <Checkbox id="open-24h" />
+                <Checkbox
+                  id="open-24h"
+                  checked={filters.open24h}
+                  onCheckedChange={handleCheckboxChange}
+                />
                 <Label htmlFor="open-24h">Aberto 24h</Label>
               </div>
             </div>
           </div>
         </CollapsibleFilter>
       </div>
+      <div className="mb-8 flex justify-end">
+        <Button className="w-full" onClick={() => router.push('gestao-ubs/form-ubs/novo')}>
+          <Plus className="mr-2 h-4 w-4" />
+          Adicionar Nova UBS
+        </Button>
+      </div>
 
-      <RoleGuard allowedRoles={['admin']}>
-        <div className="mb-8 flex justify-end">
-          <Button className="w-full" onClick={() => router.push('gestao-ubs/form-ubs/novo')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar Nova UBS
-          </Button>
-        </div>
-      </RoleGuard>
       <BvUbsList
-        ubsList={ubsList}
+        ubsList={filteredUbsList}
         path="gestao-ubs"
         component="private"
         onDeleteRequest={handleDeleteRequest}
         onFavoriteToggleRequest={handleFavoriteToggle}
-        onShareRequest={(name: string) => toast.info(`Compartilhando "${name}"...`)}
+        onShareRequest={handleShare}
       />
 
       <AlertDialog
@@ -145,6 +230,6 @@ export default function UbsScreen() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </RoleGuard>
+    </>
   )
 }

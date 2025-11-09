@@ -49,7 +49,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
           sunday: ubsDataFromApi.operatingHours?.sunday || 'Fechado',
         },
         averageWaitTime: '30 minutos',
-        availableVaccines: !ubsDataFromApi.availableVaccines || [
+        availableVaccines: ubsDataFromApi.availableVaccines || [
           'Influenza',
           'Covid-19',
           'Hepatite B',
@@ -60,9 +60,8 @@ export default function DetailUbs({ params }: DetailUbsProps) {
       }
       setUbs(transformedData)
     }
-  }, [ubsDataFromApi]) // Roda quando ubsDataFromApi for encontrado
+  }, [ubsDataFromApi])
 
-  // 5. Lidar com estados de carregamento e erro
   if (isLoading) {
     return <div>Carregando...</div>
   }
@@ -71,8 +70,6 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     return <div>Erro ao carregar dados:</div>
   }
 
-  // 6. Lidar com 'não encontrado' APÓS o carregamento
-  // Se não está carregando e 'ubsDataFromApi' ainda é 'undefined', não foi encontrado
   if (!ubsDataFromApi) {
     notFound()
   }
@@ -96,7 +93,6 @@ export default function DetailUbs({ params }: DetailUbsProps) {
 
   const handleShare = async () => {
     try {
-      // Tenta escrever o texto para a área de transferência
       await navigator.clipboard.writeText(`https://https://baixadavacinada.com/usb/${ubs.id}`)
       toast.info(`Compartilhando "${name}"...`)
     } catch (err) {

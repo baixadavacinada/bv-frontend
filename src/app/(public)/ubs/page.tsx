@@ -35,28 +35,28 @@ export default function UbsScreen() {
       setUbsList(transformedData)
     }
   }, [data])
-  const handleFavoriteToggle = (id: number) => {
-    const ubs = ubsList.find((u) => u.id === id)
-    if (!ubs) return
 
-    const isCurrentlyFavorite = ubs.isFavorite
-    const ubsName = ubs.name
+  // const handleFavoriteToggle = (id: number) => {
+  //   const ubs = ubsList.find((u) => u.id === id)
+  //   if (!ubs) return
 
-    setUbsList((currentList) =>
-      currentList.map((u) => (u.id === id ? { ...u, isFavorite: !u.isFavorite } : u)),
-    )
+  //   const isCurrentlyFavorite = ubs.isFavorite
+  //   const ubsName = ubs.name
 
-    toast.success(
-      !isCurrentlyFavorite
-        ? `"${ubsName}" adicionada aos favoritos!`
-        : `"${ubsName}" removida dos favoritos.`,
-    )
-  }
+  //   setUbsList((currentList) =>
+  //     currentList.map((u) => (u.id === id ? { ...u, isFavorite: !u.isFavorite } : u)),
+  //   )
 
-  const handleShare = async (name: string) => {
+  //   toast.success(
+  //     !isCurrentlyFavorite
+  //       ? `"${ubsName}" adicionada aos favoritos!`
+  //       : `"${ubsName}" removida dos favoritos.`,
+  //   )
+  // }
+
+  const handleShare = async (name: string, id: string) => {
     try {
-      // Tenta escrever o texto para a área de transferência
-      await navigator.clipboard.writeText(`https://https://baixadavacinada.com/usb/${ubs.id}`)
+      await navigator.clipboard.writeText(`https://https://baixadavacinada.com/usb/${id}`)
       toast.info(`Compartilhando "${name}"...`)
     } catch (err) {
       console.error('Falha ao copiar o texto: ', err)
