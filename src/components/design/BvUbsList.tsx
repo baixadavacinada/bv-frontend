@@ -16,6 +16,7 @@ export function BvUbsList({
   path,
   onShareRequest,
   onFavoriteToggleRequest,
+  onDeleteRequest,
 }: UbsListProps) {
   useAccessibilityValidation({ enabled: true })
   const router = useRouter()
@@ -35,8 +36,10 @@ export function BvUbsList({
           distanceInKm={ubs.distanceInKm}
           isFavorite={ubs.isFavorite}
           onMoreInfo={() => handleMoreInfo(ubs.slug || '', path)}
-          onShare={() => onShareRequest(ubs.name)}
+          onShare={() => onShareRequest(ubs.name, ubs.slug)}
           onFavoriteToggle={() => onFavoriteToggleRequest(ubs.id || 0)}
+          onDelete={onDeleteRequest}
+          onEdit={() => router.push(`gestao-ubs/form-ubs/${ubs.slug}`)}
         />
       ))}
     </div>

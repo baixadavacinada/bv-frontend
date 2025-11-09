@@ -1,19 +1,20 @@
 'use client'
-import { BvTitleHeader, RoleGuard } from '@/components'
+import { BvTitleHeader } from '@/components'
 import { BvTitleIco } from '@/components/design/BvTitleIco'
 import CaledarIco from '@/assets/icons/calendar.svg'
 import SyringeIco from '@/assets/icons/syringe.svg'
 import React, { useState } from 'react'
-import { mockUbsData } from '@/mock/ubs'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { Button } from '@/components/ui/button'
-import { Edit, Plus, Syringe, X, Heart, Share2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { BvAddVaccineModal } from '@/components/design/BvAddVaccineModal'
-import { BvHoursModal } from '@/components/design/BvHoursModal'
+import { Syringe, Heart, Share2, Edit, Plus, X } from 'lucide-react'
 import { toast } from 'sonner'
+import { notFound, useRouter } from 'next/navigation'
+import { useHealthUnits } from '@/hooks/use-health-units' // Importar o hook e o tipo
+import { HealthUnit } from '@/types/health-units'
+import { BvHoursModal } from '@/components/design/BvHoursModal'
+import { BvAddVaccineModal } from '@/components/design/BvAddVaccineModal'
+import { AlertDialog } from '@radix-ui/react-alert-dialog'
 import {
-  AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
@@ -22,62 +23,120 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { useRouter } from 'next/router'
+import { cn } from '@/lib/utils' // Importei o 'cn' para o botão de favorito
 
 interface DetailUbsProps {
   params: Promise<{ id: string }>
 }
 
-type UbsData = (typeof mockUbsData)[0]
-
 export default function DetailUbs({ params }: DetailUbsProps) {
   const resolvedParams = React.use(params)
-  const ubsId = parseInt(resolvedParams.id)
-  const initialUbsData = mockUbsData.find((ubs) => ubs.id === ubsId)
-  useAccessibilityValidation({ enabled: true })
-  const route = useRouter()
-  const [ubsData, setUbsData] = useState<UbsData | undefined>(initialUbsData)
   const [isHoursModalOpen, setIsHoursModalOpen] = useState(false)
   const [isVaccineModalOpen, setIsVaccineModalOpen] = useState(false)
   const [deleteAlert, setDeleteAlert] = useState<{ isOpen: boolean; vaccineName: string | null }>({
     isOpen: false,
     vaccineName: null,
   })
+  const route = useRouter()
+  useAccessibilityValidation({ enabled: true })
+  const { data, isLoading, error } = useHealthUnits()
 
-  if (!ubsData) {
-    return <p>UBS não encontrada.</p>
+  const ubsDataFromApi = React.useMemo(() => {
+    if (!data) return undefined
+    return data.find((unit: HealthUnit) => unit._id === resolvedParams.id)
+  }, [data, resolvedParams.id])
+
+  const [ubs, setUbs] = React.useState<HealthUnit | null>(null)
+
+  React.useEffect(() => {
+    if (ubsDataFromApi) {
+      const transformedData: HealthUnit = {
+        id: ubsDataFromApi._id,
+        name: ubsDataFromApi.name,
+        neighborhood: ubsDataFromApi.neighborhood,
+        address: ubsDataFromApi.address || 'Endereço não informado',
+        phone: ubsDataFromApi.phone || 'Telefone não informado',
+        isFavorite: ubsDataFromApi.isFavorite || false,
+        geolocation: ubsDataFromApi.geolocation,
+        operatingHours: {
+          monday: ubsDataFromApi.operatingHours?.monday || '08:00 - 17:00',
+          tuesday: ubsDataFromApi.operatingHours?.tuesday || '08:00 - 17:00',
+          wednesday: ubsDataFromApi.operatingHours?.wednesday || '08:00 - 17:00',
+          thursday: ubsDataFromApi.operatingHours?.thursday || '08:00 - 17:00',
+          friday: ubsDataFromApi.operatingHours?.friday || '08:00 - 17:00',
+          saturday: ubsDataFromApi.operatingHours?.saturday || '08:00 - 12:00',
+          sunday: ubsDataFromApi.operatingHours?.sunday || 'Fechado',
+        },
+        averageWaitTime: '30 minutos',
+        availableVaccines: ubsDataFromApi.availableVaccines || [
+          'Influenza',
+          'Covid-19',
+          'Hepatite B',
+          'Sarampo',
+          'Febre Amarela',
+          'Tétano',
+        ],
+      }
+      setUbs(transformedData)
+    }
+  }, [ubsDataFromApi])
+
+  if (isLoading) {
+    return <div>Carregando...</div>
+  }
+
+  if (error) {
+    return <div>Erro ao carregar dados.</div>
+  }
+
+  if (!ubsDataFromApi && !isLoading) {
+    notFound()
+  }
+
+  if (!ubs) {
+    return <div>Carregando...</div>
   }
 
   const {
     name,
     neighborhood,
-    address = 'Endereço não informado',
-    phone = 'Telefone não informado',
-    isFavorite = false,
-    openingHours = {
-      monday: '08:00 - 17:00',
-      tuesday: '08:00 - 17:00',
-      wednesday: '08:00 - 17:00',
-      thursday: '08:00 - 17:00',
-      friday: '08:00 - 17:00',
-      saturday: '08:00 - 12:00',
-      sunday: 'Fechado',
-    },
-    averageWaitTime = '30 minutos',
-    vaccines = ['Influenza', 'Covid-19', 'Hepatite B', 'Sarampo', 'Febre Amarela', 'Tétano'],
-  } = ubsData
-  const handleSaveHours = (newHours: typeof openingHours, newWaitTime: string) => {
-    setUbsData((prev) =>
-      prev ? { ...prev, openingHours: newHours, averageWaitTime: newWaitTime } : undefined,
+    address,
+    phone,
+    operatingHours,
+    averageWaitTime,
+    availableVaccines,
+    isFavorite,
+  } = ubs
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(`https://https://baixadavacinada.com/usb/${ubs.id}`)
+      toast.info(`Compartilhando "${name}"...`)
+    } catch (err) {
+      console.error('Falha ao copiar o texto: ', err)
+    }
+  }
+
+  const handleSaveHours = (newHours: HealthUnit['operatingHours'], newWaitTime: string) => {
+    if (!ubs) return
+    setUbs((prev) =>
+      prev ? { ...prev, operatingHours: newHours, averageWaitTime: newWaitTime } : null,
     )
     setIsHoursModalOpen(false)
     toast.success('Horários atualizados com sucesso!')
   }
 
   const handleAddVaccine = (newVaccineName: string) => {
-    if (newVaccineName && !vaccines.includes(newVaccineName)) {
-      setUbsData((prev) =>
-        prev ? { ...prev, vaccines: [...vaccines, newVaccineName] } : undefined,
+    if (!ubs) return
+
+    if (newVaccineName && !ubs.availableVaccines.includes(newVaccineName)) {
+      setUbs((prev) =>
+        prev
+          ? {
+              ...prev,
+              availableVaccines: [...prev.availableVaccines, newVaccineName],
+            }
+          : null,
       )
       toast.success(`${newVaccineName} foi adicionada.`)
     }
@@ -89,215 +148,205 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   }
 
   const handleRemoveVaccine = () => {
+    if (!ubs) return
     const vaccineToRemove = deleteAlert.vaccineName
     if (!vaccineToRemove) return
-    setUbsData((prev) =>
-      prev ? { ...prev, vaccines: vaccines.filter((v) => v !== vaccineToRemove) } : undefined,
+    setUbs((prev) =>
+      prev
+        ? {
+            ...prev,
+            availableVaccines: prev.availableVaccines.filter((v) => v !== vaccineToRemove),
+          }
+        : null,
     )
     toast.error(`${vaccineToRemove} foi removida da lista.`)
     setDeleteAlert({ isOpen: false, vaccineName: null })
   }
 
   const handleFavoriteToggle = () => {
-    setUbsData((prev) =>
+    if (!ubs) return
+    setUbs((prev) =>
       prev
         ? {
             ...prev,
             isFavorite: !prev.isFavorite,
           }
-        : undefined,
+        : null,
     )
     toast.success(
-      !isFavorite ? `"${name}" adicionada aos favoritos!` : `"${name}" removida dos favoritos.`,
+      !ubs.isFavorite
+        ? `"${ubs.name}" adicionada aos favoritos!`
+        : `"${ubs.name}" removida dos favoritos.`,
     )
-  }
-
-  const handleShare = () => {
-    toast.info(`Compartilhando "${name}"...`)
   }
 
   const handleEvaluate = () => {
-    route.push(`../ubs/avaliar/${ubsData.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
+    route.push(`../gestao-ubs/avaliar/${ubs.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
   }
 
   return (
-    <RoleGuard allowedRoles={['admin', 'agent']}>
-      <div>
-        <BvTitleHeader title={`SOBRE: ${name}`} className="mb-8" />
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div>
-            <dt className="font-semibold">Nome:</dt>
-            <dd className="border-b py-2">{name}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold">Bairro:</dt>
-            <dd className="border-b py-2">{neighborhood}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold">Endereço:</dt>
-            <dd className="border-b py-2">{address}</dd>
-          </div>
-        </div>
-        <div className="mt-8 mb-8 flex items-center justify-end gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleShare}
-            aria-label="Compartilhar UBS"
-            className="text-purple-700 hover:bg-purple-100 hover:text-purple-800"
-          >
-            <Share2 className="h-6 w-6" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleFavoriteToggle}
-            aria-label={isFavorite ? 'Desfavoritar UBS' : 'Favoritar UBS'}
-            className="text-purple-700 hover:bg-purple-100 hover:text-purple-800"
-          >
-            <Heart className={cn('h-6 w-6', isFavorite && 'fill-purple-700 text-purple-700')} />
-          </Button>
-          <Button onClick={handleEvaluate}>Avaliar</Button>
-        </div>
-
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d470857.1325203243!2d-43.732171476060785!3d-22.781279808959898!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x99a1342b7a7239%3A0x59ce0e8ead817aa7!2sBaixada%20Fluminense%2C%20RJ!5e0!3m2!1spt-BR!2sbr!4v1757530920571!5m2!1spt-BR!2sbr"
-          width="100%"
-          height="550"
-          style={{ border: 0 }}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        ></iframe>
-
-        <div className="mt-8 mb-8 flex w-full items-center justify-between">
-          <Button
-            className="w-full"
-            variant="default"
-            size="sm"
-            onClick={() => setIsHoursModalOpen(true)}
-          >
-            <Edit className="mr-2 h-4 w-4" />
-            Editar
-          </Button>
-        </div>
-
-        <BvTitleIco
-          alt="Icone de Calendario"
-          ico={CaledarIco}
-          title="Horário de funcionamento:"
-          className="mt-8 mb-8"
-        />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <p>Segunda: {openingHours.monday}</p>
-          <p>Terça: {openingHours.tuesday}</p>
-          <p>Quarta: {openingHours.wednesday}</p>
-          <p>Quinta: {openingHours.thursday}</p>
-          <p>Sexta: {openingHours.friday}</p>
-          <p>Sábado: {openingHours.saturday}</p>
-          <p>Domingo: {openingHours.sunday}</p>
-        </div>
-        <div className="mt-4">
-          <p>
-            Tempo de espera médio para atendimento: <strong>{averageWaitTime}</strong>
-          </p>
-          <p>
-            Telefone: <strong>{phone}</strong>
-          </p>
-        </div>
-
-        <div className="mt-8 mb-8 flex w-full items-center justify-between">
-          <Button
-            className="w-full"
-            variant="default"
-            size="sm"
-            onClick={() => setIsVaccineModalOpen(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar vacina
-          </Button>
-        </div>
-
-        <BvTitleIco
-          alt="Icone de Seringa"
-          ico={SyringeIco}
-          title="Vacinas disponíveis:"
-          className="mt-8 mb-8"
-        />
-
-        <div className="grid grid-cols-1 gap-4 py-6 sm:grid-cols-2 md:grid-cols-3">
-          {vaccines.map((vaccine) => (
-            <div
-              key={vaccine}
-              className="flex items-start gap-2 rounded-lg bg-green-600 p-3 text-white shadow-md"
-            >
-              <Syringe className="mt-1 h-5 w-5 flex-shrink-0" />
-              <div className="flex-grow">
-                <div className="flex items-center justify-between">
-                  <span className="text-base font-semibold">{vaccine}</span>
-                  <button
-                    onClick={() => handleRemoveRequest(vaccine)}
-                    className="p-0 text-white/70 transition-colors hover:text-white"
-                    aria-label={`Remover ${vaccine}`}
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-                <span className="block text-sm opacity-90">Lote: 000000</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-4 text-center">
-          <p>
-            Confira a cartilha de vacinas para saber quais vacinas são indicadas para cada idade.
-          </p>
-        </div>
-
-        <BvHoursModal
-          isOpen={isHoursModalOpen}
-          setIsOpen={setIsHoursModalOpen}
-          currentHours={openingHours}
-          currentWaitTime={averageWaitTime}
-          onSave={handleSaveHours}
-        />
-        <BvAddVaccineModal
-          isOpen={isVaccineModalOpen}
-          setIsOpen={setIsVaccineModalOpen}
-          onAdd={handleAddVaccine}
-          existingVaccines={vaccines}
-        />
-
-        <AlertDialog
-          open={deleteAlert.isOpen}
-          onOpenChange={(isOpen) => setDeleteAlert({ ...deleteAlert, isOpen })}
+    <div>
+      <BvTitleHeader title={`SOBRE: ${name}`} className="mb-6" />
+      <div className="mb-8 flex justify-end gap-2">
+        <Button
+          variant="transparent"
+          size="icon"
+          onClick={handleFavoriteToggle}
+          aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
         >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta ação não pode ser desfeita. Isso removerá permanentemente a vacina &quot;
-                {deleteAlert.vaccineName}&quot; da lista de vacinas disponíveis nesta UBS.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel
-                onClick={() => setDeleteAlert({ isOpen: false, vaccineName: null })}
-              >
-                Cancelar
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleRemoveVaccine}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Sim, excluir
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+          <Heart className={cn('h-5 w-5', isFavorite && 'fill-red-500 text-red-500')} />
+        </Button>
+        <Button variant="transparent" size="icon" onClick={handleShare} aria-label="Compartilhar">
+          <Share2 className="h-5 w-5" />
+        </Button>
+        <Button onClick={handleEvaluate}>Avaliar</Button>
       </div>
-    </RoleGuard>
+
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div className="flex flex-col gap-6">
+          <dl className="space-y-4">
+            <div>
+              <dt className="font-semibold">Nome:</dt>
+              <dd className="border-b py-2">{name}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Bairro:</dt>
+              <dd className="border-b py-2">{neighborhood}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Endereço:</dt>
+              <dd className="border-b py-2">{address}</dd>
+            </div>
+          </dl>
+
+          <div className="mt-4 space-y-2">
+            <p>
+              Tempo de espera médio: <strong>{averageWaitTime}</strong>
+            </p>
+            <p>
+              Telefone: <strong>{phone}</strong>
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <iframe
+            src={`https://maps.google.com/maps?q=${ubs.geolocation.lat},${ubs.geolocation.lng}&z=15&output=embed`}
+            width="100%"
+            height="450"
+            style={{ border: 0, borderRadius: '8px' }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+      </div>
+      <div className="mt-8 mb-8 flex w-full items-center justify-between">
+        <Button
+          className="w-full"
+          variant="default"
+          size="sm"
+          onClick={() => setIsHoursModalOpen(true)}
+        >
+          <Edit className="mr-2 h-4 w-4" />
+          Editar
+        </Button>
+      </div>
+
+      <BvTitleIco
+        alt="Icone de Calendario"
+        ico={CaledarIco}
+        title="Horário de funcionamento:"
+        className="mt-12 mb-6"
+      />
+      <div className="grid grid-cols-1 gap-4 rounded-lg bg-gray-50 p-6 md:grid-cols-3">
+        <p>Segunda: {operatingHours.monday}</p>
+        <p>Terça: {operatingHours.tuesday}</p>
+        <p>Quarta: {operatingHours.wednesday}</p>
+        <p>Quinta: {operatingHours.thursday}</p>
+        <p>Sexta: {operatingHours.friday}</p>
+        <p>Sábado: {operatingHours.saturday}</p>
+        <p>Domingo: {operatingHours.sunday}</p>
+      </div>
+
+      <div className="mt-8 mb-8 flex w-full items-center justify-between">
+        <Button
+          className="w-full"
+          variant="default"
+          size="sm"
+          onClick={() => setIsVaccineModalOpen(true)}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Adicionar vacina
+        </Button>
+      </div>
+      <BvTitleIco
+        alt="Icone de Seringa"
+        ico={SyringeIco}
+        title="Vacinas disponíveis:"
+        className="mt-12 mb-6"
+      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+        {availableVaccines.map((vaccine: string, index: number) => (
+          <div
+            key={index}
+            className="flex items-start gap-3 rounded-lg bg-green-600 p-3 text-white shadow-md"
+          >
+            <Syringe className="mt-1 h-5 w-5 flex-shrink-0" />
+            <span className="text-base font-semibold">{vaccine}</span>
+            <button
+              onClick={() => handleRemoveRequest(vaccine)}
+              className="p-0 text-white/70 transition-colors hover:text-white"
+              aria-label={`Remover ${vaccine}`}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ))}
+      </div>
+      <div className="mt-6 text-center">
+        <p>Confira a cartilha de vacinas para saber quais vacinas são indicadas para cada idade.</p>
+      </div>
+
+      <BvHoursModal
+        isOpen={isHoursModalOpen}
+        setIsOpen={setIsHoursModalOpen}
+        currentHours={operatingHours}
+        currentWaitTime={averageWaitTime}
+        onSave={handleSaveHours}
+      />
+      <BvAddVaccineModal
+        isOpen={isVaccineModalOpen}
+        setIsOpen={setIsVaccineModalOpen}
+        onAdd={handleAddVaccine}
+        existingVaccines={availableVaccines}
+      />
+
+      <AlertDialog
+        open={deleteAlert.isOpen}
+        onOpenChange={(isOpen) => setDeleteAlert({ ...deleteAlert, isOpen })}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. Isso removerá permanentemente a vacina &quot;
+              {deleteAlert.vaccineName}&quot; da lista de vacinas disponíveis nesta UBS.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteAlert({ isOpen: false, vaccineName: null })}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRemoveVaccine}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Sim, excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   )
 }

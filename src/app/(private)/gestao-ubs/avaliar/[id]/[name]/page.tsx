@@ -17,10 +17,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { submitSurvey } from '@/services/actions/ubs-actions' // Importando a server action
 import { BvTitleHeader } from '@/components'
 
-// Schema de validação
 const formSchema = z.object({
   vaccineSuccess: z.string().min(1, 'Campo obrigatório'),
   waitTime: z.string().min(1, 'Campo obrigatório'),
@@ -33,6 +31,7 @@ const formSchema = z.object({
 export default function OrderDetailsPage() {
   const params = useParams()
   const name = params.name as string
+  const id = params.id as string
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -44,14 +43,13 @@ export default function OrderDetailsPage() {
       respectfulService: '',
       cleanLocation: '',
       recommendation: '',
-      rating: 4, // Valor inicial conforme imagem (4 estrelas amarelas)
+      rating: 4,
     },
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
     try {
-      // Chama a Server Action
       const result = await submitSurvey(values)
       if (result.success) {
         alert('Sucesso! ' + result.message)
@@ -73,7 +71,6 @@ export default function OrderDetailsPage() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          {/* Grid de 2 colunas para os inputs */}
           <div className="grid grid-cols-1 gap-x-12 gap-y-6 md:grid-cols-2">
             <FormField
               control={form.control}
@@ -150,8 +147,6 @@ export default function OrderDetailsPage() {
                 </FormItem>
               )}
             />
-
-            {/* Seção de Rating de Estrelas */}
             <FormField
               control={form.control}
               name="rating"
@@ -167,7 +162,6 @@ export default function OrderDetailsPage() {
                         <button
                           key={star}
                           type="button"
-                          // Define o valor do formulário ao clicar
                           onClick={() => field.onChange(star)}
                           className="transition-transform hover:scale-110 focus:outline-none"
                         >
@@ -187,8 +181,6 @@ export default function OrderDetailsPage() {
               )}
             />
           </div>
-
-          {/* Botões de Ação em desktop e mobile */}
           <div className="flex flex-col items-center justify-between space-x-4 md:flex-row">
             <Button
               type="button"
@@ -196,7 +188,7 @@ export default function OrderDetailsPage() {
               className="my-5 h-12 border-none bg-white px-12 text-lg text-indigo-900 hover:bg-gray-100"
               onClick={() => form.reset()}
             >
-              Cancelar
+              Apagar
             </Button>
 
             <Button
