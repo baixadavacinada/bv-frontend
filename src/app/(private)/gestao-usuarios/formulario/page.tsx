@@ -1,7 +1,6 @@
 'use client'
-
-import React, { Suspense } from 'react'
 import { UserFormContent } from './UserFormContent'
+import { Suspense } from 'react'
 
 export default function UserFormPage() {
   return (

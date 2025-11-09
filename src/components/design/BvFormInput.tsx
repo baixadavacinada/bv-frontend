@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { MaskedInput } from '@/components/ui/masked-input'
 import { useLiveRegion } from '@/hooks/use-accessibility'
+import { Label } from '../ui/label'
 
 // Componente de Input
 export const BvFormInput = ({
@@ -56,7 +57,7 @@ export const BvFormInput = ({
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // Anuncia correção do erro se o usuário começar a digitar
-    if (error && event.target.value.trim()) {
+    if (error && event.target.value && event.target.value.trim()) {
       announceToScreenReader(`${label} corrigido`, 'polite')
     }
 
@@ -82,25 +83,21 @@ export const BvFormInput = ({
     onBlur: handleBlur,
     disabled: disabled,
     placeholder: placeholder,
-    className: cn(
-      'h-12 text-base',
-      error && 'border-red-500 focus-visible:ring-red-500/20',
-      className,
-    ),
+    className: cn(error && 'border-red-500 focus-visible:ring-red-500/20', className),
     ...props,
   }
 
   return (
     <div className="space-y-2">
       {/* Label com indicador visual de obrigatório */}
-      <label htmlFor={inputId} className="block text-base font-semibold text-gray-900">
+      <Label htmlFor={inputId} className="block text-base font-semibold text-gray-900">
         {label}
         {required && (
           <span className="ml-1 text-red-500" aria-label="campo obrigatório">
             *
           </span>
         )}
-      </label>
+      </Label>
 
       {/* Descrição adicional se fornecida */}
       {description && (

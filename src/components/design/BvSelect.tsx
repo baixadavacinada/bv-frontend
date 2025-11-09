@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ChevronDown } from 'lucide-react'
+import { Label } from '../ui/label'
 
 interface IBvSelectOption {
   value: string
@@ -222,7 +223,7 @@ const BvSelect = ({
       return (
         <div key={idx} className="mb-2">
           {group.label && (
-            <div className="px-3 py-1 text-sm font-semibold text-gray-700">{group.label}</div>
+            <div className="px-3 py-1 text-base font-semibold text-gray-700">{group.label}</div>
           )}
           <div className="px-1">{group.options.map(renderMultipleOption)}</div>
         </div>
@@ -247,14 +248,14 @@ const BvSelect = ({
         }}
       >
         {title && (
-          <label
+          <Label
             id={titleId}
             htmlFor={id}
-            className={cn('text-sm font-medium', disabled && 'text-gray-400')}
+            className={cn('text-base font-medium text-gray-900', disabled && 'text-gray-400')}
             style={titleStyles}
           >
             {title}
-          </label>
+          </Label>
         )}
 
         {subtitle && (
@@ -275,7 +276,7 @@ const BvSelect = ({
               aria-expanded={isOpen}
               aria-haspopup="listbox"
               className={cn(
-                'border-input flex h-10 w-full items-center justify-between rounded-sm border bg-white px-3 py-2 text-sm shadow-sm',
+                'border-input flex h-10 w-full items-center justify-between rounded-sm border bg-white px-3 py-2 text-base shadow-sm',
                 'focus:border-primary focus:ring-primary focus:ring-1 focus:outline-none',
                 'disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:opacity-50',
                 !hasValue && 'text-muted-foreground',
@@ -334,14 +335,14 @@ const BvSelect = ({
       }}
     >
       {title && (
-        <label
+        <Label
           id={titleId}
           htmlFor={id}
-          className={cn('text-sm font-medium', disabled && 'text-gray-400')}
+          className={cn('text-base font-medium text-gray-900', disabled && 'text-gray-400')}
           style={titleStyles}
         >
           {title}
-        </label>
+        </Label>
       )}
 
       {subtitle && (
@@ -364,7 +365,7 @@ const BvSelect = ({
           aria-describedby={subtitle ? descId : undefined}
         >
           <SelectValue placeholder={placeholder || 'Selecione uma opção'}>
-            <span className="text-sm">{displayText}</span>
+            <span className="text-base">{displayText}</span>
           </SelectValue>
         </SelectTrigger>
 
@@ -375,7 +376,7 @@ const BvSelect = ({
                 ? groups.map((group, idx) => (
                     <SelectGroup key={idx}>
                       {group.label && (
-                        <SelectLabel className="px-3 py-1 text-sm font-semibold text-gray-700">
+                        <SelectLabel className="px-3 py-1 text-base font-semibold text-gray-700">
                           {group.label}
                         </SelectLabel>
                       )}
