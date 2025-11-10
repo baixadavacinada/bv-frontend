@@ -85,7 +85,9 @@ export default function UbsScreen() {
   }
 
   if (error) {
-    return <div>Erro ao carregar dados: {error instanceof Error ? error : String(error)}</div>
+    return (
+      <div>Erro ao carregar dados: {error instanceof Error ? error.message : String(error)}</div>
+    )
   }
 
   return (

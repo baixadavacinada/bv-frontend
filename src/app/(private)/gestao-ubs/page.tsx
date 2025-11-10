@@ -27,7 +27,7 @@ import { HealthUnit } from '@/types/health-units'
 
 type UbsListData = {
   id: number
-  slug: number | string
+  slug: string | undefined
   name: string
   component: 'private' | 'public'
   neighborhood: string
@@ -56,7 +56,7 @@ export default function UbsScreen() {
     if (data) {
       const transformedData: UbsListData[] = data.map((unit: HealthUnit, index: number) => ({
         id: index,
-        slug: unit._id,
+        slug: unit._id || '',
         component: 'private',
         name: unit.name,
         neighborhood: unit.neighborhood,
@@ -123,13 +123,22 @@ export default function UbsScreen() {
     setDeleteAlert({ isOpen: false, id: null })
   }
 
-  const handleShare = async (name: string, id: string) => {
+  const handleShareToClipboard = async (name: string, id: string) => {
     try {
-      await navigator.clipboard.writeText(`https://https://baixadavacinada.com/usb/${id}`)
+      await navigator.clipboard.writeText(`https://baixadavacinada.com/usb/${id}`)
       toast.info(`Compartilhando "${name}"...`)
     } catch (err) {
       console.error('Falha ao copiar o texto: ', err)
     }
+  }
+
+  const handleShare = (name: string) => {
+    const u = ubsList.find((u) => u.name === name || u.slug === name)
+    if (!u) {
+      toast.error(`Não foi possível compartilhar "${name}". UBS não encontrada.`)
+      return
+    }
+    void handleShareToClipboard(name, u.slug || '')
   }
 
   if (isLoading) {
@@ -199,7 +208,6 @@ export default function UbsScreen() {
       <BvUbsList
         ubsList={filteredUbsList}
         path="gestao-ubs"
-        component="private"
         onDeleteRequest={handleDeleteRequest}
         onFavoriteToggleRequest={handleFavoriteToggle}
         onShareRequest={handleShare}

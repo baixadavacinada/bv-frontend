@@ -17,9 +17,13 @@ export const useHealthUnits = () => {
         setIsLoading(true)
         setError(null)
         const unitsData = await listHealthUnits()
-        setData(unitsData)
+        setData(unitsData as HealthUnit[])
       } catch (err: unknown) {
-        setError(err.message)
+        if (err instanceof Error) {
+          setError(err)
+        } else {
+          setError(new Error('Unknown error'))
+        }
       } finally {
         setIsLoading(false)
       }

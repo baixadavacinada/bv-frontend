@@ -33,9 +33,9 @@ export function BvUbsCard({
   onEdit,
   className,
 }: UbsCardProps) {
-  const handleIconClick = (e: React.MouseEvent<HTMLButtonElement>, action: () => void) => {
+  const handleIconClick = (e: React.MouseEvent<HTMLButtonElement>, action?: () => void) => {
     e.stopPropagation()
-    action()
+    action?.()
   }
 
   return (
