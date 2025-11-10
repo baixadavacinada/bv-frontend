@@ -36,7 +36,7 @@ export default function UbsPage() {
     <Suspense fallback={<div>Carregando...</div>}>
       <div className="container mx-auto p-8">
         <BvTitleHeader title={title} className="mb-8" />
-        <UbsForm initialData={initialData} />
+        <UbsForm initialData={initialData} slug={id} />
       </div>
     </Suspense>
   )

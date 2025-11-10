@@ -17,18 +17,21 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { HealthUnit } from '@/types/health-units'
+import { CreateHealthUnits, HealthUnit } from '@/types/health-units'
+import { createHealtUnits } from '@/services/actions/ubs-actions'
 
 const DEFAULT_LAT = -22.643
 const DEFAULT_LON = -43.655
 
 const formSchema = z.object({
   nome: z.string().min(2, 'Nome é obrigatório'),
+  telefone: z.string(),
   cep: z.string().length(9, 'CEP deve ter 9 dígitos (00000-000)'),
   logradouro: z.string().min(2, 'Logradouro é obrigatório'),
   numero: z.string().min(1, 'Número é obrigatório'),
   bairro: z.string().min(2, 'Bairro é obrigatório'),
   cidade: z.string().min(2, 'Cidade é obrigatória'),
+  estado: z.string().min(2, 'Estado é obrigatória'),
   latitude: z.number(),
   longitude: z.number(),
 })
@@ -37,20 +40,23 @@ type UbsFormValues = z.infer<typeof formSchema>
 
 const defaultValues = {
   nome: '',
+  telefone: '',
   cep: '',
   logradouro: '',
   numero: '',
   bairro: '',
   cidade: 'Rio de Janeiro',
+  estado: 'RJ',
   latitude: DEFAULT_LAT,
   longitude: DEFAULT_LON,
 }
 
 interface UbsFormProps {
   initialData?: HealthUnit
+  slug: string
 }
 
-export function UbsForm({ initialData }: UbsFormProps) {
+export function UbsForm({ initialData, slug }: UbsFormProps) {
   const router = useRouter()
   useAccessibilityValidation({ enabled: true })
 
@@ -58,10 +64,12 @@ export function UbsForm({ initialData }: UbsFormProps) {
     ? {
         nome: String(initialData.name || ''),
         cep: String(initialData.zipCode || ''),
+        telefone: String(initialData.phone),
         logradouro: String(initialData.address || ''),
         numero: String(initialData.number || 'S/N'),
         bairro: String(initialData.neighborhood || ''),
         cidade: String(initialData.city || 'Rio de Janeiro'),
+        estado: String(initialData.state || 'RJ'),
         latitude: Number(initialData.geolocation.lat) || DEFAULT_LAT,
         longitude: Number(initialData.geolocation.lng) || DEFAULT_LON,
       }
@@ -96,7 +104,19 @@ export function UbsForm({ initialData }: UbsFormProps) {
   }, [fullAddress, lat, lon])
 
   async function onSubmit(values: UbsFormValues) {
+    const data: CreateHealthUnits = {
+      name: values.nome,
+      address: values.logradouro,
+      neighborhood: values.bairro,
+      city: values.cidade,
+      state: values.estado,
+      zipCode: values.cep,
+      phone: values.telefone,
+    }
     try {
+      if (slug === 'novo') {
+        createHealtUnits(data)
+      }
       console.log('Enviando dados:', values)
 
       if (values.nome.toLowerCase() === 'ubs repetida') {
@@ -142,6 +162,19 @@ export function UbsForm({ initialData }: UbsFormProps) {
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
                     <Input placeholder="Digite aqui o nome da UBS" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="telefone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefone</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Digite aqui o Telefone da UBS" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -201,19 +234,34 @@ export function UbsForm({ initialData }: UbsFormProps) {
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="cidade"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Cidade</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="cidade"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cidade</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="estado"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Estado</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
           <div className="aspect-video h-full w-full overflow-hidden rounded-md border">
             <iframe
