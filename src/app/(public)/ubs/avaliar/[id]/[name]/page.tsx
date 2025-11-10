@@ -17,22 +17,12 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-<<<<<<< HEAD:src/app/(public)/ubs/avaliar/[id]/[name]/page.tsx
-import { BvTitleHeader, RoleGuard } from '@/components'
-import { toast } from 'sonner'
-import { submitSurvey } from '@/services/actions/ubs-actions'
-import { useAccessibilityValidation } from '@/hooks/use-accessibility'
-import { FeedbackFormData, feedbackSchema } from '@/schemas'
-
-function AvaliarUBSContent() {
-=======
 import { BvTitleHeader } from '@/components'
 import { feedbackSchema, FeedbackFormData } from '@/schemas'
 import { submitFeedback } from '@/services/actions/feedback-actions'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
 export default function AvaliarUBSPage() {
->>>>>>> 13671bd (feat: integrate feedback/evaluation API with UBS rating page):src/app/(private)/gestao-ubs/avaliar/[id]/[name]/page.tsx
   useAccessibilityValidation({ enabled: true })
 
   const params = useParams()
@@ -64,7 +54,6 @@ export default function AvaliarUBSPage() {
       isAnonymous: false,
     }
     try {
-<<<<<<< HEAD:src/app/(public)/ubs/avaliar/[id]/[name]/page.tsx
       await submitSurvey(surveyData)
 
       toast.success('Avaliação enviada com sucesso! ')
@@ -73,23 +62,6 @@ export default function AvaliarUBSPage() {
     } catch (error) {
       console.error(error)
       toast.error('Erro ao enviar avaliação.')
-=======
-      const result = await submitFeedback(values)
-
-      if (result.success) {
-        toast.success(result.message)
-        form.reset()
-        // Redirecionar após 2 segundos
-        setTimeout(() => {
-          router.push('/gestao-ubs')
-        }, 2000)
-      } else {
-        toast.error(result.message)
-      }
-    } catch (error) {
-      console.error('Erro ao enviar feedback:', error)
-      toast.error('Erro ao enviar avaliação. Tente novamente.')
->>>>>>> 13671bd (feat: integrate feedback/evaluation API with UBS rating page):src/app/(private)/gestao-ubs/avaliar/[id]/[name]/page.tsx
     } finally {
       setIsSubmitting(false)
     }
@@ -285,8 +257,4 @@ export default function AvaliarUBSPage() {
       </Form>
     </div>
   )
-}
-
-export default function AvaliarUBSPage() {
-  return <AvaliarUBSContent />
 }
