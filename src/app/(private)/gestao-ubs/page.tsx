@@ -174,7 +174,7 @@ export default function UbsScreen() {
   }
 
   return (
-    <>
+    <RoleGuard allowedRoles={['admin', 'agent']} requireAuth>
       <BvTitleHeader title="Unidades Básicas de Saúde" className="mb-8" />
       <div className="mb-8">
         <CollapsibleFilter>
@@ -212,12 +212,14 @@ export default function UbsScreen() {
           </div>
         </CollapsibleFilter>
       </div>
-      <div className="mb-8 flex justify-end">
-        <Button className="w-full" onClick={() => router.push('gestao-ubs/form-ubs/novo')}>
-          <Plus className="mr-2 h-4 w-4" />
-          Adicionar Nova UBS
-        </Button>
-      </div>
+      <RoleGuard allowedRoles={['admin']} requireAuth>
+        <div className="mb-8 flex justify-end">
+          <Button className="w-full" onClick={() => router.push('gestao-ubs/form-ubs/novo')}>
+            <Plus className="mr-2 h-4 w-4" />
+            Adicionar Nova UBS
+          </Button>
+        </div>
+      </RoleGuard>
 
       <BvUbsList
         ubsList={filteredUbsList}
@@ -252,6 +254,6 @@ export default function UbsScreen() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </RoleGuard>
   )
 }
