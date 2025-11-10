@@ -1,7 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { getVaccines } from '@/services/actions/ubs-actions'
-import { vaccinesList } from '@/types/health-units'
 
 /** * Hook customizado para buscar e gerenciar a lista de vacinas.
  */
