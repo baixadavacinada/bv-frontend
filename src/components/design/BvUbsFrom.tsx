@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { HealthUnit } from '@/types/health-units'
 
 const DEFAULT_LAT = -22.643
 const DEFAULT_LON = -43.655
@@ -46,7 +47,7 @@ const defaultValues = {
 }
 
 interface UbsFormProps {
-  initialData?: UbsFormValues
+  initialData?: HealthUnit
 }
 
 export function UbsForm({ initialData }: UbsFormProps) {
@@ -55,14 +56,14 @@ export function UbsForm({ initialData }: UbsFormProps) {
 
   const formData = initialData
     ? {
-        nome: String(initialData.nome || ''),
-        cep: String(initialData.cep || ''),
-        logradouro: String(initialData.logradouro || ''),
-        numero: String(initialData.numero || ''),
-        bairro: String(initialData.bairro || ''),
-        cidade: String(initialData.cidade || 'Rio de Janeiro'),
-        latitude: Number(initialData.latitude) || DEFAULT_LAT,
-        longitude: Number(initialData.longitude) || DEFAULT_LON,
+        nome: String(initialData.name || ''),
+        cep: String(initialData.zipCode || ''),
+        logradouro: String(initialData.address || ''),
+        numero: String(initialData.number || 'S/N'),
+        bairro: String(initialData.neighborhood || ''),
+        cidade: String(initialData.city || 'Rio de Janeiro'),
+        latitude: Number(initialData.geolocation.lat) || DEFAULT_LAT,
+        longitude: Number(initialData.geolocation.lng) || DEFAULT_LON,
       }
     : defaultValues
 
