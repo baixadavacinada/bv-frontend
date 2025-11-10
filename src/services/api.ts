@@ -4,6 +4,7 @@ import { parseCookies } from 'nookies'
 
 interface ApiErrorResponse {
   success: false
+  data: null
   error: {
     message: string
     code?: string
@@ -14,6 +15,11 @@ interface ApiErrorResponse {
 interface ApiSuccessResponse<T = unknown> {
   success: true
   data: T
+  statusCode: number
+  error: {
+    message: null
+    code?: null
+  }
 }
 
 type ApiResponse<T = unknown> = ApiSuccessResponse<T> | ApiErrorResponse
@@ -115,11 +121,13 @@ export class ApiClient {
 
     const data: ApiResponse<T> = await response.json()
 
-    if (!data.success) {
-      throw new Error(data.error.message)
+    if (response.status >= 400) {
+      throw new Error(
+        data?.error?.message || 'Ocorreu um erro desconhecido (API não retornou detalhes)',
+      )
     }
 
-    return data.data
+    return data.data as T
   }
 
   async get<T = unknown>(endpoint: string): Promise<T> {

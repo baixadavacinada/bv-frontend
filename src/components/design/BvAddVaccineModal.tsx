@@ -46,6 +46,7 @@ export function BvAddVaccineModal({
 
   const handleAddClick = async () => {
     const vaccineToAdd = newVaccineName.trim() || selectedVaccine
+    console.log('Vacina a ser adicionada:', vaccineToAdd)
 
     if (!vaccineToAdd) {
       toast.warning('Atenção!', {
@@ -130,7 +131,7 @@ export function BvAddVaccineModal({
               disabled={!!selectedVaccine || isLoading}
             />
           </div>
-          <div>
+          {/* <div>
             <Label htmlFor="vaccine-lote">
               Lote da vacina (digite &quot;erro&quot; para testar)
             </Label>
@@ -142,7 +143,7 @@ export function BvAddVaccineModal({
               className="mt-2"
               disabled={isLoading}
             />
-          </div>
+          </div> */}
         </div>
         <DialogFooter>
           <DialogClose asChild>
