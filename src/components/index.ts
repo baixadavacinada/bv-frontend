@@ -17,3 +17,6 @@ export * from './auth/ProtectedRoute'
 export * from './auth/LoginForm'
 export * from './auth/RegisterForm'
 export * from './auth/ResetPasswordForm'
+
+// Export common components
+export * from './common/LocationPermissionModal'

@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { BvTitleHeader, RoleGuard } from '@/components'
+import { BvTitleHeader } from '@/components'
 import { CollapsibleFilter } from '@/components/design/BvCollapsibleFilter'
 import { BvUbsList } from '@/components/index'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox' // Verifique se este é o caminho correto
+import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
@@ -22,7 +22,9 @@ import {
 
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
-import { useHealthUnits } from '@/hooks/use-health-units' // Ajuste o caminho se necessário
+import { useHealthUnits } from '@/hooks/use-health-units'
+import { useLocationContext } from '@/contexts/LocationContext'
+import { sortByDistance } from '@/utils/geolocation'
 import { HealthUnit } from '@/types/health-units'
 import { deleteHealthUnits } from '@/services/actions/ubs-actions'
 
@@ -39,11 +41,13 @@ type UbsListData = {
 
 export default function UbsScreen() {
   const { data, isLoading, error } = useHealthUnits()
+  const { userCoords } = useLocationContext()
   const [ubsList, setUbsList] = useState<UbsListData[]>([])
   const [filters, setFilters] = useState({
     name: '',
     neighborhood: '',
     open24h: false,
+    filterByProximity: false,
   })
 
   const [deleteAlert, setDeleteAlert] = useState<{ isOpen: boolean; id: number | null }>({
@@ -55,19 +59,43 @@ export default function UbsScreen() {
 
   useEffect(() => {
     if (data) {
-      const transformedData: UbsListData[] = data.map((unit: HealthUnit, index: number) => ({
+      let transformedData: UbsListData[] = data.map((unit: HealthUnit, index: number) => ({
         id: index,
         slug: unit._id || '',
-        component: 'private',
+        component: 'private' as const,
         name: unit.name,
         neighborhood: unit.neighborhood,
-        distanceInKm: Math.floor(Math.random() * 20) + 1,
+        distanceInKm: 0,
         isFavorite: unit.isFavorite || false,
       }))
 
+      // Se temos coordenadas do usuário, calcular distância
+      if (userCoords && userCoords.latitude && userCoords.longitude) {
+        const unitsWithGeo = data.map((unit: HealthUnit) => ({
+          ...unit,
+          latitude: unit.geolocation?.lat || 0,
+          longitude: unit.geolocation?.lng || 0,
+        }))
+
+        const sortedData = sortByDistance(unitsWithGeo, userCoords, {
+          lat: 'latitude',
+          lng: 'longitude',
+        })
+
+        transformedData = sortedData.map((unit, index) => ({
+          id: index,
+          slug: unit._id || '',
+          component: 'private' as const,
+          name: unit.name,
+          neighborhood: unit.neighborhood,
+          distanceInKm: unit.distance || 0,
+          isFavorite: unit.isFavorite || false,
+        }))
+      }
+
       setUbsList(transformedData)
     }
-  }, [data])
+  }, [data, userCoords])
   const handleFavoriteToggle = (id: number) => {
     const ubs = ubsList.find((u) => u.id === id)
     if (!ubs) return
@@ -92,6 +120,11 @@ export default function UbsScreen() {
   const handleCheckboxChange = (checked: boolean | 'indeterminate') => {
     setFilters((prev) => ({ ...prev, open24h: checked === true }))
   }
+
+  const handleProximityFilterChange = (checked: boolean | 'indeterminate') => {
+    setFilters((prev) => ({ ...prev, filterByProximity: checked === true }))
+  }
+
   const filteredUbsList = useMemo(() => {
     let list = ubsList
 
@@ -109,8 +142,13 @@ export default function UbsScreen() {
       list = list.filter((ubs) => ubs.isOpen24h === true)
     }
 
+    // Filtrar por proximidade se ativado
+    if (filters.filterByProximity && userCoords) {
+      list = list.filter((ubs) => ubs.distanceInKm > 0 && ubs.distanceInKm <= 50) // 50km de raio
+    }
+
     return list
-  }, [ubsList, filters])
+  }, [ubsList, filters, userCoords])
 
   const handleDeleteRequest = (id: number) => {
     setDeleteAlert({ isOpen: true, id: id })
@@ -199,7 +237,7 @@ export default function UbsScreen() {
                 onChange={handleInputChange}
               />
             </div>
-            <div className="flex items-end">
+            <div className="flex flex-col gap-2">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="open-24h"
@@ -208,6 +246,18 @@ export default function UbsScreen() {
                 />
                 <Label htmlFor="open-24h">Aberto 24h</Label>
               </div>
+              {userCoords && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="proximity-filter"
+                    checked={filters.filterByProximity}
+                    onCheckedChange={handleProximityFilterChange}
+                  />
+                  <Label htmlFor="proximity-filter" className="text-sm">
+                    Mostrar próximas (50km)
+                  </Label>
+                </div>
+              )}
             </div>
           </div>
         </CollapsibleFilter>
