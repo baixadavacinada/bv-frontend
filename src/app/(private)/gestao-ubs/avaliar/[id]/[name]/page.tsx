@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 import { Loader2, Send, Star } from 'lucide-react'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -18,26 +18,24 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { BvTitleHeader } from '@/components'
+import { feedbackSchema, FeedbackFormData } from '@/schemas'
+import { submitFeedback } from '@/services/actions/feedback-actions'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
-const formSchema = z.object({
-  vaccineSuccess: z.string().min(1, 'Campo obrigatório'),
-  waitTime: z.string().min(1, 'Campo obrigatório'),
-  respectfulService: z.string().min(1, 'Campo obrigatório'),
-  cleanLocation: z.string().min(1, 'Campo obrigatório'),
-  recommendation: z.string().min(1, 'Campo obrigatório'),
-  rating: z.number().min(1, 'Selecione pelo menos 1 estrela').max(5),
-})
+export default function AvaliarUBSPage() {
+  useAccessibilityValidation({ enabled: true })
 
-export default function OrderDetailsPage() {
   const params = useParams()
+  const router = useRouter()
   const name = params.name as string
   const id = params.id as string
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<FeedbackFormData>({
+    resolver: zodResolver(feedbackSchema),
     defaultValues: {
+      healthUnitId: id,
       vaccineSuccess: '',
       waitTime: '',
       respectfulService: '',
@@ -47,31 +45,41 @@ export default function OrderDetailsPage() {
     },
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: FeedbackFormData) {
     setIsSubmitting(true)
     try {
-      // const result = await submitSurvey(values)
-      // if (result.success) {
-      //  alert('Sucesso! ' + result.message)
-      alert('Sucesso! ')
-      form.reset()
+      const result = await submitFeedback(values)
+
+      if (result.success) {
+        toast.success(result.message)
+        form.reset()
+        // Redirecionar após 2 segundos
+        setTimeout(() => {
+          router.push('/gestao-ubs')
+        }, 2000)
+      } else {
+        toast.error(result.message)
+      }
     } catch (error) {
-      console.error(error)
-      alert('Erro ao enviar avaliação.')
+      console.error('Erro ao enviar feedback:', error)
+      toast.error('Erro ao enviar avaliação. Tente novamente.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  const cleanName = name.replace(/-/g, ' ').replace(/ubs/gi, '').trim()
+
   return (
     <div className="mx-auto max-w-4xl rounded-lg p-6">
-      <BvTitleHeader title={'Avaliação da UBS'} className="mb-6" />
+      <BvTitleHeader title="Avaliação da UBS" className="mb-6" />
 
-      <h2 className="mb-6 text-xl font-bold">UBS {name.replace(/-/g, ' ').replace(/ubs/g, '')}</h2>
+      <h2 className="mb-6 text-xl font-bold">UBS {cleanName}</h2>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 gap-x-12 gap-y-6 md:grid-cols-2">
+            {/* Vacina bem-sucedida */}
             <FormField
               control={form.control}
               name="vaccineSuccess"
@@ -81,12 +89,18 @@ export default function OrderDetailsPage() {
                     Você conseguiu tomar a vacina no dia que procurou o posto de saúde?
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
+                    <Input
+                      placeholder="Ex: Sim / Não / Parcialmente"
+                      className="h-12 border-none bg-white"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Tempo de espera */}
             <FormField
               control={form.control}
               name="waitTime"
@@ -96,12 +110,18 @@ export default function OrderDetailsPage() {
                     Quanto tempo você esperou para ser atendido?
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
+                    <Input
+                      placeholder="Ex: 30 minutos / 1 hora"
+                      className="h-12 border-none bg-white"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Atendimento respeitoso */}
             <FormField
               control={form.control}
               name="respectfulService"
@@ -111,12 +131,18 @@ export default function OrderDetailsPage() {
                     O atendimento foi respeitoso e acolhedor?
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
+                    <Input
+                      placeholder="Ex: Sim, muito atencioso"
+                      className="h-12 border-none bg-white"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Local limpo */}
             <FormField
               control={form.control}
               name="cleanLocation"
@@ -126,12 +152,18 @@ export default function OrderDetailsPage() {
                     O local estava limpo e organizado?
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
+                    <Input
+                      placeholder="Ex: Sim, muito limpo"
+                      className="h-12 border-none bg-white"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Recomendação */}
             <FormField
               control={form.control}
               name="recommendation"
@@ -141,12 +173,18 @@ export default function OrderDetailsPage() {
                     Você recomenda essa Unidade Básica de Saúde para amigos ou parentes?
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
+                    <Input
+                      placeholder="Ex: Sim, recomendo"
+                      className="h-12 border-none bg-white"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Avaliação geral (Rating) */}
             <FormField
               control={form.control}
               name="rating"
@@ -164,6 +202,7 @@ export default function OrderDetailsPage() {
                           type="button"
                           onClick={() => field.onChange(star)}
                           className="transition-transform hover:scale-110 focus:outline-none"
+                          aria-label={`Classificar com ${star} estrelas`}
                         >
                           <Star
                             className={`h-8 w-8 ${
@@ -181,6 +220,8 @@ export default function OrderDetailsPage() {
               )}
             />
           </div>
+
+          {/* Botões de ação */}
           <div className="flex flex-col items-center justify-between space-x-4 md:flex-row">
             <Button
               type="button"
@@ -197,7 +238,10 @@ export default function OrderDetailsPage() {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Enviando...
+                </>
               ) : (
                 <>
                   Enviar avaliação
