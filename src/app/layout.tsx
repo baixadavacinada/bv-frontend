@@ -2,9 +2,11 @@ import type { Metadata } from 'next'
 import { Barlow } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
+// @ts-expect-error - CSS import
 import './globals.css'
 import { cn } from '@/lib/utils'
 import { AuthProvider } from '@/hooks/use-firebase-auth'
+import { LocationProvider } from '@/contexts/LocationContext'
 import { Toaster } from 'sonner'
 
 const barlow = Barlow({
@@ -30,7 +32,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={cn(barlow.className, 'bg-background antialiased dark:bg-slate-900')}>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
-            <div>{children}</div>
+            <LocationProvider>
+              <div>{children}</div>
+            </LocationProvider>
           </AuthProvider>
         </NextIntlClientProvider>
         <Toaster />

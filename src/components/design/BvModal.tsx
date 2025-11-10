@@ -16,10 +16,11 @@ interface BvModalProps {
   title?: string
   description?: string
   className?: string
+  hideCloseButton?: boolean
 }
 
 export const BvModal = forwardRef<HTMLDivElement, BvModalProps>(
-  ({ children, open, onClose, title, description, className }, ref) => {
+  ({ children, open, onClose, title, description, className, hideCloseButton }, ref) => {
     return (
       <Dialog
         open={open}
@@ -34,18 +35,25 @@ export const BvModal = forwardRef<HTMLDivElement, BvModalProps>(
 
           <DialogContent
             ref={ref}
+            hideCloseButton={hideCloseButton}
             onInteractOutside={(event) => {
               event.preventDefault()
               event.stopPropagation()
             }}
             className={className}
           >
-            {/* Header título e descrição */}
-            <DialogHeader>
-              <DialogTitle className="text-lg font-bold">{title}</DialogTitle>
+            {/* Header título e descrição - renderizar apenas se title ou description forem passados */}
+            {(title || description) && (
+              <DialogHeader>
+                {title && <DialogTitle className="text-lg font-bold">{title}</DialogTitle>}
 
-              <DialogDescription className="text-md text-gray-700">{description}</DialogDescription>
-            </DialogHeader>
+                {description && (
+                  <DialogDescription className="text-md text-gray-700">
+                    {description}
+                  </DialogDescription>
+                )}
+              </DialogHeader>
+            )}
             {/* Conteúdo principal */}
             <div>{children}</div>
           </DialogContent>
