@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Send, Star } from 'lucide-react'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -16,6 +17,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+<<<<<<< HEAD:src/app/(public)/ubs/avaliar/[id]/[name]/page.tsx
 import { BvTitleHeader, RoleGuard } from '@/components'
 import { toast } from 'sonner'
 import { submitSurvey } from '@/services/actions/ubs-actions'
@@ -23,6 +25,14 @@ import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { FeedbackFormData, feedbackSchema } from '@/schemas'
 
 function AvaliarUBSContent() {
+=======
+import { BvTitleHeader } from '@/components'
+import { feedbackSchema, FeedbackFormData } from '@/schemas'
+import { submitFeedback } from '@/services/actions/feedback-actions'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+
+export default function AvaliarUBSPage() {
+>>>>>>> 13671bd (feat: integrate feedback/evaluation API with UBS rating page):src/app/(private)/gestao-ubs/avaliar/[id]/[name]/page.tsx
   useAccessibilityValidation({ enabled: true })
 
   const params = useParams()
@@ -54,6 +64,7 @@ function AvaliarUBSContent() {
       isAnonymous: false,
     }
     try {
+<<<<<<< HEAD:src/app/(public)/ubs/avaliar/[id]/[name]/page.tsx
       await submitSurvey(surveyData)
 
       toast.success('Avaliação enviada com sucesso! ')
@@ -62,6 +73,23 @@ function AvaliarUBSContent() {
     } catch (error) {
       console.error(error)
       toast.error('Erro ao enviar avaliação.')
+=======
+      const result = await submitFeedback(values)
+
+      if (result.success) {
+        toast.success(result.message)
+        form.reset()
+        // Redirecionar após 2 segundos
+        setTimeout(() => {
+          router.push('/gestao-ubs')
+        }, 2000)
+      } else {
+        toast.error(result.message)
+      }
+    } catch (error) {
+      console.error('Erro ao enviar feedback:', error)
+      toast.error('Erro ao enviar avaliação. Tente novamente.')
+>>>>>>> 13671bd (feat: integrate feedback/evaluation API with UBS rating page):src/app/(private)/gestao-ubs/avaliar/[id]/[name]/page.tsx
     } finally {
       setIsSubmitting(false)
     }
@@ -73,7 +101,11 @@ function AvaliarUBSContent() {
     <div className="mx-auto max-w-4xl rounded-lg p-6">
       <BvTitleHeader title="Avaliação da UBS" className="mb-6" />
 
+<<<<<<< HEAD:src/app/(public)/ubs/avaliar/[id]/[name]/page.tsx
       {/* <h2 className="mb-6 text-xl font-bold">UBS {name.replace(/-/g, ' ').replace(/ubs/g, '')}</h2> */}
+=======
+      <h2 className="mb-6 text-xl font-bold">UBS {cleanName}</h2>
+>>>>>>> 13671bd (feat: integrate feedback/evaluation API with UBS rating page):src/app/(private)/gestao-ubs/avaliar/[id]/[name]/page.tsx
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
