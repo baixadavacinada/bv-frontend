@@ -1,16 +1,9 @@
-import { ActionType } from '@/hooks/use-permissions'
+import { UserRole } from '@/hooks/use-firebase-auth'
 
 import { CiSettings } from 'react-icons/ci'
 import { FaSyringe } from 'react-icons/fa'
 import { IconType } from 'react-icons'
-import {
-  BsFillPersonFill,
-  BsHouse,
-  BsGeoAlt,
-  BsFileEarmarkText,
-  BsHeart,
-  BsBell,
-} from 'react-icons/bs'
+import { BsHouse, BsGeoAlt, BsFileEarmarkText, BsBell } from 'react-icons/bs'
 
 export interface NavigationItem {
   id: string
@@ -20,9 +13,7 @@ export interface NavigationItem {
   badge?: string | number
   disabled?: boolean
   external?: boolean
-  requiredPermission?: ActionType // controle de permissões
-  hideForRoles?: string[] // Ocultar para roles específicos
-  showOnlyForRoles?: string[] // Mostrar apenas para roles específicos
+  allowedRoles: UserRole[]
 }
 
 // Menu principal do sidebar (desktop)
@@ -32,129 +23,52 @@ export const sidebarNavigation: NavigationItem[] = [
     icon: BsHouse,
     label: 'Home',
     href: '/inicio',
+    allowedRoles: ['public', 'agent', 'admin'],
   },
   {
     id: 'ubs',
     icon: BsGeoAlt,
     label: 'UBS',
     href: '/ubs',
-    requiredPermission: 'ubs',
-    hideForRoles: ['admin'],
+    allowedRoles: ['public', 'agent'],
   },
-  // {
-  //   id: 'registration',
-  //   icon: BsFileEarmarkText,
-  //   label: 'Registro por morador',
-  //   href: '/registro-usuario',
-  //   requiredPermission: 'user-register',
-  //   hideForRoles: ['public'],
-  // },
   {
-    id: 'alert-settings',
+    id: 'notifications',
     icon: BsBell,
-    label: 'Ajustes de alertas',
-    href: '/ajustes-alertas',
-    requiredPermission: 'alert-settings',
-    hideForRoles: ['public'],
-  },
-  {
-    id: 'cartilha',
-    icon: FaSyringe,
-    label: 'Cartilha de vacinas',
-    href: '/cartilha-vacinas',
-    requiredPermission: 'guide',
-    hideForRoles: ['admin'],
+    label: 'Notificações',
+    href: '/notificacoes',
+    allowedRoles: ['public', 'agent', 'admin'],
   },
   {
     id: 'gestao-ubs',
     icon: BsFileEarmarkText,
     label: 'Gestão de UBS',
     href: '/gestao-ubs',
-    requiredPermission: 'ubs-management',
-    hideForRoles: ['public', 'agent'],
+    allowedRoles: ['admin'],
   },
   {
     id: 'gestao-usuarios',
     icon: BsFileEarmarkText,
     label: 'Gestão de Usuários',
     href: '/gestao-usuarios',
-    requiredPermission: 'user-management',
-    hideForRoles: ['public', 'agent'],
+    allowedRoles: ['admin'],
   },
   {
     id: 'gestao-vacinas',
     icon: BsFileEarmarkText,
     label: 'Gestão de Vacinas',
     href: '/gestao-vacinas',
-    requiredPermission: 'vaccine-management',
-    hideForRoles: ['public', 'agent'],
-  },
-  {
-    id: 'favoritos',
-    icon: BsHeart,
-    label: 'Favoritos',
-    href: '/favoritos',
-  },
-  // {
-  //   id: 'pesquisar',
-  //   icon: BsSearch,
-  //   label: 'Pesquisar',
-  //   href: '/busca',
-  // },
-  {
-    id: 'materiais-educativos',
-    icon: BsFileEarmarkText,
-    label: 'Materiais Educativos',
-    href: '/materiais-educativos',
-    requiredPermission: 'educational-materials',
-    hideForRoles: ['public', 'agent'],
-  },
-
-  {
-    id: 'alert-settings-2',
-    icon: BsBell,
-    label: 'Ajustes de notificações',
-    href: '/ajustes-alertas',
-    requiredPermission: 'alert-settings',
-    hideForRoles: ['public', 'agent'],
-  },
-  {
-    id: 'configuracoes',
-    icon: CiSettings,
-    label: 'Configurações',
-    href: '/configuracoes',
-    requiredPermission: 'settings',
-    showOnlyForRoles: ['admin', 'agent'],
-  },
-  {
-    id: 'avaliacoes',
-    icon: BsFileEarmarkText,
-    label: 'Avaliações',
-    href: '/avaliacao',
-    requiredPermission: 'assessments',
-    hideForRoles: ['public', 'agent'],
+    allowedRoles: ['admin'],
   },
 ]
 
 // Ações do navbar (ícones do canto direito)
 export const navbarActions: NavigationItem[] = [
-  // {
-  //   id: 'tema',
-  //   icon: BsSun,
-  //   href: '/',
-  // },
   {
     id: 'configuracao',
     icon: CiSettings,
     href: '/configuracoes',
-    requiredPermission: 'settings',
-    showOnlyForRoles: ['admin', 'agent'],
-  },
-  {
-    id: 'profile',
-    icon: BsFillPersonFill,
-    href: '/perfil',
-    showOnlyForRoles: ['MORADOR'],
+    allowedRoles: ['agent', 'admin'],
   },
 ]
 
@@ -165,41 +79,32 @@ export const footerNavigation: NavigationItem[] = [
     icon: BsHouse,
     label: 'Home',
     href: '/inicio',
+    allowedRoles: ['public', 'agent', 'admin'],
   },
-  // {
-  //   id: 'pesquisar',
-  //   icon: BsSearch,
-  //   label: 'Buscar',
-  //   href: '/busca',
-  // },
   {
     id: 'carteira-vacinacao',
     icon: FaSyringe,
     label: 'Carteira de Vacinação',
     href: '/cartilha-vacinas',
-    requiredPermission: 'vaccination',
-    hideForRoles: ['agent'],
+    allowedRoles: ['public', 'agent', 'admin'],
   },
   {
     id: 'ubs',
     icon: BsGeoAlt,
     label: 'UBS',
     href: '/ubs',
-    requiredPermission: 'ubs',
-    hideForRoles: ['admin'],
-  },
-  {
-    id: 'gestao-ubs',
-    icon: BsGeoAlt,
-    label: 'Gestão de UBS',
-    href: '/gestao-ubs',
-    requiredPermission: 'ubs-management',
-    hideForRoles: ['public', 'agent'],
-  },
-  {
-    id: 'favoritos',
-    icon: BsHeart,
-    label: 'Favoritos',
-    href: '/favoritos',
+    allowedRoles: ['public', 'agent', 'admin'],
   },
 ]
+
+// Função para filtrar itens de navegação baseado na role
+export function filterNavigationByRole<T extends NavigationItem>(
+  items: T[],
+  userRole: UserRole | null,
+): T[] {
+  if (!userRole) {
+    return items.filter((item) => item.allowedRoles.includes('public'))
+  }
+
+  return items.filter((item) => item.allowedRoles.includes(userRole))
+}

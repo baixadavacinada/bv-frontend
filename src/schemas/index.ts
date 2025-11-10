@@ -72,11 +72,7 @@ export const optionalEmail = z.string().email(msg.email).optional().or(z.literal
 
 // Telefone
 export const phone = z.string().min(1, msg.required).regex(patterns.phone, msg.phone)
-export const optionalPhone = z
-  .string()
-  .regex(patterns.phone, msg.phone)
-  .optional()
-  .or(z.literal(''))
+export const optionalPhone = z.string().optional().or(z.literal(''))
 
 // CPF
 export const cpf = z
@@ -85,12 +81,7 @@ export const cpf = z
   .regex(patterns.cpf, msg.cpf)
   .refine(validateCPF, msg.cpf)
 
-export const optionalCPF = z
-  .string()
-  .regex(patterns.cpf, msg.cpf)
-  .refine(validateCPF, msg.cpf)
-  .optional()
-  .or(z.literal(''))
+export const optionalCPF = z.string().optional().or(z.literal(''))
 
 // Nome completo (nome + sobrenome)
 export const fullName = z
@@ -128,7 +119,7 @@ export const password = z.string().min(6, 'A senha deve ter pelo menos 6 caracte
 
 // CEP
 export const cep = z.string().min(1, msg.required).regex(patterns.cep, msg.cep)
-export const optionalCEP = z.string().regex(patterns.cep, msg.cep).optional().or(z.literal(''))
+export const optionalCEP = z.string().optional().or(z.literal(''))
 
 // Data
 export const date = z
@@ -182,6 +173,7 @@ export const commonSchemas = {
   phone,
   optionalPhone,
   cpf,
+  optionalPhone,
   optionalCPF,
 
   // Segurança
@@ -190,6 +182,7 @@ export const commonSchemas = {
 
   // Localização
   cep,
+  optionalCEP,
 
   // Data e hora
   date,
