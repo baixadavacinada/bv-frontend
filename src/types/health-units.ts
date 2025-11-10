@@ -35,26 +35,26 @@ export type HealthUnit = {
 }
 
 export type CreateHealthUnits = {
-  name: string
-  address: string
-  neighborhood: string
-  city: string
-  state: string
-  zipCode: string
-  phone: string
-  operatingHours: {
-    monday: string
-    tuesday: string
-    wednesday: string
-    thursday: string
-    friday: string
-    saturday: string
-    sunday: string
+  name?: string
+  address?: string
+  neighborhood?: string
+  city?: string
+  state?: string
+  zipCode?: string
+  phone?: string
+  operatingHours?: {
+    monday?: string
+    tuesday?: string
+    wednesday?: string
+    thursday?: string
+    friday?: string
+    saturday?: string
+    sunday?: string
   }
-  geolocation: {
-    lat: number
-    lng: number
+  geolocation?: {
+    lat: number | string
+    lng: number | string
   }
-  availableVaccines: string[]
-  isActive: boolean
+  availableVaccines?: string[]
+  isActive?: boolean
 }

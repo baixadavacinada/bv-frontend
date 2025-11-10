@@ -121,9 +121,9 @@ export function BvHoursModal({
         }, 1500)
       })
       onSave(hours, formatWaitTimeForSave(waitInput))
-      toast.success('Sucesso!', {
-        description: 'Alterações salvas com sucesso!',
-      })
+      // toast.success('Sucesso!', {
+      //   description: 'Alterações salvas com sucesso!',
+      // })
     } catch (error) {
       toast.error('Atenção!', {
         description: 'Não foi possível salvar as alterações. Verifique sua rede e tente novamente.',

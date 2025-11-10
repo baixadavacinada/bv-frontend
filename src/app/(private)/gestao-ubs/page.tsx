@@ -24,6 +24,7 @@ import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { useHealthUnits } from '@/hooks/use-health-units' // Ajuste o caminho se necessário
 import { HealthUnit } from '@/types/health-units'
+import { deleteHealthUnits } from '@/services/actions/ubs-actions'
 
 type UbsListData = {
   id: number
@@ -115,12 +116,25 @@ export default function UbsScreen() {
     setDeleteAlert({ isOpen: true, id: id })
   }
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (deleteAlert.id === null) return
-    const ubsToRemove = ubsList.find((ubs) => ubs.id === deleteAlert.id)
-    setUbsList((currentList) => currentList.filter((ubs) => ubs.id !== deleteAlert.id))
-    toast.error(`UBS "${ubsToRemove?.name}" foi removida.`)
-    setDeleteAlert({ isOpen: false, id: null })
+
+    const ubsToDelete = ubsList.find((u) => u.id === deleteAlert.id)
+    if (!ubsToDelete) {
+      toast.error('UBS não encontrada.')
+      setDeleteAlert({ isOpen: false, id: null })
+      return
+    }
+
+    try {
+      await deleteHealthUnits(ubsToDelete.slug || '')
+      setUbsList((currentList) => currentList.filter((u) => u.id !== deleteAlert.id))
+      toast.success(`UBS "${ubsToDelete.name}" deletada com sucesso.`)
+    } catch (error) {
+      toast.error(`Falha ao deletar a UBS "${ubsToDelete.name}". Tente novamente mais tarde.`)
+    } finally {
+      setDeleteAlert({ isOpen: false, id: null })
+    }
   }
 
   const handleShareToClipboard = async (name: string, id: string) => {

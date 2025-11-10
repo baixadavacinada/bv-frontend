@@ -10,7 +10,7 @@ import { Syringe, Heart, Share2, Edit, Plus, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { notFound, useRouter } from 'next/navigation'
 import { useHealthUnits } from '@/hooks/use-health-units' // Importar o hook e o tipo
-import { HealthUnit } from '@/types/health-units'
+import { HealthUnit, OperatingHours } from '@/types/health-units'
 import { BvHoursModal } from '@/components/design/BvHoursModal'
 import { BvAddVaccineModal } from '@/components/design/BvAddVaccineModal'
 import { AlertDialog } from '@radix-ui/react-alert-dialog'
@@ -24,6 +24,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { cn } from '@/lib/utils' // Importei o 'cn' para o botão de favorito
+import { updateHealthUnits } from '@/services/actions/ubs-actions'
+import { useVaccinesList } from '@/hooks/use-vaccines-list'
 
 interface DetailUbsProps {
   params: Promise<{ id: string }>
@@ -33,6 +35,12 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   const resolvedParams = React.use(params)
   const [isHoursModalOpen, setIsHoursModalOpen] = useState(false)
   const [isVaccineModalOpen, setIsVaccineModalOpen] = useState(false)
+  const {
+    data: existingVaccines,
+    isLoading: vaccinesLoading,
+    error: vaccinesError,
+  } = useVaccinesList()
+
   const [deleteAlert, setDeleteAlert] = useState<{ isOpen: boolean; vaccineName: string | null }>({
     isOpen: false,
     vaccineName: null,
@@ -120,19 +128,54 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     }
   }
 
-  const handleSaveHours = (newHours: HealthUnit['operatingHours'], newWaitTime: string) => {
-    if (!ubs) return
-    setUbs((prev) =>
-      prev ? { ...prev, operatingHours: newHours, averageWaitTime: newWaitTime } : null,
-    )
-    setIsHoursModalOpen(false)
-    toast.success('Horários atualizados com sucesso!')
+  const handleSaveHours = async (newHours: HealthUnit['operatingHours'], newWaitTime: string) => {
+    const ubsId = ubs?.id
+    if (!ubsId) {
+      toast.error('Erro: Dados da UBS não carregados.')
+      return
+    }
+
+    try {
+      // 1. ESPERE a API salvar os dois dados
+      await updateHealthUnits(ubsId, {
+        operatingHours: newHours,
+      })
+
+      // 2. Se a API deu certo, ATUALIZE O ESTADO local
+      setUbs((prev) =>
+        prev
+          ? {
+              ...prev,
+              operatingHours: newHours,
+              averageWaitTime: newWaitTime,
+            }
+          : null,
+      )
+
+      // 3. Avise o usuário e FECHE O MODAL
+      toast.success('Horário atualizado com sucesso!')
+      setIsHoursModalOpen(false) // <--- Fecha o modal
+    } catch (error) {
+      // 4. Se a API falhou, avise o usuário
+      console.error('Falha ao salvar horários:', error)
+      toast.error('Não foi possível salvar. Tente novamente.')
+      // Importante: NÃO feche o modal aqui, deixe o usuário tentar de novo
+    }
   }
 
-  const handleAddVaccine = (newVaccineName: string) => {
-    if (!ubs) return
+  const handleAddVaccine = async (newVaccineName: string) => {
+    const ubsId = ubs?.id
+    if (!ubsId) {
+      toast.error('Erro: Dados da UBS não carregados.')
+      return
+    }
 
-    if (newVaccineName && !ubs.availableVaccines.includes(newVaccineName)) {
+    try {
+      await updateHealthUnits(ubsId, {
+        ...ubs,
+        availableVaccines: [...ubs.availableVaccines, newVaccineName],
+      })
+
       setUbs((prev) =>
         prev
           ? {
@@ -141,28 +184,38 @@ export default function DetailUbs({ params }: DetailUbsProps) {
             }
           : null,
       )
-      toast.success(`${newVaccineName} foi adicionada.`)
+      toast.success(`${newVaccineName} foi adicionada com sucesso.`)
+      setIsVaccineModalOpen(false)
+    } catch (error) {
+      console.error('Erro ao adicionar vacina:', error)
+      toast.error('Falha ao adicionar vacina. Tente novamente.')
     }
-    setIsVaccineModalOpen(false)
   }
 
-  const handleRemoveRequest = (vaccineName: string) => {
-    setDeleteAlert({ isOpen: true, vaccineName: vaccineName })
-  }
+  const handleRemoveVaccine = (vaccineName: string) => {
+    const ubsId = ubs?.id || ''
+    if (!ubsId && !vaccineName) {
+      toast.error('Erro: Dados da Vacina não carregados.')
+      return
+    }
 
-  const handleRemoveVaccine = () => {
-    if (!ubs) return
-    const vaccineToRemove = deleteAlert.vaccineName
-    if (!vaccineToRemove) return
+    updateHealthUnits(ubsId, {
+      ...ubs,
+      availableVaccines: ubs.availableVaccines.filter((v) => v !== vaccineName),
+    }).catch((error) => {
+      console.error('Erro ao remover vacina:', error)
+      toast.error('Falha ao remover vacina. Tente novamente.')
+    })
+
     setUbs((prev) =>
       prev
         ? {
             ...prev,
-            availableVaccines: prev.availableVaccines.filter((v) => v !== vaccineToRemove),
+            availableVaccines: prev.availableVaccines.filter((v) => v !== vaccineName),
           }
         : null,
     )
-    toast.error(`${vaccineToRemove} foi removida da lista.`)
+    toast.success(`${vaccineName} foi removida da lista.`)
     setDeleteAlert({ isOpen: false, vaccineName: null })
   }
 
@@ -298,7 +351,9 @@ export default function DetailUbs({ params }: DetailUbsProps) {
             <Syringe className="mt-1 h-5 w-5 flex-shrink-0" />
             <span className="text-base font-semibold">{vaccine}</span>
             <button
-              onClick={() => handleRemoveRequest(vaccine)}
+              onClick={() => {
+                setDeleteAlert({ isOpen: true, vaccineName: vaccine })
+              }}
               className="p-0 text-white/70 transition-colors hover:text-white"
               aria-label={`Remover ${vaccine}`}
             >
@@ -322,7 +377,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         isOpen={isVaccineModalOpen}
         setIsOpen={setIsVaccineModalOpen}
         onAdd={handleAddVaccine}
-        existingVaccines={availableVaccines}
+        existingVaccines={existingVaccines || []}
       />
 
       <AlertDialog
@@ -342,7 +397,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleRemoveVaccine}
+              onClick={() => handleRemoveVaccine(deleteAlert.vaccineName || '')}
               className="bg-red-600 hover:bg-red-700"
             >
               Sim, excluir
