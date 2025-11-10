@@ -191,3 +191,18 @@ export const commonSchemas = {
   check: checkbox,
   acceptTerms: z.boolean().refine((val) => val === true, 'Você deve aceitar os termos'),
 }
+
+/**
+ * Schema para Feedback/Avaliação de UBS
+ */
+export const feedbackSchema = z.object({
+  healthUnitId: z.string().min(1, 'ID da UBS é obrigatório'),
+  rating: z.number().min(1, 'Selecione pelo menos 1 estrela').max(5, 'Máximo 5 estrelas'),
+  vaccineSuccess: z.string().min(1, 'Campo obrigatório'),
+  waitTime: z.string().min(1, 'Campo obrigatório'),
+  respectfulService: z.string().min(1, 'Campo obrigatório'),
+  cleanLocation: z.string().min(1, 'Campo obrigatório'),
+  recommendation: z.string().min(1, 'Campo obrigatório'),
+})
+
+export type FeedbackFormData = z.infer<typeof feedbackSchema>
