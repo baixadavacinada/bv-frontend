@@ -17,12 +17,12 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { BvTitleHeader } from '@/components'
+import { BvTitleHeader, RoleGuard } from '@/components'
 import { feedbackSchema, FeedbackFormData } from '@/schemas'
 import { submitFeedback } from '@/services/actions/feedback-actions'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
-export default function AvaliarUBSPage() {
+function AvaliarUBSContent() {
   useAccessibilityValidation({ enabled: true })
 
   const params = useParams()
@@ -253,5 +253,13 @@ export default function AvaliarUBSPage() {
         </form>
       </Form>
     </div>
+  )
+}
+
+export default function AvaliarUBSPage() {
+  return (
+    <RoleGuard requireAuth={true}>
+      <AvaliarUBSContent />
+    </RoleGuard>
   )
 }
