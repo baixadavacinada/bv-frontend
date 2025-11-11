@@ -4,7 +4,7 @@ import { CreateHealthUnits } from '@/types/health-units'
 import { apiClient } from '../api'
 
 export const listHealthUnits = async () => {
-  const endpoint = '/public/health-units?isActive=true'
+  const endpoint = '/api/public/health-units?isActive=true'
 
   try {
     const data = await apiClient.get(endpoint)
@@ -17,7 +17,7 @@ export const listHealthUnits = async () => {
 }
 
 export const createHealtUnits = async (data: CreateHealthUnits) => {
-  const endpoint = '/admin/health-units'
+  const endpoint = '/api/admin/health-units'
 
   try {
     const result = await apiClient.post(endpoint, data)
@@ -30,7 +30,7 @@ export const createHealtUnits = async (data: CreateHealthUnits) => {
 }
 
 export const updateHealthUnits = async (id: string | number, data: CreateHealthUnits) => {
-  const endpoint = `admin/health-units/${id}`
+  const endpoint = `/api/admin/health-units/${id}`
 
   try {
     const result = await apiClient.put(endpoint, data)
@@ -42,7 +42,7 @@ export const updateHealthUnits = async (id: string | number, data: CreateHealthU
 }
 
 export const deleteHealthUnits = async (id: string) => {
-  const endpoint = `admin/health-units/{id}`.replace('{id}', id)
+  const endpoint = `/api/admin/health-units/{id}`.replace('{id}', id)
 
   try {
     const result = await apiClient.delete(endpoint)
@@ -54,7 +54,7 @@ export const deleteHealthUnits = async (id: string) => {
 }
 
 export const toggleFavoriteHealthUnit = async (id: string | number, isFavorite: boolean) => {
-  const endpoint = `admin/health-units/${id}/favorite`
+  const endpoint = `/api/admin/health-units/${id}/favorite`
 
   try {
     const result = await apiClient.patch(endpoint, { isFavorite })
@@ -66,7 +66,7 @@ export const toggleFavoriteHealthUnit = async (id: string | number, isFavorite: 
 }
 
 export const getHealthUnitById = async (id: string | number) => {
-  const endpoint = `public/health-units/${id}`
+  const endpoint = `/api/public/health-units/${id}`
 
   try {
     const result = await apiClient.get(endpoint)
@@ -78,7 +78,7 @@ export const getHealthUnitById = async (id: string | number) => {
 }
 
 export const getVaccines = async () => {
-  const endpoint = 'admin/vaccines'
+  const endpoint = '/api/admin/vaccines'
 
   try {
     const result = await apiClient.get(endpoint)

@@ -173,7 +173,6 @@ export const commonSchemas = {
   phone,
   optionalPhone,
   cpf,
-  optionalPhone,
   optionalCPF,
 
   // Segurança
