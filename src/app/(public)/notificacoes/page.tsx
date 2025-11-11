@@ -6,7 +6,7 @@ import { useState, useMemo } from 'react'
 import { PlusIcon } from 'lucide-react'
 import * as z from 'zod'
 
-import { BvButton, BvTitleHeader } from '@/components'
+import { BvButton, BvTitleHeader, RoleGuard } from '@/components'
 import { BvNotificationToggle } from '@/components/design/BvNotificationToggle'
 import { TitleSection } from '@/components/sections/TitleSection'
 import SecondDoseModal from '@/components/common/SecondDoseModal'
@@ -56,7 +56,7 @@ const ROLE_CONFIGURATIONS: Record<string, RoleConfig> = {
         icon: DataIcon,
         notifications: [
           { key: 'newSecondDoseReminders', label: 'Lembretes da segunda dose' },
-          { key: 'appointment', label: 'Lembretes de agendamentos' },
+          // { key: 'appointment', label: 'Lembretes de agendamentos' },
           { key: 'newVaccineRecords', label: 'Novos registros de vacinação' },
         ],
       },
@@ -207,28 +207,33 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-6xl pb-4">
-        <BvTitleHeader title={roleConfig.title} className="mb-8" />
+    <RoleGuard requireAuth={true}>
+      <div className="min-h-screen">
+        <div className="mx-auto max-w-6xl pb-4">
+          <BvTitleHeader title={roleConfig.title} className="mb-8" />
 
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-            <div className="space-y-8">
-              {roleConfig.sections.map((section, index) => (
-                <NotificationSectionComponent
-                  key={`${section.title}-${index}`}
-                  section={section}
-                  notifications={notifications}
-                  onToggle={toggleNotification}
-                  onAddVaccine={section.hasVaccineSelection ? handleAddVaccine : undefined}
-                />
-              ))}
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <div className="space-y-8">
+                {roleConfig.sections.map((section, index) => (
+                  <NotificationSectionComponent
+                    key={`${section.title}-${index}`}
+                    section={section}
+                    notifications={notifications}
+                    onToggle={toggleNotification}
+                    onAddVaccine={section.hasVaccineSelection ? handleAddVaccine : undefined}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <SecondDoseModal isOpen={showSecondDoseModal} onClose={() => setShowSecondDoseModal(false)} />
-    </div>
+        <SecondDoseModal
+          isOpen={showSecondDoseModal}
+          onClose={() => setShowSecondDoseModal(false)}
+        />
+      </div>
+    </RoleGuard>
   )
 }

@@ -10,7 +10,7 @@ export type ActionType =
   | 'vaccine-management'
 
 export const ROLE_ACTIONS: Record<UserRole, ActionType[]> = {
-  public: ['ubs', 'notifications'],
+  public: ['ubs'],
   agent: ['ubs', 'notifications'],
   admin: ['ubs-management', 'user-management', 'vaccine-management', 'notifications'],
 }

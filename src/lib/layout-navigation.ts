@@ -37,7 +37,7 @@ export const sidebarNavigation: NavigationItem[] = [
     icon: BsBell,
     label: 'Notificações',
     href: '/notificacoes',
-    allowedRoles: ['public', 'agent', 'admin'],
+    allowedRoles: ['agent', 'admin'],
   },
   {
     id: 'gestao-ubs',
