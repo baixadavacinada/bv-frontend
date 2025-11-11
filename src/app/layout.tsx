@@ -36,10 +36,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <LocationProvider>
               <CookieConsentModal />
               <div>{children}</div>
+              <ToasterWithAuth />
             </LocationProvider>
           </AuthProvider>
         </NextIntlClientProvider>
-        <ToasterWithAuth />
       </body>
     </html>
   )
