@@ -7,6 +7,7 @@ import './globals.css'
 import { cn } from '@/lib/utils'
 import { AuthProvider } from '@/hooks/use-firebase-auth'
 import { LocationProvider } from '@/contexts/LocationContext'
+import { CookieConsentModal } from '@/components'
 import { Toaster } from 'sonner'
 
 const barlow = Barlow({
@@ -33,6 +34,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             <LocationProvider>
+              <CookieConsentModal />
               <div>{children}</div>
             </LocationProvider>
           </AuthProvider>

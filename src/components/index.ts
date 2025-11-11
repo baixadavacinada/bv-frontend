@@ -20,3 +20,4 @@ export * from './auth/ResetPasswordForm'
 
 // Export common components
 export * from './common/LocationPermissionModal'
+export * from './common/CookieConsentModal'
