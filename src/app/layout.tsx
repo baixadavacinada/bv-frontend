@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { AuthProvider } from '@/hooks/use-firebase-auth'
 import { LocationProvider } from '@/contexts/LocationContext'
 import { CookieConsentModal } from '@/components'
-import { Toaster } from 'sonner'
+import { ToasterWithAuth } from '@/components/common/ToasterWithAuth'
 
 const barlow = Barlow({
   subsets: ['latin'],
@@ -39,7 +39,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </LocationProvider>
           </AuthProvider>
         </NextIntlClientProvider>
-        <Toaster />
+        <ToasterWithAuth />
       </body>
     </html>
   )
