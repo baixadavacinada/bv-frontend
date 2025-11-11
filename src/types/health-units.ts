@@ -58,3 +58,10 @@ export type CreateHealthUnits = {
   availableVaccines?: string[]
   isActive?: boolean
 }
+
+export type Survey = {
+  healthUnitId: string
+  comment: string
+  rating: number
+  isAnonymous: boolean
+}

@@ -18,6 +18,8 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { BvTitleHeader } from '@/components'
+import { toast } from 'sonner'
+import { submitSurvey } from '@/services/actions/ubs-actions'
 
 const formSchema = z.object({
   vaccineSuccess: z.string().min(1, 'Campo obrigatório'),
@@ -49,15 +51,21 @@ export default function OrderDetailsPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
+    const surveyData = {
+      healthUnitId: id,
+      comment: `${values.vaccineSuccess} - ${values.waitTime} - ${values.respectfulService} - ${values.cleanLocation} - ${values.recommendation}`,
+      rating: values.rating,
+      isAnonymous: false,
+    }
     try {
-      // const result = await submitSurvey(values)
-      // if (result.success) {
-      //  alert('Sucesso! ' + result.message)
-      alert('Sucesso! ')
+      await submitSurvey(surveyData)
+
+      toast.success('Avaliação enviada com sucesso! ')
+
       form.reset()
     } catch (error) {
       console.error(error)
-      alert('Erro ao enviar avaliação.')
+      toast.error('Erro ao enviar avaliação.')
     } finally {
       setIsSubmitting(false)
     }
@@ -67,7 +75,7 @@ export default function OrderDetailsPage() {
     <div className="mx-auto max-w-4xl rounded-lg p-6">
       <BvTitleHeader title={'Avaliação da UBS'} className="mb-6" />
 
-      <h2 className="mb-6 text-xl font-bold">UBS {name.replace(/-/g, ' ').replace(/ubs/g, '')}</h2>
+      {/* <h2 className="mb-6 text-xl font-bold">UBS {name.replace(/-/g, ' ').replace(/ubs/g, '')}</h2> */}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

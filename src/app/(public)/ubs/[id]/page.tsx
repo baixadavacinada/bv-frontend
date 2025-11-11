@@ -103,9 +103,9 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     }
   }
 
-  // const handleEvaluate = () => {
-  //   route.push(`../ubs/avaliar/${ubs.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
-  // }
+  const handleEvaluate = () => {
+    route.push(`../ubs/avaliar/${ubs.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
+  }
 
   return (
     <div>
@@ -123,7 +123,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         <Button variant="transparent" size="icon" onClick={handleShare} aria-label="Compartilhar">
           <Share2 className="h-5 w-5" />
         </Button>
-        {/* <Button onClick={handleEvaluate}>Avaliar</Button> */}
+        <Button onClick={handleEvaluate}>Avaliar</Button>
       </div>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -173,13 +173,13 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         className="mt-12 mb-6"
       />
       <div className="grid grid-cols-1 gap-4 rounded-lg bg-gray-50 p-6 md:grid-cols-3">
-        <p>Segunda: {operatingHours.monday}</p>
-        <p>Terça: {operatingHours.tuesday}</p>
-        <p>Quarta: {operatingHours.wednesday}</p>
-        <p>Quinta: {operatingHours.thursday}</p>
-        <p>Sexta: {operatingHours.friday}</p>
-        <p>Sábado: {operatingHours.saturday}</p>
-        <p>Domingo: {operatingHours.sunday}</p>
+        <p>Segunda: {operatingHours.monday == '-' ? 'Fechado' : operatingHours.monday}</p>
+        <p>Terça: {operatingHours.tuesday == '-' ? 'Fechado' : operatingHours.tuesday}</p>
+        <p>Quarta: {operatingHours.wednesday == '-' ? 'Fechado' : operatingHours.wednesday}</p>
+        <p>Quinta: {operatingHours.thursday == '-' ? 'Fechado' : operatingHours.thursday}</p>
+        <p>Sexta: {operatingHours.friday == '-' ? 'Fechado' : operatingHours.friday}</p>
+        <p>Sábado: {operatingHours.saturday == '-' ? 'Fechado' : operatingHours.saturday}</p>
+        <p>Domingo: {operatingHours.sunday == '-' ? 'Fechado' : operatingHours.sunday}</p>
       </div>
 
       <BvTitleIco

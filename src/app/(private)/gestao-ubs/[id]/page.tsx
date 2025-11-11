@@ -236,26 +236,26 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     )
   }
 
-  const handleEvaluate = () => {
-    route.push(`../gestao-ubs/avaliar/${ubs.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
-  }
+  // const handleEvaluate = () => {
+  //   route.push(`../gestao-ubs/avaliar/${ubs.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
+  // }
 
   return (
     <div>
       <BvTitleHeader title={`SOBRE: ${name}`} className="mb-6" />
       <div className="mb-8 flex justify-end gap-2">
-        <Button
+        {/* <Button
           variant="transparent"
           size="icon"
           onClick={handleFavoriteToggle}
           aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
         >
           <Heart className={cn('h-5 w-5', isFavorite && 'fill-red-500 text-red-500')} />
-        </Button>
+        </Button> */}
         <Button variant="transparent" size="icon" onClick={handleShare} aria-label="Compartilhar">
           <Share2 className="h-5 w-5" />
         </Button>
-        <Button onClick={handleEvaluate}>Avaliar</Button>
+        {/* <Button onClick={handleEvaluate}>Avaliar</Button> */}
       </div>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -297,6 +297,22 @@ export default function DetailUbs({ params }: DetailUbsProps) {
           ></iframe>
         </div>
       </div>
+
+      <BvTitleIco
+        alt="Icone de Calendario"
+        ico={CaledarIco}
+        title="Horário de funcionamento:"
+        className="mt-12 mb-6"
+      />
+      <div className="grid grid-cols-1 gap-4 rounded-lg bg-gray-50 p-6 md:grid-cols-3">
+        <p>Segunda: {operatingHours.monday == '-' ? 'Fechado' : operatingHours.monday}</p>
+        <p>Terça: {operatingHours.tuesday == '-' ? 'Fechado' : operatingHours.tuesday}</p>
+        <p>Quarta: {operatingHours.wednesday == '-' ? 'Fechado' : operatingHours.wednesday}</p>
+        <p>Quinta: {operatingHours.thursday == '-' ? 'Fechado' : operatingHours.thursday}</p>
+        <p>Sexta: {operatingHours.friday == '-' ? 'Fechado' : operatingHours.friday}</p>
+        <p>Sábado: {operatingHours.saturday == '-' ? 'Fechado' : operatingHours.saturday}</p>
+        <p>Domingo: {operatingHours.sunday == '-' ? 'Fechado' : operatingHours.sunday}</p>
+      </div>
       <div className="mt-8 mb-8 flex w-full items-center justify-between">
         <Button
           className="w-full"
@@ -309,33 +325,6 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         </Button>
       </div>
 
-      <BvTitleIco
-        alt="Icone de Calendario"
-        ico={CaledarIco}
-        title="Horário de funcionamento:"
-        className="mt-12 mb-6"
-      />
-      <div className="grid grid-cols-1 gap-4 rounded-lg bg-gray-50 p-6 md:grid-cols-3">
-        <p>Segunda: {operatingHours.monday}</p>
-        <p>Terça: {operatingHours.tuesday}</p>
-        <p>Quarta: {operatingHours.wednesday}</p>
-        <p>Quinta: {operatingHours.thursday}</p>
-        <p>Sexta: {operatingHours.friday}</p>
-        <p>Sábado: {operatingHours.saturday}</p>
-        <p>Domingo: {operatingHours.sunday}</p>
-      </div>
-
-      <div className="mt-8 mb-8 flex w-full items-center justify-between">
-        <Button
-          className="w-full"
-          variant="default"
-          size="sm"
-          onClick={() => setIsVaccineModalOpen(true)}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Adicionar vacina
-        </Button>
-      </div>
       <BvTitleIco
         alt="Icone de Seringa"
         ico={SyringeIco}
@@ -361,6 +350,17 @@ export default function DetailUbs({ params }: DetailUbsProps) {
             </button>
           </div>
         ))}
+      </div>
+      <div className="mt-8 mb-8 flex w-full items-center justify-between">
+        <Button
+          className="w-full"
+          variant="default"
+          size="sm"
+          onClick={() => setIsVaccineModalOpen(true)}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Adicionar vacina
+        </Button>
       </div>
       <div className="mt-6 text-center">
         <p>Confira a cartilha de vacinas para saber quais vacinas são indicadas para cada idade.</p>

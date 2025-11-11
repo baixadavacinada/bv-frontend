@@ -82,14 +82,14 @@ export function BvUbsCard({
           </Button>
           {component === 'private' ? (
             <>
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="icon"
                 onClick={(e) => handleIconClick(e, onFavoriteToggle)}
                 aria-label={isFavorite ? 'Desfavoritar' : 'Favoritar'}
               >
                 <Heart className={cn('h-5 w-5', isFavorite && 'fill-red-500 text-red-500')} />
-              </Button>
+              </Button> */}
               <Button
                 variant="ghost"
                 size="icon"

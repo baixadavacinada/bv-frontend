@@ -1,5 +1,5 @@
 'use client'
-import { BvTitleHeader } from '@/components'
+import { BvTitleHeader, RoleGuard } from '@/components'
 import { UbsForm } from '@/components/design/BvUbsFrom' // Ajuste o caminho para seu UbsForm
 import { useHealthUnits } from '@/hooks/use-health-units'
 import { HealthUnit } from '@/types/health-units'
@@ -33,11 +33,13 @@ export default function UbsPage() {
     initialData = result
   }
   return (
-    <Suspense fallback={<div>Carregando...</div>}>
-      <div className="container mx-auto p-8">
-        <BvTitleHeader title={title} className="mb-8" />
-        <UbsForm initialData={initialData} slug={id} />
-      </div>
-    </Suspense>
+    <RoleGuard allowedRoles={['admin', 'agent']} requireAuth>
+      <Suspense fallback={<div>Carregando...</div>}>
+        <div className="container mx-auto p-8">
+          <BvTitleHeader title={title} className="mb-8" />
+          <UbsForm initialData={initialData} slug={id} />
+        </div>
+      </Suspense>
+    </RoleGuard>
   )
 }

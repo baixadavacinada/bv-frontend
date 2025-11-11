@@ -1,6 +1,6 @@
 'use server'
 
-import { CreateHealthUnits } from '@/types/health-units'
+import { CreateHealthUnits, Survey } from '@/types/health-units'
 import { apiClient } from '../api'
 
 export const listHealthUnits = async () => {
@@ -85,6 +85,17 @@ export const getVaccines = async () => {
     return result
   } catch (error) {
     console.error('Falha ao obter vacinas:', error)
+    throw error
+  }
+}
+
+export const submitSurvey = async (data: Survey) => {
+  const endpoint = '/api/public/feedback'
+  try {
+    const result = await apiClient.post(endpoint, data)
+    return result
+  } catch (error) {
+    console.error('Falha ao enviar pesquisa:', error)
     throw error
   }
 }
