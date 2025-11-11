@@ -5,7 +5,6 @@ import { useParams, useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Send, Star } from 'lucide-react'
-import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -17,15 +16,13 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-
 import { BvTitleHeader, RoleGuard } from '@/components'
-import { feedbackSchema, FeedbackFormData } from '@/schemas'
-import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { toast } from 'sonner'
 import { submitSurvey } from '@/services/actions/ubs-actions'
-import { submitFeedback } from '@/services/actions/feedback-actions'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { FeedbackFormData, feedbackSchema } from '@/schemas'
 
-
-export default function AvaliarUBSPage() {
+export function AvaliarUBSContent() {
   useAccessibilityValidation({ enabled: true })
 
   const params = useParams()
@@ -256,4 +253,8 @@ export default function AvaliarUBSPage() {
       </Form>
     </div>
   )
+}
+
+export default function AvaliarUBSPage() {
+  return <AvaliarUBSContent />
 }
