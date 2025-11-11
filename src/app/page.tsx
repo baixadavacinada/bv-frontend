@@ -69,13 +69,29 @@ export default function Page() {
       <Card className="w-full max-w-sm rounded-lg border-0 bg-transparent shadow-none sm:max-w-md lg:max-w-4xl lg:bg-transparent lg:shadow-none">
         <div className="lg:grid lg:grid-cols-2 lg:items-center lg:gap-8">
           <div className="p-2 sm:p-6 lg:p-0">
-            <CardHeader className="text-center lg:text-left">
-              <CardTitle className="text-2xl font-bold text-slate-800 md:text-3xl dark:text-slate-100">
-                Bem-vindo(a) à nossa plataforma de vacinação!
-              </CardTitle>
+            <CardHeader className="space-y-4 text-center lg:text-left">
+              <div className="space-y-2">
+                <Image
+                  src="/criola-logo.png"
+                  alt="Logo Criola"
+                  width={60}
+                  height={40}
+                  className="mx-auto lg:mx-0"
+                  style={{
+                    width: 'auto',
+                    height: 'auto',
+                  }}
+                />
+                <CardTitle className="text-3xl font-bold text-slate-900 md:text-4xl dark:text-slate-100">
+                  Baixada Vacinada
+                </CardTitle>
+                <CardDescription className="text-lg font-semibold text-slate-900 lg:text-xl">
+                  Bem-vindo(a) à nossa plataforma de vacinação!
+                </CardDescription>
+              </div>
             </CardHeader>
 
-            <CardContent className="flex flex-col items-center justify-center space-y-6 lg:items-start">
+            <CardContent className="flex flex-col items-center justify-center space-y-6 pt-8 lg:items-start">
               <Image
                 src={DoctorIllustration}
                 alt="Ilustração de um profissional da saúde segurando uma seringa"
@@ -85,18 +101,20 @@ export default function Page() {
                 priority
                 style={{ width: 'auto', height: 'auto' }}
               />
-              <CardDescription className="text-md text-center text-slate-600 lg:text-left dark:text-slate-400">
-                Aqui você pode localizar a unidade de saúde mais próxima, consultar vacinas
-                disponíveis e acompanhar sua caderneta.
-              </CardDescription>
+
+              <div className="space-y-4">
+                <CardDescription className="text-base text-slate-700 lg:text-base">
+                  Aqui você pode localizar a unidade de saúde mais próxima, consultar vacinas
+                  disponíveis e acompanhar sua caderneta.
+                </CardDescription>
+                <p className="text-base text-slate-800">Como deseja acessar?</p>
+              </div>
             </CardContent>
 
-            <CardFooter className="flex flex-col items-center justify-center space-y-4 pt-6 lg:items-start">
+            <CardFooter className="flex flex-col items-center justify-center space-y-6 pt-8 lg:items-start">
               {error && (
                 <div className="w-full text-center text-sm text-red-600 lg:text-left">{error}</div>
               )}
-
-              <p className="text-sm text-slate-500 dark:text-slate-400">Como deseja acessar?</p>
 
               <div className="flex w-full flex-col space-y-6 sm:max-w-sm">
                 <BvButton
@@ -110,7 +128,7 @@ export default function Page() {
                 <BvButton
                   variant="default"
                   title={isLoading ? 'Entrando...' : 'Entrar com o Google'}
-                  className="flex w-full items-center justify-center gap-2 bg-white text-slate-700 shadow-sm hover:bg-gray-50"
+                  className="text-primary flex w-full items-center justify-center gap-2 bg-white shadow-sm hover:bg-gray-50"
                   onClick={handleGoogleLogin}
                   disabled={isLoading}
                   rightIcon={
@@ -137,7 +155,7 @@ export default function Page() {
 
                 <BvButton
                   variant="default"
-                  className="w-full bg-white text-slate-700 shadow-sm hover:bg-gray-50"
+                  className="text-primary w-full bg-white shadow-sm hover:bg-gray-50"
                   onClick={handleOtherForms}
                   disabled={isLoading}
                   title="Outras formas"
