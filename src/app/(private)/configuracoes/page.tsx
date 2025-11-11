@@ -19,7 +19,7 @@ export default function SettingsScreen() {
   const [isLoading, setIsLoading] = useState(false)
   const firebaseAuth = getAuth()
 
-  const schema = useMemo(() => getPersonalDataSchema(), [])
+  const schema = useMemo(() => getPersonalDataSchema(user?.role || 'public'), [user?.role])
 
   const {
     register,
