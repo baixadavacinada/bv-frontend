@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Barlow } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
-// @ts-expect-error - CSS import
 import './globals.css'
 import { cn } from '@/lib/utils'
 import { AuthProvider } from '@/hooks/use-firebase-auth'
