@@ -21,6 +21,7 @@ import { BvTitleHeader } from '@/components'
 import { feedbackSchema, FeedbackFormData } from '@/schemas'
 import { submitFeedback } from '@/services/actions/feedback-actions'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { submitSurvey } from '@/services/actions/ubs-actions'
 
 export default function AvaliarUBSPage() {
   useAccessibilityValidation({ enabled: true })
@@ -67,17 +68,13 @@ export default function AvaliarUBSPage() {
     }
   }
 
-  const cleanName = name.replace(/-/g, ' ').replace(/ubs/gi, '').trim()
 
   return (
     <div className="mx-auto max-w-4xl rounded-lg p-6">
       <BvTitleHeader title="Avaliação da UBS" className="mb-6" />
 
-<<<<<<< HEAD:src/app/(public)/ubs/avaliar/[id]/[name]/page.tsx
+
       {/* <h2 className="mb-6 text-xl font-bold">UBS {name.replace(/-/g, ' ').replace(/ubs/g, '')}</h2> */}
-=======
-      <h2 className="mb-6 text-xl font-bold">UBS {cleanName}</h2>
->>>>>>> 13671bd (feat: integrate feedback/evaluation API with UBS rating page):src/app/(private)/gestao-ubs/avaliar/[id]/[name]/page.tsx
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
