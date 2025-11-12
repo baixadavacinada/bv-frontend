@@ -20,7 +20,7 @@ export default function UbsPage() {
   if (!data) {
     return <div>Falha ao carregar os dados.</div>
   }
-  console.log(data)
+
   if (isNew) {
     title = 'Adicionar UBS'
   } else {

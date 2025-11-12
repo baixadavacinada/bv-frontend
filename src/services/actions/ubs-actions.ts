@@ -4,11 +4,8 @@ import { CreateHealthUnits } from '@/types/health-units'
 import { apiClient } from '../api'
 
 export const listHealthUnits = async () => {
-  const endpoint = '/api/public/health-units?isActive=true'
-
   try {
-    const data = await apiClient.get(endpoint)
-    console.log(data)
+    const data = await apiClient.get('/api/public/health-units?isActive=true')
     return data
   } catch (error) {
     console.error('Falha ao buscar unidades de saúde:', error)
