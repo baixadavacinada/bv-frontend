@@ -263,7 +263,7 @@ export default function UbsScreen() {
         </CollapsibleFilter>
       </div>
       <div className="mb-8 flex justify-end">
-        <Button className="w-full" onClick={() => router.push('gestao-ubs/form-ubs/novo')}>
+        <Button className="w-full" onClick={() => router.push('gestao-ubs/adicionar')}>
           <Plus className="mr-2 h-4 w-4" />
           Adicionar Nova UBS
         </Button>
