@@ -55,7 +55,14 @@ export function Navbar() {
       className="bg-primary text-primary-foreground sticky top-0 z-50 flex h-16 items-center justify-between px-4"
       aria-label="Navegação superior"
     >
-      <div className="flex items-center gap-4">
+      <button
+        onClick={() => {
+          announceToScreenReader('Navegando para a página inicial', 'polite')
+          router.push('/inicio')
+        }}
+        className="flex cursor-pointer items-center gap-4 rounded px-2 py-1 transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
+        aria-label="Ir para a página inicial - Baixada Vacinada"
+      >
         <Image
           src="/logo.png"
           alt="Logo Criola"
@@ -66,7 +73,7 @@ export function Navbar() {
           priority
         />
         <div className="hidden text-lg font-semibold md:block">Baixada Vacinada</div>
-      </div>
+      </button>
 
       <div className="flex items-center gap-1" role="group" aria-label="Ações rápidas">
         {allowedNavigationItems.map((action) => (

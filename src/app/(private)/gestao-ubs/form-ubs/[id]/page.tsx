@@ -5,6 +5,7 @@ import { useHealthUnits } from '@/hooks/use-health-units'
 import { HealthUnit } from '@/types/health-units'
 import { notFound, useParams } from 'next/navigation'
 import { Suspense } from 'react'
+import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 
 export default function UbsPage() {
   const params = useParams()
@@ -15,7 +16,15 @@ export default function UbsPage() {
   let title = ''
 
   if (isLoading) {
-    return <div>Carregando...</div>
+    return (
+      <SkeletonLoader
+        count={3}
+        variant="line"
+        height="h-10"
+        width="w-full"
+        ariaLabel="Carregando formulário de UBS"
+      />
+    )
   }
   if (!data) {
     return <div>Falha ao carregar os dados.</div>
@@ -33,7 +42,7 @@ export default function UbsPage() {
     initialData = result
   }
   return (
-    <Suspense fallback={<div>Carregando...</div>}>
+    <Suspense fallback={null}>
       <div className="container mx-auto p-8">
         <BvTitleHeader title={title} className="mb-8" />
         <UbsForm initialData={initialData} slug={id} />

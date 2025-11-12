@@ -30,7 +30,7 @@ export const sidebarNavigation: NavigationItem[] = [
     icon: BsGeoAlt,
     label: 'UBS',
     href: '/ubs',
-    allowedRoles: ['public', 'agent'],
+    allowedRoles: ['public', 'agent', 'admin'],
   },
   {
     id: 'notifications',

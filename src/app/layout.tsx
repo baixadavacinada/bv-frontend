@@ -6,7 +6,7 @@ import './globals.css'
 import { cn } from '@/lib/utils'
 import { AuthProvider } from '@/hooks/use-firebase-auth'
 import { LocationProvider } from '@/contexts/LocationContext'
-import { CookieConsentModal } from '@/components'
+import { LazyCookieConsentModal } from '@/components'
 import { ToasterWithAuth } from '@/components/common/ToasterWithAuth'
 
 const barlow = Barlow({
@@ -19,6 +19,9 @@ const barlow = Barlow({
 export const metadata: Metadata = {
   title: 'Baixada Vacinada',
   description: 'Plataforma de informações sobre vacinação',
+  icons: {
+    icon: '/criola-logo.png',
+  },
   other: {
     'Content-Language': 'pt-BR',
   },
@@ -33,7 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             <LocationProvider>
-              <CookieConsentModal />
+              <LazyCookieConsentModal />
               <div>{children}</div>
               <ToasterWithAuth />
             </LocationProvider>

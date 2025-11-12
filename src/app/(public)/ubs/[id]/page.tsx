@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { notFound, useRouter } from 'next/navigation'
 import { useHealthUnits } from '@/hooks/use-health-units' // Importar o hook e o tipo
 import { HealthUnit } from '@/types/health-units'
+import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 
 interface DetailUbsProps {
   params: Promise<{ id: string }>
@@ -66,7 +67,15 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   }, [ubsDataFromApi])
 
   if (isLoading) {
-    return <div>Carregando...</div>
+    return (
+      <SkeletonLoader
+        count={1}
+        variant="card"
+        height="h-64"
+        width="w-full"
+        ariaLabel="Carregando detalhes da unidade de saúde"
+      />
+    )
   }
 
   if (error) {
@@ -78,7 +87,15 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   }
 
   if (!ubs) {
-    return <div>Carregando...</div>
+    return (
+      <SkeletonLoader
+        count={1}
+        variant="card"
+        height="h-64"
+        width="w-full"
+        ariaLabel="Carregando dados da unidade de saúde"
+      />
+    )
   }
 
   const { name, neighborhood, address, phone, operatingHours, averageWaitTime, availableVaccines } =

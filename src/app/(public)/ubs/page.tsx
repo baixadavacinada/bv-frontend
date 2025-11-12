@@ -10,6 +10,7 @@ import { useHealthUnits } from '@/hooks/use-health-units'
 import { useLocationContext } from '@/contexts/LocationContext'
 import { sortByDistance } from '@/utils/geolocation'
 import { HealthUnit } from '@/types/health-units'
+import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 
 type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle' | 'onDelete'>
 
@@ -114,7 +115,9 @@ export default function UbsScreen() {
   }, [ubsList, filters, userCoords])
 
   if (isLoading) {
-    return <div>Carregando...</div>
+    return (
+      <SkeletonLoader count={5} variant="card" ariaLabel="Carregando unidades básicas de saúde" />
+    )
   }
 
   if (error) {
