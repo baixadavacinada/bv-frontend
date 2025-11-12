@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -9,46 +9,47 @@ import { BvButton, BvTitleHeader } from '@/components'
 import { BvFormInput } from '@/components/design/BvFormInput'
 import BvSelect from '@/components/design/BvSelect'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { useVaccineManagement } from '@/services/vaccine-management'
 import { toast } from 'sonner'
 
 const vaccineSchema = z.object({
   name: z.string().min(1, 'Nome da vacina é obrigatório'),
-  dosage: z.string().min(1, 'Tipo de dose é obrigatório'),
-  description: z.string().optional(),
+  manufacturer: z.string().min(1, 'Fabricante é obrigatório'),
   ageGroup: z.string().min(1, 'Faixa etária é obrigatória'),
-  interval: z.string().optional(),
+  doses: z.string().min(1, 'Doses são obrigatórias'),
+  batchNumber: z.string().optional(),
+  description: z.string().min(1, 'Descrição é obrigatória'),
 })
 
 type VaccineFormData = z.infer<typeof vaccineSchema>
 
-interface Vaccine extends VaccineFormData {
-  id: string
-}
-
 const dosageOptions = [
-  { value: 'dose-unica', label: 'Dose única' },
-  { value: 'primeira-dose', label: 'Primeira dose' },
-  { value: 'segunda-dose', label: 'Segunda dose' },
-  { value: 'dose-reforco', label: 'Dose de reforço' },
+  { value: '1ª dose', label: '1ª dose' },
+  { value: '2ª dose', label: '2ª dose' },
+  { value: '3ª dose', label: '3ª dose' },
+  { value: 'Reforço', label: 'Reforço' },
 ]
 
 const ageGroupOptions = [
-  { value: 'recem-nascido', label: 'Recém-nascido (0-28 dias)' },
-  { value: 'lactente', label: 'Lactente (29 dias - 2 anos)' },
-  { value: 'crianca', label: 'Criança (2-12 anos)' },
-  { value: 'adolescente', label: 'Adolescente (12-18 anos)' },
-  { value: 'adulto', label: 'Adulto (18-60 anos)' },
-  { value: 'idoso', label: 'Idoso (60+ anos)' },
-  { value: 'todas-idades', label: 'Todas as idades' },
+  { value: '0-28', label: 'Recém-nascido (0-28 dias)' },
+  { value: '29-24', label: 'Lactente (29 dias - 2 anos)' },
+  { value: '2-12', label: 'Criança (2-12 anos)' },
+  { value: '12-18', label: 'Adolescente (12-18 anos)' },
+  { value: '18-60', label: 'Adulto (18-60 anos)' },
+  { value: '60+', label: 'Idoso (60+ anos)' },
+  { value: 'Todas as idades', label: 'Todas as idades' },
 ]
 
 export function VaccineFormContent() {
   useAccessibilityValidation()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [loading, setLoading] = useState(false)
 
   const vaccineId = searchParams.get('id')
   const isEdit = !!vaccineId
+
+  const { createVaccine, updateVaccine, getVaccineById, canManageVaccines } = useVaccineManagement()
 
   const {
     register,
@@ -61,36 +62,73 @@ export function VaccineFormContent() {
     resolver: zodResolver(vaccineSchema),
     defaultValues: {
       name: '',
-      dosage: '',
-      description: '',
+      manufacturer: '',
       ageGroup: '',
-      interval: '',
+      doses: '',
+      batchNumber: '',
+      description: '',
     },
   })
 
+  const loadVaccine = useCallback(async () => {
+    try {
+      setLoading(true)
+      const vaccine = await getVaccineById(vaccineId!)
+      console.log('Dados da vacina carregada:', vaccine)
+      reset({
+        name: vaccine.name,
+        manufacturer: vaccine.manufacturer || '',
+        ageGroup: vaccine.ageGroup || '',
+        doses: vaccine.doses?.join(', ') || '',
+        batchNumber: vaccine.batchNumber || '',
+        description: vaccine.description || '',
+      })
+    } catch (error) {
+      console.error('Erro ao carregar vacina:', error)
+      toast.error('Erro ao carregar dados da vacina')
+    } finally {
+      setLoading(false)
+    }
+  }, [getVaccineById, vaccineId, reset])
+
   useEffect(() => {
     if (isEdit && vaccineId) {
-      const mockVaccine: Vaccine = {
-        id: vaccineId,
-        name: 'Vacina BCG',
-        dosage: 'dose-unica',
-        description: 'Vacina contra tuberculose',
-        ageGroup: 'recem-nascido',
-        interval: '',
-      }
-
-      reset(mockVaccine)
+      loadVaccine()
     }
-  }, [isEdit, vaccineId, reset])
+  }, [isEdit, vaccineId, loadVaccine])
 
   const onSubmit = async (data: VaccineFormData) => {
+    if (!canManageVaccines) {
+      toast.error('Você não tem permissão para realizar esta ação')
+      return
+    }
+
     try {
+      const vaccineData = {
+        name: data.name.trim(),
+        manufacturer: data.manufacturer.trim(),
+        ageGroup: data.ageGroup,
+        doses: data.doses
+          .split(',')
+          .map((item: string) => item.trim())
+          .filter(Boolean),
+        description: data.description?.trim() || '',
+        lote: data.batchNumber?.trim() || '',
+      }
+
+      console.log('Dados do formulário sendo enviados:', JSON.stringify(vaccineData, null, 2))
+
       if (isEdit) {
-        console.log('Atualizando vacina:', { id: vaccineId, ...data })
+        await updateVaccine(vaccineId!, vaccineData)
         toast.success(`Vacina "${data.name}" atualizada com sucesso!`)
+
+        // Dispara evento para atualizar a listagem
+        window.dispatchEvent(new CustomEvent('refreshVaccines'))
       } else {
-        console.log('Criando nova vacina:', data)
+        await createVaccine(vaccineData)
         toast.success(`Vacina "${data.name}" criada com sucesso!`)
+
+        window.dispatchEvent(new CustomEvent('refreshVaccines'))
       }
 
       router.push('/gestao-vacinas')
@@ -106,6 +144,14 @@ export function VaccineFormContent() {
 
   const pageTitle = isEdit ? 'Editar vacina' : 'Adicionar vacina'
   const buttonText = isEdit ? 'Salvar' : 'Adicionar'
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-center text-lg">Carregando...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen">
@@ -136,17 +182,17 @@ export function VaccineFormContent() {
 
               {/* Tipo de dose */}
               <BvSelect
-                title="Tipo de dose"
-                placeholder="Selecione o tipo de dose"
+                title="Dose"
+                placeholder="Selecione a dose"
                 options={dosageOptions}
-                value={watch('dosage')}
-                onValueChange={(value) => setValue('dosage', value as string)}
-                error={errors.dosage?.message}
+                value={watch('doses')}
+                onValueChange={(value) => setValue('doses', value as string)}
+                error={errors.doses?.message}
                 fullWidth
                 showSelectedBadges={false}
               />
 
-              {/* Faixa etária */}
+              {/* Faixa etária recomendada */}
               <BvSelect
                 title="Faixa etária"
                 placeholder="Selecione a faixa etária"
@@ -158,22 +204,26 @@ export function VaccineFormContent() {
                 showSelectedBadges={false}
               />
 
-              {/* Intervalo entre doses (condicional) */}
-              {(watch('dosage') === 'primeira-dose' || watch('dosage') === 'dose-reforco') && (
-                <div className="lg:col-span-2">
-                  <BvFormInput
-                    label="Intervalo para próxima dose"
-                    placeholder="Ex: 30 dias, 6 meses"
-                    error={errors.interval?.message}
-                    {...register('interval')}
-                  />
-                </div>
-              )}
+              {/* Fabricante */}
+              <BvFormInput
+                label="Fabricante"
+                placeholder="Digite o nome do fabricante"
+                error={errors.manufacturer?.message}
+                {...register('manufacturer')}
+              />
+
+              {/* Lote da vacina */}
+              <BvFormInput
+                label="Lote da vacina"
+                placeholder="Digite o número do lote"
+                error={errors.batchNumber?.message}
+                {...register('batchNumber')}
+              />
 
               {/* Descrição */}
               <div className="lg:col-span-2">
                 <BvFormInput
-                  label="Descrição (opcional)"
+                  label="Descrição"
                   placeholder="Digite uma descrição sobre a vacina"
                   error={errors.description?.message}
                   {...register('description')}
