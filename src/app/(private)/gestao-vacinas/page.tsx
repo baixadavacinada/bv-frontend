@@ -5,25 +5,63 @@ import { DeleteConfirmationDialog } from '@/components/common/DeleteConfirmation
 import { ManagementTable } from '@/components/common/ManagementTable'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { useDeleteConfirmation } from '@/hooks/use-delete-confirmation'
-import { PlusIcon } from 'lucide-react'
+import { useVaccineManagement } from '@/services/vaccine-management'
+import { Vaccine } from '@/types/vaccines'
+import { PlusIcon, RefreshCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-
-interface Vaccine {
-  id: string
-  name: string
-  dosage: string
-}
+import { useState, useEffect, useCallback } from 'react'
+import { toast } from 'sonner'
 
 export default function VaccineManagementPage() {
   useAccessibilityValidation()
   const router = useRouter()
-  const [vaccines, setVaccines] = useState<Vaccine[]>([
-    { id: '1', name: 'Nome vacina', dosage: 'Dose única' },
-    { id: '2', name: 'Nome vacina', dosage: 'Dose única' },
-    { id: '3', name: 'Nome vacina', dosage: 'Dose única' },
-    { id: '4', name: 'Nome vacina', dosage: 'Dose única' },
-  ])
+  const [vaccines, setVaccines] = useState<Vaccine[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const { listVaccines, canManageVaccines, deleteVaccine } = useVaccineManagement()
+
+  const loadVaccines = useCallback(async () => {
+    try {
+      setLoading(true)
+      const vaccines = await listVaccines()
+      setVaccines(vaccines)
+    } catch (error) {
+      console.error('Erro ao carregar vacinas:', error)
+      toast.error('Erro ao carregar lista de vacinas')
+    } finally {
+      setLoading(false)
+    }
+  }, [listVaccines])
+
+  useEffect(() => {
+    loadVaccines()
+
+    const handleStorageChange = () => {
+      loadVaccines()
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+
+    const handleRefreshVaccines = () => {
+      loadVaccines()
+    }
+
+    window.addEventListener('refreshVaccines', handleRefreshVaccines)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('refreshVaccines', handleRefreshVaccines)
+    }
+  }, [loadVaccines])
+
+  useEffect(() => {
+    const handleFocus = () => {
+      loadVaccines()
+    }
+
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [loadVaccines])
 
   const { isOpen, itemName, isDeleting, openDeleteDialog, closeDeleteDialog, handleDelete } =
     useDeleteConfirmation({
@@ -32,6 +70,7 @@ export default function VaccineManagementPage() {
         if (!vaccineToDelete) {
           throw new Error('Vacina não encontrada')
         }
+        await deleteVaccine(id)
         setVaccines(vaccines.filter((v) => v.id !== id))
       },
       successMessage: 'Vacina deletada com sucesso',
@@ -44,8 +83,8 @@ export default function VaccineManagementPage() {
       showIcon: true,
     },
     {
-      key: 'dosage',
-      value: vaccine.dosage,
+      key: 'doses',
+      value: vaccine.doses && vaccine.doses.length > 0 ? vaccine.doses.join(', ') : 'Não informado',
       showIcon: false,
     },
   ]
@@ -83,32 +122,43 @@ export default function VaccineManagementPage() {
               vacinas com segundas doses.
             </p>
 
-            <BvButton
-              title="Adicionar vacina"
-              className="mt-8 w-full lg:w-min"
-              onClick={handleAddVaccine}
-              rightIcon={<PlusIcon />}
-            />
+            {canManageVaccines && (
+              <BvButton
+                title="Adicionar vacina"
+                className="mt-8 w-full lg:w-min"
+                onClick={handleAddVaccine}
+                rightIcon={<PlusIcon />}
+              />
+            )}
 
             <p className="mt-8 mb-6 text-xl font-bold">Lista de vacinas</p>
           </div>
 
-          <ManagementTable<Vaccine>
-            data={vaccines}
-            onEdit={handleEdit}
-            onDelete={handleDeleteClick}
-            tableHeader={{
-              left: 'Vacina | Doses',
-              right: 'Ações',
-            }}
-            searchConfig={{
-              enabled: true,
-              placeholder: 'Buscar vacina',
-              searchKeys: ['name', 'dosage'],
-              emptyMessage: 'Nenhuma vacina encontrada na lista',
-            }}
-            getItemFields={getVaccineFields}
-          />
+          {loading ? (
+            <div className="mt-8 flex items-center justify-center py-8">
+              <div className="flex items-center gap-2 text-gray-600">
+                <RefreshCw className="h-5 w-5 animate-spin" />
+                <span>Carregando vacinas...</span>
+              </div>
+            </div>
+          ) : (
+            <ManagementTable<Vaccine>
+              data={vaccines}
+              onEdit={canManageVaccines ? handleEdit : undefined}
+              onDelete={canManageVaccines ? handleDeleteClick : undefined}
+              tableHeader={{
+                left: 'Vacina | Doses',
+                right: canManageVaccines ? 'Ações' : '',
+              }}
+              searchConfig={{
+                enabled: true,
+                placeholder: 'Buscar vacina',
+                searchKeys: ['name', 'manufacturer', 'description'],
+                emptyMessage: 'Nenhuma vacina encontrada na lista',
+              }}
+              getItemFields={getVaccineFields}
+            />
+          )}
         </div>
 
         <DeleteConfirmationDialog
