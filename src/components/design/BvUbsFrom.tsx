@@ -3,10 +3,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { useCEPLookup } from '@/hooks/use-cep-lookup'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -25,8 +26,14 @@ const DEFAULT_LON = '-43.655'
 
 const formSchema = z.object({
   nome: z.string().min(2, 'Nome é obrigatório'),
-  telefone: z.string(),
-  cep: z.string().length(9, 'CEP deve ter 9 dígitos (00000-000)'),
+  telefone: z
+    .string()
+    .max(15, 'Telefone deve ter no máximo 15 caracteres')
+    .regex(/^[\d\s\-\(\)]*$/, 'Telefone deve conter apenas números e caracteres especiais'),
+  cep: z
+    .string()
+    .length(8, 'CEP deve ter 8 dígitos')
+    .regex(/^\d{5}-?\d{3}$/, 'Formato inválido de CEP'),
   logradouro: z.string().min(2, 'Logradouro é obrigatório'),
   numero: z.string().min(1, 'Número é obrigatório'),
   bairro: z.string().min(2, 'Bairro é obrigatório'),
@@ -59,6 +66,8 @@ interface UbsFormProps {
 export function UbsForm({ initialData, slug }: UbsFormProps) {
   const router = useRouter()
   useAccessibilityValidation({ enabled: true })
+  const { lookupCEP, isLoading: cepLoading, error: cepError } = useCEPLookup()
+  const [logradouroPreenchido, setLogradouroPreenchido] = useState(!!initialData?.address)
 
   const formData = initialData
     ? {
@@ -172,7 +181,24 @@ export function UbsForm({ initialData, slug }: UbsFormProps) {
                 <FormItem>
                   <FormLabel>Telefone</FormLabel>
                   <FormControl>
-                    <Input placeholder="Digite aqui o Telefone da UBS" {...field} />
+                    <div>
+                      <Input
+                        placeholder="(11) 99999-9999"
+                        {...field}
+                        maxLength={15}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '')
+                          if (value.length <= 11) {
+                            field.onChange(e)
+                          } else {
+                            e.preventDefault()
+                          }
+                        }}
+                      />
+                      <span className="mt-1 block text-xs text-gray-500">
+                        {field.value?.length || 0}/15 caracteres
+                      </span>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -185,7 +211,39 @@ export function UbsForm({ initialData, slug }: UbsFormProps) {
                 <FormItem>
                   <FormLabel>CEP</FormLabel>
                   <FormControl>
-                    <Input placeholder="00000-000" {...field} />
+                    <div>
+                      <Input
+                        placeholder="00000-000"
+                        {...field}
+                        maxLength={9}
+                        disabled={cepLoading}
+                        onChange={async (e) => {
+                          const value = e.target.value
+                          field.onChange(value)
+
+                          if (value.replace(/\D/g, '').length === 8) {
+                            const address = await lookupCEP(value)
+                            if (address) {
+                              form.setValue('logradouro', address.logradouro)
+                              form.setValue('bairro', address.bairro)
+                              form.setValue('cidade', address.localidade)
+                              form.setValue('estado', address.uf)
+                              setLogradouroPreenchido(true)
+                              toast.success('Endereço carregado com sucesso!')
+                            }
+                          }
+                        }}
+                      />
+                      {cepError && (
+                        <span className="mt-1 block text-xs text-red-500">{cepError}</span>
+                      )}
+                      {cepLoading && (
+                        <span className="mt-1 block text-xs text-blue-500">Buscando CEP...</span>
+                      )}
+                      <span className="mt-1 block text-xs text-gray-500">
+                        {field.value?.length || 0}/9 caracteres
+                      </span>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -196,10 +254,31 @@ export function UbsForm({ initialData, slug }: UbsFormProps) {
               name="logradouro"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Logradouro</FormLabel>
+                  <FormLabel>
+                    Logradouro
+                    {logradouroPreenchido && (
+                      <span className="text-xs text-gray-500"> (travado após preenchimento)</span>
+                    )}
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="Rua, Avenida, etc." {...field} />
+                    <Input
+                      placeholder="Rua, Avenida, etc."
+                      {...field}
+                      disabled={logradouroPreenchido}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        if (e.target.value.length > 2) {
+                          setLogradouroPreenchido(true)
+                        }
+                      }}
+                      title={logradouroPreenchido ? 'Campo travado. Edite apenas o número.' : ''}
+                    />
                   </FormControl>
+                  {logradouroPreenchido && (
+                    <p className="mt-1 text-xs text-blue-600">
+                      ✓ Preenchido automaticamente. Edite apenas o número abaixo.
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}

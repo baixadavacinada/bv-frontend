@@ -1,13 +1,13 @@
 'use client'
 
 import { BvButton, BvTitleHeader, RoleGuard } from '@/components'
-import { DeleteModal } from '@/components/common/DeleteModal'
+import { DeleteConfirmationDialog } from '@/components/common/DeleteConfirmationDialog'
 import { ManagementTable } from '@/components/common/ManagementTable'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { useDeleteConfirmation } from '@/hooks/use-delete-confirmation'
 import { PlusIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { toast } from 'sonner'
 
 interface Vaccine {
   id: string
@@ -18,14 +18,24 @@ interface Vaccine {
 export default function VaccineManagementPage() {
   useAccessibilityValidation()
   const router = useRouter()
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [vaccineToDelete, setVaccineToDelete] = useState<Vaccine | null>(null)
   const [vaccines, setVaccines] = useState<Vaccine[]>([
     { id: '1', name: 'Nome vacina', dosage: 'Dose única' },
     { id: '2', name: 'Nome vacina', dosage: 'Dose única' },
     { id: '3', name: 'Nome vacina', dosage: 'Dose única' },
     { id: '4', name: 'Nome vacina', dosage: 'Dose única' },
   ])
+
+  const { isOpen, itemName, isDeleting, openDeleteDialog, closeDeleteDialog, handleDelete } =
+    useDeleteConfirmation({
+      onConfirm: async (id) => {
+        const vaccineToDelete = vaccines.find((v) => v.id === id)
+        if (!vaccineToDelete) {
+          throw new Error('Vacina não encontrada')
+        }
+        setVaccines(vaccines.filter((v) => v.id !== id))
+      },
+      successMessage: 'Vacina deletada com sucesso',
+    })
 
   const getVaccineFields = (vaccine: Vaccine) => [
     {
@@ -49,23 +59,16 @@ export default function VaccineManagementPage() {
   }
 
   const handleDeleteClick = (vaccine: Vaccine) => {
-    setVaccineToDelete(vaccine)
-    setShowDeleteModal(true)
+    openDeleteDialog('vaccine', vaccine.id, vaccine.name)
   }
 
-  const handleConfirmDelete = () => {
-    if (vaccineToDelete) {
-      setVaccines(vaccines.filter((v) => v.id !== vaccineToDelete.id))
-      setVaccineToDelete(null)
-      toast.success('Vacina removida com sucesso')
-    } else {
-      toast.error('Erro ao remover vacina')
+  const handleConfirmDelete = async () => {
+    if (itemName) {
+      const vaccineId = vaccines.find((v) => v.name === itemName)?.id
+      if (vaccineId) {
+        await handleDelete('vaccine', vaccineId, itemName)
+      }
     }
-  }
-
-  const handleCloseModal = () => {
-    setShowDeleteModal(false)
-    setVaccineToDelete(null)
   }
 
   return (
@@ -108,11 +111,14 @@ export default function VaccineManagementPage() {
           />
         </div>
 
-        <DeleteModal
-          isOpen={showDeleteModal}
-          onClose={handleCloseModal}
+        <DeleteConfirmationDialog
+          isOpen={isOpen}
+          itemName={itemName}
+          itemType="vaccine"
+          isDeleting={isDeleting}
           onConfirm={handleConfirmDelete}
-          itemName={vaccineToDelete ? `"${vaccineToDelete.name}"` : 'a vacina selecionada'}
+          onCancel={closeDeleteDialog}
+          actionLabel="Sim, deletar"
         />
       </div>
     </RoleGuard>

@@ -9,16 +9,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
@@ -27,6 +17,8 @@ import { useLocationContext } from '@/contexts/LocationContext'
 import { sortByDistance } from '@/utils/geolocation'
 import { HealthUnit } from '@/types/health-units'
 import { deleteHealthUnits } from '@/services/actions/ubs-actions'
+import { useDeleteConfirmation } from '@/hooks/use-delete-confirmation'
+import { DeleteConfirmationDialog } from '@/components/common/DeleteConfirmationDialog'
 
 type UbsListData = {
   id: number
@@ -50,12 +42,27 @@ export default function UbsScreen() {
     filterByProximity: false,
   })
 
-  const [deleteAlert, setDeleteAlert] = useState<{ isOpen: boolean; id: number | null }>({
-    isOpen: false,
-    id: null,
-  })
-
   const router = useRouter()
+
+  const {
+    isOpen,
+    itemName,
+    itemId,
+    isDeleting,
+    openDeleteDialog,
+    closeDeleteDialog,
+    handleDelete,
+  } = useDeleteConfirmation({
+    onConfirm: async (id) => {
+      const ubsToDelete = ubsList.find((u) => u.slug === id)
+      if (!ubsToDelete) {
+        throw new Error('UBS não encontrada')
+      }
+      await deleteHealthUnits(id)
+      setUbsList((currentList) => currentList.filter((u) => u.slug !== id))
+    },
+    successMessage: 'UBS deletada com sucesso',
+  })
 
   useEffect(() => {
     if (data) {
@@ -151,27 +158,15 @@ export default function UbsScreen() {
   }, [ubsList, filters, userCoords])
 
   const handleDeleteRequest = (id: number) => {
-    setDeleteAlert({ isOpen: true, id: id })
+    const ubsToDelete = ubsList.find((u) => u.id === id)
+    if (ubsToDelete) {
+      openDeleteDialog('ubs', ubsToDelete.slug || '', ubsToDelete.name)
+    }
   }
 
   const handleConfirmDelete = async () => {
-    if (deleteAlert.id === null) return
-
-    const ubsToDelete = ubsList.find((u) => u.id === deleteAlert.id)
-    if (!ubsToDelete) {
-      toast.error('UBS não encontrada.')
-      setDeleteAlert({ isOpen: false, id: null })
-      return
-    }
-
-    try {
-      await deleteHealthUnits(ubsToDelete.slug || '')
-      setUbsList((currentList) => currentList.filter((u) => u.id !== deleteAlert.id))
-      toast.success(`UBS "${ubsToDelete.name}" deletada com sucesso.`)
-    } catch (error) {
-      toast.error(`Falha ao deletar a UBS "${ubsToDelete.name}". Tente novamente mais tarde.`)
-    } finally {
-      setDeleteAlert({ isOpen: false, id: null })
+    if (itemId) {
+      await handleDelete('ubs', itemId, itemName)
     }
   }
 
@@ -277,31 +272,15 @@ export default function UbsScreen() {
         onShareRequest={handleShare}
       />
 
-      <AlertDialog
-        open={deleteAlert.isOpen}
-        onOpenChange={(isOpen) => setDeleteAlert({ ...deleteAlert, isOpen })}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso removerá permanentemente a UBS &quot;
-              {ubsList.find((ubs) => ubs.id === deleteAlert.id)?.name}&quot; da lista.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteAlert({ isOpen: false, id: null })}>
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Sim, excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={isOpen}
+        itemName={itemName}
+        itemType="ubs"
+        isDeleting={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={closeDeleteDialog}
+        actionLabel="Sim, deletar"
+      />
     </>
   )
 }
