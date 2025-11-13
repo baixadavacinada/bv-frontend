@@ -306,7 +306,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
           </div>
         ))}
       </div>
-      <div className="mt-8 mb-8 flex w-full items-center justify-between">
+      <div className="bg-primary mt-8 mb-8 flex w-full items-center justify-between">
         <Button
           className="w-full"
           variant="default"
