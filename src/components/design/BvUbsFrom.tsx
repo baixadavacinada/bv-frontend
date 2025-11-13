@@ -127,7 +127,7 @@ interface UbsFormProps {
 export function UbsForm({ initialData, slug }: UbsFormProps) {
   const router = useRouter()
   useAccessibilityValidation({ enabled: true })
-  const { lookupCEP, isLoading: cepLoading, error: cepError } = useCEPLookup()
+  const { lookupCEP, isLoading: cepLoading, geocoding, error: cepError } = useCEPLookup()
   const [logradouroPreenchido, setLogradouroPreenchido] = useState(!!initialData?.address)
 
   const [step, setStep] = useState(1)
@@ -219,7 +219,7 @@ export function UbsForm({ initialData, slug }: UbsFormProps) {
   }
 
   // --- 5. Funções de Navegação e Lógica dos Passos ---
-  const { isSubmitting, isDirty, isValid } = form.formState
+  const { isSubmitting, isDirty } = form.formState
   const selectedVaccines = form.watch('availableVaccines')
 
   // Função para avançar, validando campos do passo atual
@@ -319,6 +319,13 @@ export function UbsForm({ initialData, slug }: UbsFormProps) {
                                   form.setValue('bairro', address.bairro || '')
                                   form.setValue('cidade', address.localidade || '')
                                   form.setValue('estado', address.uf || '')
+
+                                  // Preencher coordenadas se disponíveis
+                                  if (address.latitude && address.longitude) {
+                                    form.setValue('latitude', address.latitude.toString())
+                                    form.setValue('longitude', address.longitude.toString())
+                                  }
+
                                   setLogradouroPreenchido(true)
                                   toast.success('Endereço carregado com sucesso!')
                                 }
@@ -327,7 +334,7 @@ export function UbsForm({ initialData, slug }: UbsFormProps) {
                               }
                             }}
                           />
-                          {cepLoading && (
+                          {(cepLoading || geocoding) && (
                             <div className="absolute top-2.5 right-3">
                               <div className="h-5 w-5 animate-spin text-blue-500">⟳</div>
                             </div>
@@ -413,7 +420,7 @@ export function UbsForm({ initialData, slug }: UbsFormProps) {
                     )}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="hidden">
                   <FormField
                     control={form.control}
                     name="longitude"

@@ -38,7 +38,7 @@ export function BvUbsList({
           isFavorite={ubs.isFavorite}
           onMoreInfo={() => handleMoreInfo(ubs.slug || '', path)}
           onDelete={() => onDeleteRequest?.(ubs.id || 0)}
-          onEdit={() => router.push(`gestao-ubs/form-ubs/[slug]/${ubs.slug}`)}
+          onEdit={() => router.push(`/gestao-ubs/form-ubs/${ubs.id}`)}
           onFavoriteToggle={() => onFavoriteToggleRequest?.(ubs.id || 0)}
           onShare={() => onShareRequest?.(ubs.name)}
         />
