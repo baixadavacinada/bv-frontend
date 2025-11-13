@@ -109,7 +109,7 @@ export default function AvaliarUbsPage() {
     setIsSubmitting(true)
     const surveyData = {
       healthUnitId: ubs._id,
-      comment: `${values.vaccineSuccess} - ${values.waitTime} - ${values.respectfulService} - ${values.cleanLocation} - ${values.recommendation}`,
+      comment: `Vacina obtida: ${values.vaccineSuccess} | Tempo de espera: ${values.waitTime} | Atendimento respeitoso: ${values.respectfulService} | Local limpo: ${values.cleanLocation} | Recomendação: ${values.recommendation}`,
       rating: values.rating,
       isAnonymous: true,
     }
