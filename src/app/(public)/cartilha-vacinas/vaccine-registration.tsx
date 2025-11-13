@@ -72,14 +72,23 @@ export default function VaccineRegistrationContent({
 
   const loadVaccinesAndHealthUnits = async () => {
     try {
-      const [vaccinesData, healthUnitsData] = await Promise.all([
-        vaccinationService.getAvailableVaccines(),
-        vaccinationService.getAvailableHealthUnits(),
-      ])
+      const vaccinesData = await vaccinationService.getAvailableVaccines()
       setVaccines(vaccinesData)
-      setHealthUnits(healthUnitsData)
+
+      // Buscar unidades de saúde diretamente do backend
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/health-units`,
+      )
+      if (response.ok) {
+        const healthUnitsData = await response.json()
+        const ubsList = Array.isArray(healthUnitsData) ? healthUnitsData : []
+        setHealthUnits(ubsList)
+      } else {
+        throw new Error('Erro ao carregar unidades de saúde')
+      }
     } catch (error) {
       console.error('Erro ao carregar dados:', error)
+      toast.error('Erro ao carregar unidades de saúde')
     }
   }
 
@@ -297,7 +306,7 @@ export default function VaccineRegistrationContent({
                 <label className="mb-2 block text-sm font-medium text-gray-700">Vacina *</label>
                 <BvSelect
                   options={[
-                    { value: '', label: 'Selecione uma vacina...' },
+                    { value: '', label: 'Selecione uma vacina' },
                     ...vaccineOptions,
                     { value: 'custom', label: 'Outra vacina (digitar manualmente)' },
                   ]}
@@ -312,7 +321,7 @@ export default function VaccineRegistrationContent({
               {!selectedVaccine && (
                 <BvFormInput
                   label="Nome da Vacina *"
-                  placeholder="Ex: COVID-19, Influenza..."
+                  placeholder="Ex: COVID-19, Influenza"
                   value={customVaccineName}
                   onChange={(e) => setCustomVaccineName(e.target.value)}
                 />
@@ -323,13 +332,13 @@ export default function VaccineRegistrationContent({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <BvFormInput
                 label="Fabricante"
-                placeholder="Ex: Pfizer, AstraZeneca..."
+                placeholder="Ex: Pfizer, AstraZeneca"
                 value={manufacturer}
                 onChange={(e) => setManufacturer(e.target.value)}
               />
               <BvFormInput
                 label="Lote da Vacina"
-                placeholder="Ex: ABC123..."
+                placeholder="Ex: ABC123"
                 value={batchNumber}
                 onChange={(e) => setBatchNumber(e.target.value)}
               />
@@ -364,18 +373,18 @@ export default function VaccineRegistrationContent({
                 <label className="flex items-center gap-2">
                   <input
                     type="radio"
-                    checked={selectedHealthUnit !== ''}
+                    checked={customLocation === ''}
                     onChange={() => {
-                      setSelectedHealthUnit('')
                       setCustomLocation('')
                     }}
                     className="h-4 w-4"
                   />
                   <span className="text-sm">UBS</span>
                 </label>
-                {selectedHealthUnit !== '' && (
+                {customLocation === '' && (
                   <BvSelect
-                    options={[{ value: '', label: 'Selecione uma UBS...' }, ...healthUnitOptions]}
+                    options={healthUnitOptions}
+                    placeholder="Selecione uma UBS"
                     value={selectedHealthUnit}
                     onValueChange={(value: string | string[]) => {
                       setSelectedHealthUnit(Array.isArray(value) ? value[0] : value)
@@ -401,7 +410,7 @@ export default function VaccineRegistrationContent({
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                     <BvFormInput
                       label="Local"
-                      placeholder="Ex: Clínica Particular..."
+                      placeholder="Ex: Clínica Particular"
                       value={customLocation === 'Other' ? '' : customLocation}
                       onChange={(e) => setCustomLocation(e.target.value || 'Other')}
                     />
@@ -473,7 +482,7 @@ export default function VaccineRegistrationContent({
               <BvButton
                 onClick={handleAddVaccine}
                 disabled={loading}
-                title={loading ? 'Salvando...' : 'Confirmar Cadastro'}
+                title={loading ? 'Salvando' : 'Confirmar Cadastro'}
                 className="flex-1 bg-green-600 hover:bg-green-700"
               />
               <BvButton

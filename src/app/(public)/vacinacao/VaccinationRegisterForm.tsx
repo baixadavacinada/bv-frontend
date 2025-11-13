@@ -337,6 +337,7 @@ export default function VaccinationRegisterForm() {
                       <label className="mb-2 block text-sm font-medium text-gray-700">UBS *</label>
                       <BvSelect
                         options={healthUnitOptions}
+                        placeholder="Selecione uma UBS"
                         value={watch('healthUnitId') || ''}
                         onValueChange={(value: string | string[]) => {
                           const stringValue = Array.isArray(value) ? value[0] : value

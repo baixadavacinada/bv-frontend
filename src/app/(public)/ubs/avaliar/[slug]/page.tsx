@@ -201,7 +201,7 @@ export default function AvaliarUbsPage() {
 
   return (
     <div className="mx-auto max-w-4xl rounded-lg p-6">
-      <BvTitleHeader title={'Avaliação da UBS'} className="mb-6" />
+      <BvTitleHeader title={`Avaliação: ${ubs?.name || 'Carregando...'}`} className="mb-6" />
 
       {/* <h2 className="mb-6 text-xl font-bold">UBS {name.replace(/-/g, ' ').replace(/ubs/g, '')}</h2> */}
 
