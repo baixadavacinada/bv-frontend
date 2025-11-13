@@ -16,6 +16,9 @@ const registerSchema = z
     email: commonSchemas.email,
     password: commonSchemas.strongPassword,
     confirmPassword: z.string(),
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: 'Você deve aceitar os termos e condições de privacidade',
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'As senhas não coincidem',
@@ -218,6 +221,56 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           placeholder="Digite a senha novamente"
           required
         />
+      </div>
+
+      {/* LGPD Terms and Conditions */}
+      <div className="space-y-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+        <div className="text-sm">
+          <h3 className="mb-3 font-semibold text-gray-900">Termos de Privacidade (LGPD)</h3>
+          <div className="mb-4 max-h-40 overflow-y-auto rounded bg-white p-3 text-xs text-gray-700">
+            <p className="mb-2">
+              <strong>Lei Geral de Proteção de Dados (LGPD) - Lei nº 13.709/2018</strong>
+            </p>
+            <p className="mb-2">
+              Ao criar sua conta na Baixada Vacinada, você concorda que seus dados pessoais serão
+              coletados, processados e armazenados de forma segura, conforme estabelecido pela LGPD.
+            </p>
+            <p className="mb-2">
+              <strong>Dados Coletados:</strong> Nome completo, endereço de email, senha e histórico
+              de vacinação.
+            </p>
+            <p className="mb-2">
+              <strong>Finalidade:</strong> Gerenciamento de sua conta, notificações sobre vacinação,
+              pesquisas de satisfação e melhoria dos serviços.
+            </p>
+            <p className="mb-2">
+              <strong>Seus Direitos:</strong> Você tem direito de acessar, corrigir, deletar ou
+              solicitar portabilidade de seus dados a qualquer momento.
+            </p>
+            <p>
+              Para mais informações, entre em contato com nosso Encarregado de Proteção de Dados
+              (DPO) através do email contato@baixadavacinada.com.br
+            </p>
+          </div>
+
+          <label className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              {...register('acceptTerms')}
+              className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              required
+              aria-required="true"
+            />
+            <span className="text-sm text-gray-700">
+              Eu aceito os termos de privacidade e as condições de proteção de dados da LGPD
+            </span>
+          </label>
+          {errors.acceptTerms && (
+            <p className="mt-2 text-sm text-red-600" role="alert">
+              {errors.acceptTerms.message}
+            </p>
+          )}
+        </div>
       </div>
 
       <BvButton

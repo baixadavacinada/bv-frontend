@@ -44,7 +44,6 @@ export default function VaccinationRegisterForm() {
   const watchVaccineId = watch('vaccineId')
   const watchAdverseReaction = watch('adverseReaction')
 
-  // Carregar vacinas e UBS disponíveis
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -64,7 +63,6 @@ export default function VaccinationRegisterForm() {
     loadData()
   }, [])
 
-  // Atualizar dados da vacina selecionada
   useEffect(() => {
     if (watchVaccineId) {
       const vaccine = vaccines.find((v) => v.id === watchVaccineId || v._id === watchVaccineId)
@@ -76,7 +74,6 @@ export default function VaccinationRegisterForm() {
     }
   }, [watchVaccineId, vaccines, setValue])
 
-  // Atualizar dados da UBS selecionada
   useEffect(() => {
     if (watchHealthUnitId) {
       const healthUnit = healthUnits.find(
@@ -99,13 +96,11 @@ export default function VaccinationRegisterForm() {
     try {
       setLoading(true)
 
-      // Validar se pelo menos um local foi fornecido
       if (!data.healthUnitId && !data.customLocation) {
         toast.error('Informe o local da vacinação')
         return
       }
 
-      // Salvar registro
       vaccinationService.saveVaccinationRecord(data)
 
       toast.success('Registro de vacinação salvo com sucesso!')

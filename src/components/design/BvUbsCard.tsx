@@ -4,6 +4,7 @@ import React from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { BvShareMenu } from './BvShareMenu'
+import { useAuth } from '@/hooks/use-firebase-auth'
 
 export interface UbsCardProps {
   id?: number
@@ -34,6 +35,7 @@ export function BvUbsCard({
   isFavorite,
   className,
 }: UbsCardProps) {
+  const { user } = useAuth()
   const handleIconClick = (e: React.MouseEvent<HTMLButtonElement>, action?: () => void) => {
     e.stopPropagation()
     action?.()
@@ -73,7 +75,7 @@ export function BvUbsCard({
         </Button>
 
         <div className="flex items-center gap-1">
-          {component === 'public' && (
+          {component === 'public' && user && (
             <Button
               variant="ghost"
               size="icon"

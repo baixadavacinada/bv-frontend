@@ -1,4 +1,8 @@
 import { VaccineFromDB, HealthUnitFromDB, VaccinationFormData } from '@/schemas/vaccination-schema'
+import { cacheService } from './cache-service'
+
+const HEALTH_UNITS_CACHE_KEY = 'cache_health_units'
+const VACCINES_CACHE_KEY = 'cache_vaccines'
 
 /**
  * Serviço para gerenciar dados de vacinação
@@ -15,10 +19,17 @@ export class VaccinationService {
   }
 
   /**
-   * Busca todas as vacinas ativas do banco
+   * Busca todas as vacinas ativas do banco (com cache)
    */
   async getAvailableVaccines(): Promise<VaccineFromDB[]> {
     try {
+      // Tenta recuperar do cache primeiro
+      const cachedVaccines = cacheService.getCache<VaccineFromDB[]>(VACCINES_CACHE_KEY)
+      if (cachedVaccines) {
+        return cachedVaccines
+      }
+
+      // Se não estiver em cache, busca da API
       const response = await fetch(`${this.baseUrl}/api/public/vaccines`)
 
       if (!response.ok) {
@@ -27,13 +38,19 @@ export class VaccinationService {
 
       const data = await response.json()
 
-      // A API retorna um array direto de vacinas
-      return Array.isArray(data)
+      const vaccines = Array.isArray(data)
         ? data.map((vaccine) => ({
             ...vaccine,
             id: vaccine._id || vaccine.id,
           }))
         : []
+
+      // Salva em cache
+      if (vaccines.length > 0) {
+        cacheService.setCache(VACCINES_CACHE_KEY, vaccines)
+      }
+
+      return vaccines
     } catch (error) {
       console.error('Erro ao buscar vacinas:', error)
       return []
@@ -61,26 +78,40 @@ export class VaccinationService {
   }
 
   /**
-   * Busca todas as UBS ativas
+   * Busca todas as unidades de saúde (UBS) ativas do banco (com cache de 1 semana)
    */
   async getAvailableHealthUnits(): Promise<HealthUnitFromDB[]> {
     try {
+      // Tenta recuperar do cache primeiro
+      const cachedHealthUnits = cacheService.getCache<HealthUnitFromDB[]>(HEALTH_UNITS_CACHE_KEY)
+      if (cachedHealthUnits) {
+        return cachedHealthUnits
+      }
+
+      // Se não estiver em cache, busca da API
       const response = await fetch(`${this.baseUrl}/api/public/health-units`)
 
       if (!response.ok) {
-        throw new Error('Erro ao buscar UBS')
+        throw new Error('Erro ao buscar unidades de saúde')
       }
 
       const data = await response.json()
 
-      // A API pode retornar um array direto ou um objeto com healthUnits
-      const healthUnits = Array.isArray(data) ? data : data.healthUnits || []
-      return healthUnits.map((unit: HealthUnitFromDB & { _id?: string }) => ({
-        ...unit,
-        id: unit._id || unit.id,
-      }))
+      const healthUnits = Array.isArray(data)
+        ? data.map((unit) => ({
+            ...unit,
+            id: unit._id || unit.id,
+          }))
+        : []
+
+      // Salva em cache (expira em 1 semana)
+      if (healthUnits.length > 0) {
+        cacheService.setCache(HEALTH_UNITS_CACHE_KEY, healthUnits)
+      }
+
+      return healthUnits
     } catch (error) {
-      console.error('Erro ao buscar UBS:', error)
+      console.error('Erro ao buscar unidades de saúde:', error)
       return []
     }
   }

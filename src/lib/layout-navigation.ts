@@ -133,32 +133,47 @@ export const footerNavigation: NavigationItem[] = [
   },
 ]
 
-// Função para filtrar itens de navegação baseado na role
+// Função para filtrar itens de navegação baseado na role e autenticação
 export function filterNavigationByRole<T extends NavigationItem>(
   items: T[],
   userRole: UserRole | null,
+  isAuthenticated: boolean = false,
 ): T[] {
   if (!userRole) {
-    return items.filter((item) => item.allowedRoles.includes('public'))
+    // If not authenticated, exclude vaccination-related items
+    const filteredItems = items.filter((item) => item.allowedRoles.includes('public'))
+    if (!isAuthenticated) {
+      return filteredItems.filter((item) => item.id !== 'registro-vacinacao')
+    }
+    return filteredItems
   }
+
+  let allowedItems: T[] = []
 
   // Admin has access to all roles (hierarchy: admin > agent > public)
   if (userRole === 'admin') {
-    return items.filter(
+    allowedItems = items.filter(
       (item) =>
         item.allowedRoles.includes('admin') ||
         item.allowedRoles.includes('agent') ||
         item.allowedRoles.includes('public'),
     )
   }
-
   // Agent can access agent and public items
-  if (userRole === 'agent') {
-    return items.filter(
+  else if (userRole === 'agent') {
+    allowedItems = items.filter(
       (item) => item.allowedRoles.includes('agent') || item.allowedRoles.includes('public'),
     )
   }
-
   // Public can only access public items
-  return items.filter((item) => item.allowedRoles.includes('public'))
+  else {
+    allowedItems = items.filter((item) => item.allowedRoles.includes('public'))
+  }
+
+  // Filter out vaccination registration if not authenticated
+  if (!isAuthenticated) {
+    allowedItems = allowedItems.filter((item) => item.id !== 'registro-vacinacao')
+  }
+
+  return allowedItems
 }

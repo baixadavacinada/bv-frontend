@@ -15,12 +15,11 @@ export type ActionType =
 
 export const ROLE_ACTIONS: Record<UserRole, ActionType[]> = {
   public: ['ubs', 'evaluation', 'calendar', 'cartilha', 'vaccination'],
-  agent: ['evaluation', 'calendar', 'cartilha', 'vaccination', 'notifications'],
+  agent: ['ubs', 'evaluation', 'calendar', 'cartilha', 'notifications'],
   admin: [
     'evaluation',
     'calendar',
     'cartilha',
-    'vaccination',
     'notifications',
     'ubs-management',
     'user-management',
@@ -31,8 +30,14 @@ export const ROLE_ACTIONS: Record<UserRole, ActionType[]> = {
 export function usePermissions() {
   const { user } = useAuth()
   const role = user?.role || 'public'
+  const isAuthenticated = !!user
 
   const hasPermission = (action: ActionType): boolean => {
+    // Vaccination requires authentication
+    if (action === 'vaccination' && !isAuthenticated) {
+      return false
+    }
+
     // Admin has access to all actions
     if (role === 'admin') {
       return true
@@ -48,26 +53,36 @@ export function usePermissions() {
   }
 
   const getAllowedActions = (): ActionType[] => {
+    let allowedActions: ActionType[] = []
+
     // Admin gets all actions (including public and agent)
     if (role === 'admin') {
-      return ROLE_ACTIONS['admin']
+      allowedActions = ROLE_ACTIONS['admin']
     }
-
     // Agent gets agent + public actions
-    if (role === 'agent') {
-      return [...new Set([...ROLE_ACTIONS['agent'], ...ROLE_ACTIONS['public']])]
+    else if (role === 'agent') {
+      allowedActions = [...new Set([...ROLE_ACTIONS['agent'], ...ROLE_ACTIONS['public']])]
+    }
+    // Public only gets public actions
+    else {
+      allowedActions = ROLE_ACTIONS['public']
     }
 
-    // Public only gets public actions
-    return ROLE_ACTIONS['public']
+    // Filter out vaccination if user is not authenticated
+    if (!isAuthenticated) {
+      allowedActions = allowedActions.filter((action) => action !== 'vaccination')
+    }
+
+    return allowedActions
   }
 
   const filterNavigationItems = <T extends NavigationItem>(items: T[]): T[] => {
-    return filterNavigationByRole(items, role)
+    return filterNavigationByRole(items, role, isAuthenticated)
   }
 
   return {
     role,
+    isAuthenticated,
     hasPermission,
     getAllowedActions,
     filterNavigationItems,

@@ -1,8 +1,3 @@
-/**
- * Serviço para gerenciamento de usuários
- * Operações CRUD de usuários com fallback local
- */
-
 import { useCallback, useMemo } from 'react'
 import { useAuth } from '@/hooks/use-firebase-auth'
 import { UserRole } from '@/types/auth'
@@ -15,12 +10,8 @@ import {
 } from '@/types/user-management'
 import { apiClient } from '@/services/api'
 
-// Storage local para usuários criados/editados
 const localUsers = new Map<string, UserProfile>()
 
-/**
- * Hook para gerenciamento de usuários
- */
 export function useUserManagement() {
   const { user, firebaseUser } = useAuth()
 
@@ -56,7 +47,6 @@ export function useUserManagement() {
     }
   }, [firebaseUser])
 
-  // Converte dados da API para UserProfile
   const convertApiToUserProfile = useCallback((apiUser: ApiUserData): UserProfile => {
     return {
       uid: apiUser.uid || apiUser.id || apiUser._id || '',
@@ -79,7 +69,6 @@ export function useUserManagement() {
     }
   }, [])
 
-  // Mescla usuários da API com usuários locais
   const mergeWithLocalUsers = useCallback((apiUsers: UserProfile[]): UserProfile[] => {
     const mergedUsers = [...apiUsers]
 
@@ -95,7 +84,6 @@ export function useUserManagement() {
     return mergedUsers
   }, [])
 
-  // Aplica filtro de busca nos usuários
   const applySearchFilter = useCallback((users: UserProfile[], search: string): UserProfile[] => {
     if (!search?.trim()) return users
 
@@ -107,7 +95,6 @@ export function useUserManagement() {
     )
   }, [])
 
-  // Cria resposta de fallback com usuário atual
   const createFallbackResponse = useCallback(
     (search: string): UserListResponse => {
       const fallbackUsers = [createUserFromFirebase()]
@@ -131,9 +118,6 @@ export function useUserManagement() {
     [firebaseUser?.uid, createUserFromFirebase, applySearchFilter],
   )
 
-  /**
-   * Lista usuários com busca
-   */
   const listUsers = useCallback(
     async (search?: string, page = 1, limit = 20, role?: string): Promise<UserListResponse> => {
       try {
@@ -154,7 +138,6 @@ export function useUserManagement() {
           { data?: ApiUserData[]; users?: ApiUserData[] } | ApiUserData[]
         >(`/api/public/users?${params}`)
 
-        // Extrai usuários da resposta
         let apiUsers: UserProfile[] = []
         if (Array.isArray(responseData)) {
           apiUsers = responseData.map(convertApiToUserProfile)
@@ -164,7 +147,6 @@ export function useUserManagement() {
           apiUsers = responseData.data.map(convertApiToUserProfile)
         }
 
-        // Mescla com usuários locais e aplica filtro
         let users = mergeWithLocalUsers(apiUsers)
         users = applySearchFilter(users, search || '')
 
@@ -183,9 +165,6 @@ export function useUserManagement() {
     [convertApiToUserProfile, mergeWithLocalUsers, applySearchFilter, createFallbackResponse],
   )
 
-  /**
-   * Busca usuário por ID
-   */
   const getUserById = useCallback(
     async (uid: string): Promise<UserProfile> => {
       const localUser = localUsers.get(uid)
@@ -193,7 +172,6 @@ export function useUserManagement() {
         return localUser
       }
 
-      // Busca na lista geral de usuários primeiro (incluindo usuário atual)
       try {
         const { users } = await listUsers()
         const foundUser = users.find((user) => user.uid === uid)
@@ -204,12 +182,10 @@ export function useUserManagement() {
         console.warn('Erro ao buscar usuário:', error)
       }
 
-      // Fallback para usuário atual apenas se não encontrou na API
       if (uid === firebaseUser?.uid) {
         return createUserFromFirebase()
       }
 
-      // Cria usuário simulado para IDs temporários
       if (uid.startsWith('user_')) {
         const simulatedUser: UserProfile = {
           uid,
@@ -236,9 +212,6 @@ export function useUserManagement() {
     [firebaseUser?.uid, createUserFromFirebase, listUsers],
   )
 
-  /**
-   * Cria novo usuário
-   */
   const createUser = useCallback(
     async (userData: CreateUserRequest): Promise<UserProfile> => {
       try {
@@ -265,7 +238,6 @@ export function useUserManagement() {
         console.warn('Erro ao criar usuário via API, simulando criação:', error)
       }
 
-      // Fallback: simula criação local
       const newUserId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       const newUser: UserProfile = {
         uid: newUserId,
@@ -292,25 +264,16 @@ export function useUserManagement() {
     [convertApiToUserProfile],
   )
 
-  /**
-   * Ativa usuário
-   */
   const activateUser = useCallback(async (uid: string): Promise<UserProfile> => {
     const data = await apiClient.patch<UserProfile>(`/api/admin/users/${uid}/reactivate`)
     return data
   }, [])
 
-  /**
-   * Desativa usuário
-   */
   const deactivateUser = useCallback(async (uid: string): Promise<UserProfile> => {
     const data = await apiClient.patch<UserProfile>(`/api/admin/users/${uid}/deactivate`)
     return data
   }, [])
 
-  /**
-   * Atualiza role do usuário usando a estratégia correta baseada no role
-   */
   const updateUserRole = useCallback(async (uid: string, newRole: string): Promise<UserProfile> => {
     if (newRole === 'admin') {
       try {
@@ -340,9 +303,6 @@ export function useUserManagement() {
     }
   }, [])
 
-  /**
-   * Atualiza claims do usuário (role, permissions, ubsId, isActive)
-   */
   const updateUserClaims = useCallback(
     async (uid: string, userData: UpdateUserRequest): Promise<UserProfile> => {
       try {
@@ -369,12 +329,8 @@ export function useUserManagement() {
     [],
   )
 
-  /**
-   * Atualiza perfil do usuário
-   */
   const updateProfile = useCallback(
     async (profileData: UpdateUserRequest['personalData']): Promise<UserProfile> => {
-      // Se não há dados de perfil para atualizar, apenas retorna null
       if (!profileData?.name && !profileData?.phone && !profileData?.cpf && !profileData?.address) {
         throw new Error('Nenhum dado de perfil para atualizar')
       }
@@ -418,9 +374,6 @@ export function useUserManagement() {
     [convertApiToUserProfile],
   )
 
-  /**
-   * Atualiza usuário existente (apenas role e status - limitação atual da API)
-   */
   const updateUser = useCallback(
     async (uid: string, userData: UpdateUserRequest): Promise<UserProfile> => {
       try {
@@ -432,7 +385,6 @@ export function useUserManagement() {
             isActive: userData.isActive !== undefined ? userData.isActive : existingUser.isActive,
           })
 
-          // Salva no cache local
           const updatedUser = {
             ...existingUser,
             ...claimsResult,
@@ -453,9 +405,6 @@ export function useUserManagement() {
     [getUserById, updateUserClaims],
   )
 
-  /**
-   * Desativa usuário (usado para "deletar")
-   */
   const deleteUser = useCallback(
     async (uid: string): Promise<void> => {
       await deactivateUser(uid)
@@ -463,9 +412,6 @@ export function useUserManagement() {
     [deactivateUser],
   )
 
-  /**
-   * Reativa usuário
-   */
   const reactivateUser = useCallback(async (uid: string): Promise<UserProfile> => {
     const data = await apiClient.patch<UserProfile>(`/api/admin/users/${uid}/reactivate`)
     return data

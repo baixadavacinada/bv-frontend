@@ -1,8 +1,5 @@
 import { z } from 'zod'
 
-/**
- * Mensagens de erro
- */
 const msg = {
   required: 'Este campo é obrigatório',
   email: 'E-mail inválido',
@@ -15,9 +12,6 @@ const msg = {
   max: (n: number) => `Máximo de ${n} caracteres`,
 }
 
-/**
- * Padrões de validação
- */
 const patterns = {
   phone: /^\(\d{2}\) \d{5}-\d{4}$/,
   cpf: /^\d{3}\.\d{3}\.\d{3}-\d{2}$/,
@@ -54,27 +48,21 @@ const validateTime = (time: string) => {
   return h >= 0 && h <= 23 && m >= 0 && m <= 59
 }
 
-// Texto obrigatório
 export const requiredText = z.string().min(1, msg.required).trim()
 
-// Texto opcional
 export const optionalText = z.string().optional()
 
-// Texto com limites (obrigatório por padrão)
 export const text = (min = 1, max = 500, optional = false) => {
   const schema = z.string().min(min, msg.min(min)).max(max, msg.max(max)).trim()
   return optional ? schema.optional() : schema.min(1, msg.required)
 }
 
-// Email
 export const email = z.string().min(1, msg.required).email(msg.email).trim().toLowerCase()
 export const optionalEmail = z.string().email(msg.email).optional().or(z.literal(''))
 
-// Telefone
 export const phone = z.string().min(1, msg.required).regex(patterns.phone, msg.phone)
 export const optionalPhone = z.string().optional().or(z.literal(''))
 
-// CPF
 export const cpf = z
   .string()
   .min(1, msg.required)
@@ -83,7 +71,6 @@ export const cpf = z
 
 export const optionalCPF = z.string().optional().or(z.literal(''))
 
-// Nome completo (nome + sobrenome)
 export const fullName = z
   .string()
   .min(2, 'Nome deve ter pelo menos 2 caracteres')
@@ -96,7 +83,6 @@ export const fullName = z
     return words.every((word) => word.length >= 2)
   }, 'Nome e sobrenome devem ter pelo menos 2 caracteres cada')
 
-// Senha segura
 export const strongPassword = z
   .string()
   .min(8, 'A senha deve ter pelo menos 8 caracteres')
@@ -114,14 +100,11 @@ export const strongPassword = z
     'A senha deve conter pelo menos um caractere especial',
   )
 
-// Senha simples (para compatibilidade)
 export const password = z.string().min(6, 'A senha deve ter pelo menos 6 caracteres')
 
-// CEP
 export const cep = z.string().min(1, msg.required).regex(patterns.cep, msg.cep)
 export const optionalCEP = z.string().optional().or(z.literal(''))
 
-// Data
 export const date = z
   .string()
   .min(1, msg.required)
@@ -135,7 +118,6 @@ export const optionalDate = z
   .optional()
   .or(z.literal(''))
 
-// Hora
 export const time = z
   .string()
   .min(1, msg.required)
@@ -149,52 +131,32 @@ export const optionalTime = z
   .optional()
   .or(z.literal(''))
 
-// Boolean
 export const checkbox = z.boolean().default(false)
 
-/**
- * Schemas pré-definidos para uso comum
- */
 export const commonSchemas = {
-  // Textos básicos
   name: text(3, 100),
   fullName,
   title: text(5, 150),
   description: text(10, 1000),
   shortText: text(1, 100),
   longText: text(10, 2000),
-
-  // Opcionais
   optionalComment: text(0, 500, true),
   optionalNote: text(0, 200, true),
-
-  // Dados pessoais
   email,
   phone,
   optionalPhone,
   cpf,
   optionalCPF,
-
-  // Segurança
   password,
   strongPassword,
-
-  // Localização
   cep,
   optionalCEP,
-
-  // Data e hora
   date,
   time,
-
-  // Configurações
   check: checkbox,
   acceptTerms: z.boolean().refine((val) => val === true, 'Você deve aceitar os termos'),
 }
 
-/**
- * Schema para Feedback/Avaliação de UBS
- */
 export const feedbackSchema = z.object({
   healthUnitId: z.string().min(1, 'ID da UBS é obrigatório'),
   rating: z.number().min(1, 'Selecione pelo menos 1 estrela').max(5, 'Máximo 5 estrelas'),
@@ -206,3 +168,6 @@ export const feedbackSchema = z.object({
 })
 
 export type FeedbackFormData = z.infer<typeof feedbackSchema>
+
+export type { VaccinationFormData, VaccineFromDB, HealthUnitFromDB } from './vaccination-schema'
+export { vaccinationSchema, doseTypes, brazilianStates } from './vaccination-schema'

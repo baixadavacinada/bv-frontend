@@ -8,12 +8,13 @@ import SyringeIco from '@/assets/icons/syringe.svg'
 import React from 'react'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { Button } from '@/components/ui/button'
-import { Syringe } from 'lucide-react'
+import { Syringe, Heart } from 'lucide-react'
 import { notFound, useRouter } from 'next/navigation'
 import { useHealthUnits } from '@/hooks/use-health-units' // Importar o hook e o tipo
 import { HealthUnit } from '@/types/health-units'
 import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 import { toSlug } from '@/utils/slug'
+import { toggleFavoriteHealthUnit } from '@/services/actions/ubs-actions'
 
 interface DetailUbsProps {
   params: Promise<{ slug: string }>
@@ -42,9 +43,15 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     return found
   }, [data, resolvedParams.slug])
   const [ubs, setUbs] = React.useState<HealthUnit | null>(null)
+  const [isLiked, setIsLiked] = React.useState(false)
 
   React.useEffect(() => {
     if (ubsDataFromApi) {
+      // Recupera o estado de like do localStorage
+      const likedUbs = localStorage.getItem('liked_ubs')
+      const likedList = likedUbs ? JSON.parse(likedUbs) : []
+      setIsLiked(likedList.includes(ubsDataFromApi._id))
+
       const transformedData: HealthUnit = {
         id: ubsDataFromApi._id,
         name: ubsDataFromApi.name,
@@ -128,11 +135,49 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     route.push(`../ubs/avaliar/${ubs.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
   }
 
+  const handleToggleLike = async () => {
+    try {
+      const newState = !isLiked
+
+      if (ubsDataFromApi?._id) {
+        await toggleFavoriteHealthUnit(ubsDataFromApi._id, newState)
+      }
+
+      setIsLiked(newState)
+
+      const likedUbs = localStorage.getItem('liked_ubs')
+      let likedList = likedUbs ? JSON.parse(likedUbs) : []
+
+      if (newState) {
+        if (!likedList.includes(ubsDataFromApi._id)) {
+          likedList.push(ubsDataFromApi._id)
+        }
+      } else {
+        likedList = likedList.filter((id: string) => id !== ubsDataFromApi._id)
+      }
+
+      localStorage.setItem('liked_ubs', JSON.stringify(likedList))
+    } catch (error) {
+      console.error('Erro ao atualizar favorito:', error)
+      setIsLiked(!isLiked)
+    }
+  }
+
   return (
     <div>
       <BvTitleHeader title={`Sobre: ${name}`} className="mb-6" />
 
-      <div className="mb-8 flex justify-end gap-2">
+      <div className="mb-8 flex justify-end gap-1">
+        <button
+          onClick={handleToggleLike}
+          aria-label={isLiked ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+          className="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+        >
+          <Heart
+            className={`h-5 w-5 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+            aria-hidden="true"
+          />
+        </button>
         <BvShareMenu ubsName={name} ubsSlug={resolvedParams.slug} neighborhood={neighborhood} />
         <Button onClick={handleEvaluate}>Avaliar</Button>
       </div>

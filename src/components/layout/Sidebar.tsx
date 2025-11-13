@@ -72,13 +72,7 @@ export function Sidebar() {
                     title={action.label}
                     variant="ghost"
                     className="w-full justify-start gap-8 text-gray-700 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500"
-                    leftIcon={
-                      typeof IconComponent === 'function' && 'defaultProps' in IconComponent ? (
-                        <IconComponent className="size-6" aria-hidden="true" />
-                      ) : (
-                        <IconComponent size={24} aria-hidden="true" />
-                      )
-                    }
+                    leftIcon={<IconComponent size={24} aria-hidden="true" />}
                     aria-label={`Navegar para ${action.label}`}
                     onClick={() => handleNavigation(action)}
                   />

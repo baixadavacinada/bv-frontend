@@ -1,9 +1,12 @@
 'use client'
 
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
+import { Heart, Share2 } from 'lucide-react'
+import { useAuth } from '@/hooks/use-firebase-auth'
+import { toggleFavoriteEducationalMaterial } from '@/services/actions/educational-materials-actions'
 import {
   AccessibilityLoadingIndicator,
   useCardAccessibilityIds,
@@ -17,6 +20,7 @@ interface CardSecondaryProps extends CardAccessibilityProps {
   title: string
   description: string
   image: string
+  id?: string
   onClick: () => void
   onKeyDown?: (event: React.KeyboardEvent) => void
 }
@@ -24,6 +28,98 @@ interface CardSecondaryProps extends CardAccessibilityProps {
 interface CardTextContentProps {
   title: string
   description: string
+}
+
+// Componente para renderizar o footer do card com botões de like e share
+const CardFooter: React.FC<{ id?: string; title: string }> = ({ id, title }) => {
+  const cardId = id || title.replace(/\s+/g, '-').toLowerCase()
+  const [isLiked, setIsLiked] = useState(false)
+  const { user } = useAuth()
+
+  // Carrega o estado inicial do like
+  useEffect(() => {
+    const likedMaterials = localStorage.getItem('liked_materials')
+    const likedList = likedMaterials ? JSON.parse(likedMaterials) : []
+    setIsLiked(likedList.includes(cardId))
+  }, [cardId])
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+
+    try {
+      const newState = !isLiked
+
+      // Se o usuário estiver autenticado, atualiza no backend
+      if (user?.uid) {
+        await toggleFavoriteEducationalMaterial(user.uid, cardId)
+      }
+
+      // Atualiza estado local
+      setIsLiked(newState)
+
+      // Atualiza localStorage
+      const likedMaterials = localStorage.getItem('liked_materials')
+      let likedList = likedMaterials ? JSON.parse(likedMaterials) : []
+
+      if (newState) {
+        if (!likedList.includes(cardId)) {
+          likedList.push(cardId)
+        }
+      } else {
+        likedList = likedList.filter((id: string) => id !== cardId)
+      }
+
+      localStorage.setItem('liked_materials', JSON.stringify(likedList))
+    } catch (error) {
+      console.error('Erro ao atualizar favorito:', error)
+      // Reverte em caso de erro se havia tentativa de salvar no backend
+      if (user?.uid) {
+        setIsLiked(!isLiked)
+      }
+    }
+  }
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    const shareText = `Confira este material educativo: ${title}`
+    const shareUrl = window.location.href
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Baixada Vacinada',
+        text: shareText,
+        url: shareUrl,
+      })
+    } else {
+      // Fallback: copiar para clipboard
+      const text = `${shareText} ${shareUrl}`
+      navigator.clipboard.writeText(text).catch((err) => {
+        console.error('Erro ao copiar para clipboard:', err)
+      })
+    }
+  }
+
+  return (
+    <div className="mt-auto flex justify-end gap-1 border-t pt-3">
+      <button
+        onClick={handleLike}
+        aria-label={isLiked ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+        className="flex items-center justify-center rounded px-2 py-1 text-sm transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+      >
+        <Heart
+          className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-500'}`}
+          aria-hidden="true"
+        />
+      </button>
+      <button
+        onClick={handleShare}
+        aria-label="Compartilhar este material"
+        className="flex items-center justify-center rounded px-2 py-1 text-sm transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+      >
+        <Share2 className="h-4 w-4 text-gray-500" aria-hidden="true" />
+      </button>
+    </div>
+  )
 }
 
 // Componente para renderizar a imagem do card
@@ -96,6 +192,7 @@ export const BvCardSecondary = forwardRef<HTMLDivElement, CardSecondaryProps>(
     {
       title,
       description,
+      id,
       onClick,
       onKeyDown,
       loading = false,
@@ -126,7 +223,7 @@ export const BvCardSecondary = forwardRef<HTMLDivElement, CardSecondaryProps>(
     return (
       <Card
         ref={ref}
-        className="h-64 w-64 flex-shrink-0 cursor-pointer transition-shadow hover:shadow-md focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+        className="flex h-64 w-64 flex-shrink-0 cursor-pointer flex-col transition-shadow hover:shadow-md focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         onClick={onClick}
         onKeyDown={(event) => {
           handleKeyDown(event)
@@ -144,6 +241,7 @@ export const BvCardSecondary = forwardRef<HTMLDivElement, CardSecondaryProps>(
           {/* {image && <CardImage image={image} title={title} />} */}
 
           <AccessibilityLoadingIndicator isValidating={isValidating} />
+          <CardFooter id={id} title={title} />
         </CardContent>
       </Card>
     )
