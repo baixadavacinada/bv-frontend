@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { PlusIcon, RefreshCw } from 'lucide-react'
+import { PlusIcon, RefreshCw, ChevronDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { BvButton, BvTitleHeader, RoleGuard } from '@/components'
 import { DeleteConfirmationDialog } from '@/components/common/DeleteConfirmationDialog'
 import { ManagementTable } from '@/components/common/ManagementTable'
+import { UserReportsSection } from '@/components/admin/UserReportsSection'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { useDeleteConfirmation } from '@/hooks/use-delete-confirmation'
 import { useAuth } from '@/hooks/use-firebase-auth'
@@ -29,6 +30,7 @@ export default function UserManagementPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm] = useState('')
+  const [isListOpen, setIsListOpen] = useState(false)
 
   const {
     isOpen,
@@ -116,13 +118,21 @@ export default function UserManagementPage() {
   }, [canReadUsers, user?.role, loadUsers, searchTerm])
 
   /**
-   * Adapta usuários para formato da tabela
+   * Adapta usuários para formato da tabela e ordena (ativos primeiro, depois inativos)
    */
   const prepareUsersForTable = (users: UserProfile[]): UserTableItem[] => {
-    return users.map((user) => ({
-      ...user,
-      id: user.uid,
-    }))
+    return users
+      .map((user) => ({
+        ...user,
+        id: user.uid,
+      }))
+      .sort((a, b) => {
+        // Usuários ativos primeiro, inativos ao final
+        if (a.isActive && !b.isActive) return -1
+        if (!a.isActive && b.isActive) return 1
+        // Ordenar alfabeticamente dentro de cada grupo
+        return (a.displayName || a.email || '').localeCompare(b.displayName || b.email || '')
+      })
   }
 
   const getUserTableFields = (user: UserTableItem) => [
@@ -138,7 +148,7 @@ export default function UserManagementPage() {
     },
     {
       key: 'status',
-      value: user.isActive ? 'Ativo' : 'Inativo',
+      value: `${user.isActive ? '🟢' : '🔴'} ${user.isActive ? 'Ativo' : 'Inativo'}`,
       showIcon: false,
     },
   ]
@@ -176,7 +186,7 @@ export default function UserManagementPage() {
           <div className="space-y-8">
             <p className="text-base font-normal">
               Aqui você pode adicionar e remover usuários. Também é possível editar e validar
-              alterações nas carteiras de vacinação dos moradores.
+              informações e baixar relatórios.
             </p>
 
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -199,15 +209,25 @@ export default function UserManagementPage() {
               />
             </div>
 
-            {/* Cabeçalho da lista */}
-            <div className="mb-6 flex items-center justify-between">
-              <p className="text-xl font-bold">Lista de usuários</p>
-              {users.length > 0 && (
-                <p className="text-sm text-gray-600">
-                  Total: {users.length} usuário{users.length !== 1 ? 's' : ''}
-                </p>
-              )}
-            </div>
+            {/* Cabeçalho da lista com toggle */}
+            <button
+              onClick={() => setIsListOpen(!isListOpen)}
+              className="mb-6 flex w-full items-center justify-between rounded-lg bg-gray-50 p-4 transition-colors hover:bg-gray-100"
+            >
+              <div className="flex flex-1 items-center justify-between">
+                <p className="text-xl font-bold">Lista de usuários</p>
+                {users.length > 0 && (
+                  <p className="text-sm text-gray-600">
+                    Total: {users.length} usuário{users.length !== 1 ? 's' : ''}
+                  </p>
+                )}
+              </div>
+              <ChevronDown
+                className={`h-5 w-5 text-gray-600 transition-transform ${
+                  isListOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
           </div>
 
           {/* Mensagem de erro */}
@@ -235,8 +255,8 @@ export default function UserManagementPage() {
             </div>
           )}
 
-          {/* Tabela de usuários */}
-          {!loading && !error && (
+          {/* Tabela de usuários - renderizada apenas se toggle aberto */}
+          {!loading && !error && isListOpen && (
             <ManagementTable<UserTableItem>
               data={tableUsers}
               onEdit={canManageUsers ? handleEditUser : undefined}
@@ -257,6 +277,8 @@ export default function UserManagementPage() {
               isDeleteDisabled={(user) => !user.isActive}
             />
           )}
+
+          <UserReportsSection />
         </div>
 
         <DeleteConfirmationDialog

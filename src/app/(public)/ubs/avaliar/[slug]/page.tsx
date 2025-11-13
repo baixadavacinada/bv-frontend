@@ -30,9 +30,8 @@ const formSchema = z.object({
   rating: z.number().min(1, 'Selecione pelo menos 1 estrela').max(5),
 })
 
-export default function OrderDetailsPage() {
+export default function AvaliarUbsPage() {
   const params = useParams()
-  const name = params.name as string
   const id = params.id as string
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -55,7 +54,7 @@ export default function OrderDetailsPage() {
       healthUnitId: id,
       comment: `${values.vaccineSuccess} - ${values.waitTime} - ${values.respectfulService} - ${values.cleanLocation} - ${values.recommendation}`,
       rating: values.rating,
-      isAnonymous: false,
+      isAnonymous: true,
     }
     try {
       await submitSurvey(surveyData)
@@ -74,8 +73,6 @@ export default function OrderDetailsPage() {
   return (
     <div className="mx-auto max-w-4xl rounded-lg p-6">
       <BvTitleHeader title={'Avaliação da UBS'} className="mb-6" />
-
-      {/* <h2 className="mb-6 text-xl font-bold">UBS {name.replace(/-/g, ' ').replace(/ubs/g, '')}</h2> */}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

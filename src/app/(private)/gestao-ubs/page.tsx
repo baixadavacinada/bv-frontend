@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
-
+import { FeedbackReportsSection } from '@/components/admin/FeedbackReportsSection'
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { useHealthUnits } from '@/hooks/use-health-units'
@@ -154,6 +154,14 @@ export default function UbsScreen() {
       list = list.filter((ubs) => ubs.distanceInKm > 0 && ubs.distanceInKm <= 50) // 50km de raio
     }
 
+    // Ordenar: favoritos primeiro, depois por nome
+    list.sort((a, b) => {
+      if (a.isFavorite !== b.isFavorite) {
+        return a.isFavorite ? -1 : 1
+      }
+      return a.name.localeCompare(b.name)
+    })
+
     return list
   }, [ubsList, filters, userCoords])
 
@@ -271,6 +279,8 @@ export default function UbsScreen() {
         onFavoriteToggleRequest={handleFavoriteToggle}
         onShareRequest={handleShare}
       />
+
+      <FeedbackReportsSection />
 
       <DeleteConfirmationDialog
         isOpen={isOpen}

@@ -7,10 +7,12 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useHealthUnits } from '@/hooks/use-health-units'
 import { useLocationContext } from '@/contexts/LocationContext'
+import { useFavorites } from '@/contexts/FavoritesContext'
 import { sortByDistance } from '@/utils/geolocation'
 import { HealthUnit } from '@/types/health-units'
 import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 import { toSlug } from '@/utils/slug'
+import { toast } from 'sonner'
 
 type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onDelete'>
 
@@ -18,6 +20,7 @@ export default function UbsScreen() {
   const [ubsList, setUbsList] = useState<UbsListData[]>([])
   const { data, isLoading, error } = useHealthUnits()
   const { userCoords } = useLocationContext()
+  const { isFavorite, toggleFavorite } = useFavorites()
   const [filters, setFilters] = useState({
     name: '',
     neighborhood: '',
@@ -34,9 +37,9 @@ export default function UbsScreen() {
         name: unit.name,
         neighborhood: unit.neighborhood,
         distanceInKm: 0,
+        isFavorite: isFavorite(toSlug(unit.name)),
       }))
 
-      // Se temos coordenadas do usuário, calcular distância
       if (userCoords && userCoords.latitude && userCoords.longitude) {
         const unitsWithGeo = data.map((unit: HealthUnit) => ({
           ...unit,
@@ -56,15 +59,31 @@ export default function UbsScreen() {
           name: unit.name,
           neighborhood: unit.neighborhood,
           distanceInKm: unit.distance || 0,
+          isFavorite: isFavorite(toSlug(unit.name)),
         }))
       }
 
       setUbsList(transformedData)
     }
-  }, [data, userCoords])
+  }, [data, userCoords, isFavorite])
 
   const handleProximityFilterChange = (checked: boolean | 'indeterminate') => {
     setFilters((prev) => ({ ...prev, filterByProximity: checked === true }))
+  }
+
+  const handleFavoriteToggle = (id: number) => {
+    const ubs = ubsList.find((u) => u.id === id)
+    if (ubs && ubs.slug) {
+      toggleFavorite(ubs.slug)
+      setUbsList((currentList) =>
+        currentList.map((u) => (u.id === id ? { ...u, isFavorite: !u.isFavorite } : u)),
+      )
+      toast.success(
+        !ubs.isFavorite
+          ? `"${ubs.name}" adicionada aos favoritos!`
+          : `"${ubs.name}" removida dos favoritos.`,
+      )
+    }
   }
 
   const filteredUbsList = useMemo(() => {
@@ -79,10 +98,16 @@ export default function UbsScreen() {
       return nameMatch && neighborhoodMatch
     })
 
-    // Filtrar por proximidade se ativado
     if (filters.filterByProximity && userCoords) {
       list = list.filter((ubs) => ubs.distanceInKm > 0 && ubs.distanceInKm <= 50) // 50km de raio
     }
+
+    list.sort((a, b) => {
+      if (a.isFavorite !== b.isFavorite) {
+        return a.isFavorite ? -1 : 1
+      }
+      return a.name.localeCompare(b.name)
+    })
 
     return list
   }, [ubsList, filters, userCoords])
@@ -151,7 +176,11 @@ export default function UbsScreen() {
         </CollapsibleFilter>
       </div>
 
-      <BvUbsList ubsList={filteredUbsList} path="/ubs" />
+      <BvUbsList
+        ubsList={filteredUbsList}
+        path="/ubs"
+        onFavoriteToggleRequest={handleFavoriteToggle}
+      />
     </div>
   )
 }

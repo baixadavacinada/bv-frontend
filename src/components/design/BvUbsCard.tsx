@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { Hospital, Home, Compass, ArrowRight, X, Edit } from 'lucide-react'
+import { Hospital, Home, Compass, ArrowRight, X, Edit, Heart } from 'lucide-react'
 import React from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
@@ -16,6 +16,8 @@ export interface UbsCardProps {
   onDelete?: () => void
   onMoreInfo: () => void
   onEdit?: () => void
+  onFavoriteToggle?: () => void
+  onShare?: () => void
   className?: string
 }
 
@@ -28,6 +30,8 @@ export function BvUbsCard({
   onMoreInfo,
   onDelete,
   onEdit,
+  onFavoriteToggle,
+  isFavorite,
   className,
 }: UbsCardProps) {
   const handleIconClick = (e: React.MouseEvent<HTMLButtonElement>, action?: () => void) => {
@@ -69,6 +73,21 @@ export function BvUbsCard({
         </Button>
 
         <div className="flex items-center gap-1">
+          {component === 'public' && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => handleIconClick(e, onFavoriteToggle)}
+              aria-label={isFavorite ? 'Remover de favoritos' : 'Adicionar aos favoritos'}
+            >
+              <Heart
+                className={cn(
+                  'h-6 w-6 transition-colors',
+                  isFavorite ? 'fill-red-600 text-red-600' : 'text-slate-400',
+                )}
+              />
+            </Button>
+          )}
           {slug && <BvShareMenu ubsName={name} ubsSlug={slug} />}
           {component === 'private' ? (
             <>

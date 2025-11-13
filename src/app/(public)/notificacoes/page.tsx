@@ -69,7 +69,7 @@ const ROLE_CONFIGURATIONS: Record<string, RoleConfig> = {
         title: 'Notificações para usuários',
         icon: DataIcon,
         notifications: [
-          { key: 'appointment', label: 'Lembretes de agendamento' },
+          // { key: 'appointment', label: 'Lembretes de agendamento' },
           { key: 'newVaccineRecords', label: 'Novos registros de vacinação' },
           { key: 'newSecondDoseReminders', label: 'Lembretes da segunda dose' },
         ],
@@ -104,8 +104,8 @@ const ROLE_CONFIGURATIONS: Record<string, RoleConfig> = {
         title: 'Notificações para usuários finais (moradores)',
         icon: DataIcon,
         notifications: [
-          { key: 'appointment', label: 'Lembretes de agendamento' },
-          { key: 'newVaccineRecords', label: 'Novos registros de vacinação' },
+          // { key: 'appointment', label: 'Lembretes de agendamento' },
+          // { key: 'newVaccineRecords', label: 'Novos registros de vacinação' },
           { key: 'newSecondDoseReminders', label: 'Lembretes da segunda dose' },
         ],
       },

@@ -141,7 +141,7 @@ export function BvShareMenu({ ubsName, ubsSlug, className }: BvShareMenuProps) {
           aria-label="Compartilhar"
           title="Compartilhar UBS"
         >
-          <Share2 className="h-5 w-5 text-slate-500" />
+          <Share2 className="h-6 w-6 text-slate-500" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-48 p-2" align="end">

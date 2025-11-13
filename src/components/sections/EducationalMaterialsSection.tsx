@@ -6,6 +6,7 @@ import { EducationalMaterial } from '@/types/cards'
 import { useAppTranslations } from '@/hooks/use-translations'
 import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
 import { handleSmartDownload } from '@/utils/deviceDetection'
+import { ChevronRight } from 'lucide-react'
 
 interface EducationalMaterialsSectionProps {
   materials: EducationalMaterial[]
@@ -108,7 +109,7 @@ export const EducationalMaterialsSection: React.FC<EducationalMaterialsSectionPr
 
   if (loading) {
     return (
-      <section aria-labelledby="materials-heading" role="region">
+      <section aria-labelledby="materials-heading" role="region" className="mb-8">
         <h2 id="materials-heading" className="mb-4 text-2xl font-bold">
           {sectionTitle}
         </h2>
@@ -126,9 +127,18 @@ export const EducationalMaterialsSection: React.FC<EducationalMaterialsSectionPr
 
   return (
     <section className="mb-8" aria-labelledby={sectionId} role="region">
-      <h2 id={sectionId} className="mb-4 text-2xl font-bold dark:text-gray-100">
-        {sectionTitle}
-      </h2>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 id={sectionId} className="text-2xl font-bold dark:text-gray-100">
+          {sectionTitle}
+        </h2>
+        {/* Indicador visual sutil de carrossel */}
+        {materials.length > 0 && (
+          <div className="flex animate-pulse items-center gap-1 text-xs text-gray-400">
+            <span>deslize</span>
+            <ChevronRight className="h-4 w-4" />
+          </div>
+        )}
+      </div>
 
       {materials.length === 0 ? (
         renderEmptyState()
@@ -142,6 +152,12 @@ export const EducationalMaterialsSection: React.FC<EducationalMaterialsSectionPr
               aria-busy={loading}
             >
               {renderContent()}
+              {/* Indicador visual sutil de movimento para a direita */}
+              {materials.length > 0 && (
+                <div className="flex animate-bounce items-center justify-center">
+                  <ChevronRight className="h-5 w-5 flex-shrink-0 text-gray-300" />
+                </div>
+              )}
             </div>
           </div>
         </div>

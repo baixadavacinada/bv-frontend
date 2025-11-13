@@ -89,7 +89,12 @@ export const getVaccines = async () => {
 export const submitSurvey = async (data: Survey) => {
   const endpoint = '/api/public/feedback'
   try {
-    const result = await apiClient.post(endpoint, data)
+    // Sempre enviar como anônimo a menos que especificamente indicado
+    const surveyData = {
+      ...data,
+      isAnonymous: data.isAnonymous !== false ? true : false,
+    }
+    const result = await apiClient.post(endpoint, surveyData)
     return result
   } catch (error) {
     console.error('Falha ao enviar pesquisa:', error)

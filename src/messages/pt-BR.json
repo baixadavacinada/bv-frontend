@@ -78,9 +78,13 @@
       "title": "Registro de vacinação",
       "description": "Registre suas vacinas na carteira de vacinação digital."
     },
-    "guide": {
+    "calendar": {
       "title": "Calendário de Vacinação",
       "description": "Veja aqui quais vacinas tomar em cada idade e o que fazer se perdeu alguma dose."
+    },
+    "cartilha": {
+      "title": "Cartilha de Vacinas",
+      "description": "Conheça as vacinas recomendadas para cada faixa etária de forma interativa."
     },
     "settings": {
       "title": "Configurações",
