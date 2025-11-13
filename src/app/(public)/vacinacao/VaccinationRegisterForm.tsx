@@ -496,7 +496,7 @@ export default function VaccinationRegisterForm() {
                 disabled={isSubmitting || loading}
                 isLoading={isSubmitting || loading}
                 title={isSubmitting || loading ? 'Salvando...' : 'Salvar Registro'}
-                className="flex-1 hover:bg-purple-700"
+                className="flex-1"
               />
 
               <button

@@ -279,7 +279,7 @@ export default function VaccineRegistrationContent({
           <BvButton
             onClick={() => router.push('/vacinacao')}
             title="Adicionar Vacina"
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-primary hover:bg-primary/90"
             leftIcon={<Plus className="h-4 w-4" />}
           />
         </div>
