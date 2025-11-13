@@ -9,6 +9,7 @@ import SettingsIcon from '@/assets/icons/settings.svg'
 import EvaluationIcon from '@/assets/icons/evaluation.svg'
 import VaccineIcon from '@/assets/icons/seringa.svg'
 import NotificationsIcon from '@/assets/icons/phone-notifications.svg'
+import CalendarIcon from '@/assets/icons/calendar.svg'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { ActionType, usePermissions } from '@/hooks/use-permissions'
 import { StaticImageData } from 'next/image'
@@ -45,6 +46,14 @@ export function MainActionsSection() {
       description: cards('evaluation.description'),
       icon: EvaluationIcon,
       action: () => router.push('/ubs'),
+      variant: 'stacked',
+    },
+    guide: {
+      id: 'guide',
+      title: cards('guide.title'),
+      description: cards('guide.description'),
+      icon: CalendarIcon,
+      action: () => router.push('/cartilha-vacinas'),
       variant: 'stacked',
     },
     settings: {

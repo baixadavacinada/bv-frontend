@@ -207,7 +207,9 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         ))}
       </div>
       <div className="mt-6 text-center">
-        <p>Confira a cartilha de vacinas para saber quais vacinas são indicadas para cada idade.</p>
+        <p>
+          Confira o calendário de vacinação para saber quais vacinas são indicadas para cada idade.
+        </p>
       </div>
     </div>
   )

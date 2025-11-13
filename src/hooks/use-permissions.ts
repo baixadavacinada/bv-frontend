@@ -4,6 +4,7 @@ import { filterNavigationByRole, NavigationItem } from '@/lib/layout-navigation'
 export type ActionType =
   | 'ubs'
   | 'evaluation'
+  | 'guide'
   | 'settings'
   | 'notifications'
   | 'ubs-management'
@@ -11,9 +12,9 @@ export type ActionType =
   | 'vaccine-management'
 
 export const ROLE_ACTIONS: Record<UserRole, ActionType[]> = {
-  public: ['ubs', 'evaluation'],
-  agent: ['evaluation', 'notifications'],
-  admin: ['evaluation', 'notifications', 'ubs-management', 'user-management', 'vaccine-management'],
+  public: ['ubs', 'evaluation', 'guide'],
+  agent: ['evaluation', 'guide', 'notifications'],
+  admin: ['evaluation', 'guide', 'notifications', 'ubs-management', 'user-management', 'vaccine-management'],
 }
 
 export function usePermissions() {
