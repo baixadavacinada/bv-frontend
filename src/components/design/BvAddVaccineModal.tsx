@@ -157,7 +157,7 @@ export function BvAddVaccineModal({
             </Button>
           </DialogClose>
           <Button
-            className="my-2 bg-purple-600 hover:bg-purple-700"
+            className="bg-primary hover:bg-primary/90 my-2"
             type="submit"
             onClick={handleAddClick}
             disabled={isLoading}
