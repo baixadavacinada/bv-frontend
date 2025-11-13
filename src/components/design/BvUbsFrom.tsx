@@ -41,8 +41,9 @@ const formSchema = z.object({
   telefone: z.string(),
   cep: z
     .string()
-    .min(9, 'CEP deve ter 9 dígitos (00000-000)')
-    .max(9, 'CEP deve ter 9 dígitos (00000-000)'),
+    .min(8, 'CEP deve ter 8 dígitos')
+    .max(8, 'CEP deve ter 8 dígitos')
+    .regex(/^\d+$/, 'CEP deve conter apenas números'),
   logradouro: z.string().min(2, 'Logradouro é obrigatório'),
   numero: z.string().min(1, 'Número é obrigatório'),
   bairro: z.string().min(2, 'Bairro é obrigatório'),
@@ -301,8 +302,44 @@ export function UbsForm({ initialData, slug }: UbsFormProps) {
                     <FormItem>
                       <FormLabel>CEP</FormLabel>
                       <FormControl>
-                        <Input placeholder="00000-000" {...field} />
+                        <div className="relative">
+                          <Input
+                            placeholder="00000000"
+                            maxLength={8}
+                            {...field}
+                            onChange={async (e) => {
+                              const value = e.target.value.replace(/\D/g, '')
+                              field.onChange(value)
+
+                              // Auto-buscar CEP quando completar 8 dígitos
+                              if (value.length === 8) {
+                                const address = await lookupCEP(value)
+                                if (address) {
+                                  form.setValue('logradouro', address.logradouro || '')
+                                  form.setValue('bairro', address.bairro || '')
+                                  form.setValue('cidade', address.localidade || '')
+                                  form.setValue('estado', address.uf || '')
+                                  setLogradouroPreenchido(true)
+                                  toast.success('Endereço carregado com sucesso!')
+                                }
+                              } else {
+                                setLogradouroPreenchido(false)
+                              }
+                            }}
+                          />
+                          {cepLoading && (
+                            <div className="absolute top-2.5 right-3">
+                              <div className="h-5 w-5 animate-spin text-blue-500">⟳</div>
+                            </div>
+                          )}
+                        </div>
                       </FormControl>
+                      {cepError && <p className="mt-1 text-xs text-red-500">{cepError}</p>}
+                      {logradouroPreenchido && (
+                        <p className="mt-1 text-xs text-green-600">
+                          ✓ Endereço preenchido automaticamente
+                        </p>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
