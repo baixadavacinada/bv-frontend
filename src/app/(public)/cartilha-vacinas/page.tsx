@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import VaccineBookletContent from './booklet'
 import VaccineRegistrationContent from './vaccine-registration'
@@ -9,7 +10,16 @@ import VaccineCalendarContent from './calendar'
 type TabType = 'cartilha' | 'minhas-vacinas' | 'calendario'
 
 export default function VaccineBookletScreen() {
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<TabType>('minhas-vacinas')
+
+  useEffect(() => {
+    // Ler o parâmetro de query 'tab' se fornecido
+    const tabParam = searchParams.get('tab') as TabType | null
+    if (tabParam && ['cartilha', 'minhas-vacinas', 'calendario'].includes(tabParam)) {
+      setActiveTab(tabParam)
+    }
+  }, [searchParams])
 
   return (
     <div>

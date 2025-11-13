@@ -1,5 +1,6 @@
 import { VaccineFromDB, HealthUnitFromDB, VaccinationFormData } from '@/schemas/vaccination-schema'
 import { cacheService } from './cache-service'
+import { apiClient } from './api'
 
 const HEALTH_UNITS_CACHE_KEY = 'cache_health_units'
 const VACCINES_CACHE_KEY = 'cache_vaccines'
@@ -153,7 +154,7 @@ export class VaccinationService {
       const updatedRecords = [...existingRecords, newRecord]
       localStorage.setItem('vaccination_records', JSON.stringify(updatedRecords))
 
-      // Depois tenta salvar no backend
+      // Depois tenta salvar no backend usando apiClient (que adiciona autenticação automaticamente)
       try {
         const vaccineData = {
           vaccineId: data.vaccineId || Date.now().toString(),
@@ -167,22 +168,12 @@ export class VaccinationService {
           state: data.state || data.customState,
         }
 
-        const response = await fetch(`${this.baseUrl}/api/public/user/vaccines`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include', // Inclui cookies com auth
-          body: JSON.stringify(vaccineData),
-        })
-
-        if (!response.ok) {
-          console.warn('Erro ao salvar vacina no backend:', response.statusText)
-          // Continua mesmo se falhar - dados estão salvos localmente
-        }
-
-        const result = await response.json()
-        return result.data || data
+        // Usar apiClient que automaticamente adiciona o header Authorization com o token Firebase
+        const result = await apiClient.post<VaccinationFormData>(
+          '/api/public/user/vaccines',
+          vaccineData,
+        )
+        return result || data
       } catch (backendError) {
         console.warn('Erro ao comunicar com backend:', backendError)
         // Falha silenciosa - dados já foram salvos localmente

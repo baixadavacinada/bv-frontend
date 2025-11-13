@@ -1,6 +1,5 @@
 import { z } from 'zod'
 
-const requiredText = z.string().min(1, 'Este campo é obrigatório').trim()
 const optionalText = z.string().optional()
 const date = z
   .string()
@@ -9,18 +8,18 @@ const date = z
     // Aceita formatos: dd/mm/aaaa ou yyyy-mm-dd
     const ddmmyyyy = /^\d{2}\/\d{2}\/\d{4}$/
     const yyyymmdd = /^\d{4}-\d{2}-\d{2}$/
-    
+
     if (ddmmyyyy.test(date)) {
       const [d, m, y] = date.split('/').map(Number)
       const dt = new Date(y, m - 1, d)
       return dt.getDate() === d && dt.getMonth() === m - 1 && dt.getFullYear() === y
     }
-    
+
     if (yyyymmdd.test(date)) {
       const dt = new Date(date)
       return !isNaN(dt.getTime())
     }
-    
+
     return false
   }, 'Data inválida. Use dd/mm/aaaa ou yyyy-mm-dd')
 
@@ -28,7 +27,7 @@ export const vaccinationSchema = z
   .object({
     vaccineId: z.string().optional(),
 
-    vaccineName: requiredText.min(2, 'Nome da vacina deve ter pelo menos 2 caracteres'),
+    vaccineName: optionalText,
     manufacturer: optionalText,
 
     batchNumber: optionalText.refine(
@@ -73,6 +72,20 @@ export const vaccinationSchema = z
     {
       message: 'Informe o local da vacinação (UBS ou local personalizado)',
       path: ['healthUnitId'],
+    },
+  )
+  .refine(
+    (data) => {
+      // Se selecionou "outra vacina" (customizada), vaccineName é obrigatório
+      if (data.vaccineId === 'custom') {
+        return data.vaccineName && data.vaccineName.trim().length >= 2
+      }
+      // Se selecionou uma vacina do sistema, já vem preenchida
+      return true
+    },
+    {
+      message: 'Nome da vacina deve ter pelo menos 2 caracteres',
+      path: ['vaccineName'],
     },
   )
 

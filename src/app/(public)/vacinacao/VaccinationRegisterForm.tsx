@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
@@ -22,10 +23,12 @@ import { FaSyringe, FaMapMarkerAlt, FaCalendarAlt, FaUser } from 'react-icons/fa
 import { MdLocationOn } from 'react-icons/md'
 
 export default function VaccinationRegisterForm() {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [vaccines, setVaccines] = useState<VaccineFromDB[]>([])
   const [healthUnits, setHealthUnits] = useState<HealthUnitFromDB[]>([])
   const [showCustomLocation, setShowCustomLocation] = useState(false)
+  const [isCustomVaccine, setIsCustomVaccine] = useState(false)
   const [selectedVaccine, setSelectedVaccine] = useState<VaccineFromDB | null>(null)
   const [availableCities, setAvailableCities] = useState<string[]>([])
 
@@ -79,11 +82,19 @@ export default function VaccinationRegisterForm() {
 
   useEffect(() => {
     if (watchVaccineId) {
-      const vaccine = vaccines.find((v) => v.id === watchVaccineId || v._id === watchVaccineId)
-      if (vaccine) {
-        setSelectedVaccine(vaccine)
-        setValue('vaccineName', vaccine.name)
-        setValue('manufacturer', vaccine.manufacturer || '')
+      if (watchVaccineId === 'custom') {
+        setIsCustomVaccine(true)
+        setSelectedVaccine(null)
+        setValue('vaccineName', '')
+        setValue('manufacturer', '')
+      } else {
+        setIsCustomVaccine(false)
+        const vaccine = vaccines.find((v) => v.id === watchVaccineId || v._id === watchVaccineId)
+        if (vaccine) {
+          setSelectedVaccine(vaccine)
+          setValue('vaccineName', vaccine.name)
+          setValue('manufacturer', vaccine.manufacturer || '')
+        }
       }
     }
   }, [watchVaccineId, vaccines, setValue])
@@ -131,6 +142,9 @@ export default function VaccinationRegisterForm() {
       reset()
       setSelectedVaccine(null)
       setShowCustomLocation(false)
+
+      // Redirecionar para a aba de minhas vacinas na cartilha
+      router.push('/cartilha-vacinas?tab=minhas-vacinas')
     } catch (error) {
       console.error('Erro ao salvar registro:', error)
       toast.error('Erro ao salvar registro de vacinação')
@@ -184,35 +198,41 @@ export default function VaccinationRegisterForm() {
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">Vacina *</label>
                   <BvSelect
+                    title="Vacina *"
                     options={[
                       ...vaccineOptions,
-                      { value: 'custom', label: 'Outra vacina (digitar manualmente)' },
+                      { value: 'custom', label: 'Outra vacina (adicionar manualmente)' },
                     ]}
-                    value={watchVaccineId || 'custom'}
+                    value={watchVaccineId || ''}
+                    placeholder="Selecione uma vacina"
                     onValueChange={(value: string | string[]) => {
                       const stringValue = Array.isArray(value) ? value[0] : value
-                      if (stringValue === 'custom') {
-                        setValue('vaccineId', undefined)
-                        setValue('vaccineName', '')
-                        setValue('manufacturer', '')
-                        setSelectedVaccine(null)
-                      } else {
-                        setValue('vaccineId', stringValue)
-                      }
+                      setValue('vaccineId', stringValue)
                     }}
                     error={errors.vaccineId?.message}
                   />
                 </div>
 
-                <BvFormInput
-                  label="Nome da Vacina"
-                  placeholder="Ex: COVID-19, Influenza..."
-                  required
-                  {...register('vaccineName')}
-                  error={errors.vaccineName?.message}
-                />
+                {isCustomVaccine && (
+                  <BvFormInput
+                    label="Nome da Vacina"
+                    placeholder="Ex: COVID-19, Influenza..."
+                    required
+                    {...register('vaccineName')}
+                    error={errors.vaccineName?.message}
+                  />
+                )}
+
+                {!isCustomVaccine && (
+                  <BvFormInput
+                    label="Nome da Vacina"
+                    placeholder="Ex: COVID-19, Influenza"
+                    disabled
+                    {...register('vaccineName')}
+                    error={errors.vaccineName?.message}
+                  />
+                )}
 
                 <BvFormInput
                   label="Fabricante"
@@ -223,7 +243,7 @@ export default function VaccinationRegisterForm() {
 
                 <BvFormInput
                   label="Lote da Vacina"
-                  placeholder="Ex: ABC123..."
+                  placeholder="Ex: ABC123"
                   {...register('batchNumber')}
                   error={errors.batchNumber?.message}
                 />
@@ -271,16 +291,9 @@ export default function VaccinationRegisterForm() {
                   id="applicationDate"
                 />
 
-                <BvFormInput
-                  label="Horário da Aplicação"
-                  type="time"
-                  {...register('applicationTime')}
-                  error={errors.applicationTime?.message}
-                />
-
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">Dose *</label>
                   <BvSelect
+                    title="Dose *"
                     options={[...doseTypes]}
                     value={watch('dose') || ''}
                     onValueChange={(value: string | string[]) => {
@@ -344,8 +357,8 @@ export default function VaccinationRegisterForm() {
 
                 {!showCustomLocation ? (
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">UBS *</label>
                     <BvSelect
+                      title="UBS *"
                       options={healthUnitOptions}
                       placeholder="Selecione uma UBS"
                       value={watch('healthUnitId') || ''}
@@ -361,17 +374,15 @@ export default function VaccinationRegisterForm() {
                     <div className="border-l-4 border-yellow-300 bg-yellow-50 px-4 py-3 md:col-span-2">
                       <BvFormInput
                         label="Local da Vacinação *"
-                        placeholder="Ex: Clínica Particular, Hospital..."
+                        placeholder="Ex: Clínica Particular, Hospital"
                         {...register('customLocation')}
                         error={errors.customLocation?.message}
                       />
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
-                        Estado *
-                      </label>
                       <BvSelect
+                        title="Estado *"
                         options={Array.from(brazilianStates)}
                         value={watchCustomState || ''}
                         placeholder="Selecione um estado"
@@ -385,10 +396,8 @@ export default function VaccinationRegisterForm() {
 
                     {watchCustomState && availableCities.length > 0 && (
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
-                          Cidade *
-                        </label>
                         <BvSelect
+                          title="Cidade *"
                           options={availableCities.map((c) => ({ value: c, label: c }))}
                           value={watch('customCity') || ''}
                           placeholder="Selecione uma cidade"
@@ -414,13 +423,6 @@ export default function VaccinationRegisterForm() {
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <BvFormInput
-                  label="Profissional que Aplicou"
-                  placeholder="Nome do profissional"
-                  {...register('appliedBy')}
-                  error={errors.appliedBy?.message}
-                />
-
-                <BvFormInput
                   label="Data da Próxima Dose"
                   type="text"
                   placeholder="dd/mm/aaaa"
@@ -430,12 +432,12 @@ export default function VaccinationRegisterForm() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">Observações</label>
                 <textarea
+                  title="Observações"
                   {...register('notes')}
                   rows={3}
                   className="block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                  placeholder="Observações sobre a vacinação..."
+                  placeholder="Observações sobre a vacinação"
                 />
                 {errors.notes && (
                   <p className="mt-1 text-sm text-red-600">{errors.notes.message}</p>
@@ -467,7 +469,7 @@ export default function VaccinationRegisterForm() {
                     {...register('reactionDescription')}
                     rows={3}
                     className="block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none"
-                    placeholder="Descreva a reação adversa observada..."
+                    placeholder="Descreva a reação adversa observada"
                   />
                   {errors.reactionDescription && (
                     <p className="mt-1 text-sm text-red-600">

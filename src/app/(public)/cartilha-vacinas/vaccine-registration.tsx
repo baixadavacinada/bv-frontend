@@ -97,8 +97,25 @@ export default function VaccineRegistrationContent({
       if (!user) return
 
       const response = await apiClient.get<RegisteredVaccine[]>(`/api/public/user/vaccines`)
-      if (response && Array.isArray(response)) {
-        setRegisteredVaccines(response)
+
+      // Backend retorna { success, data, total }
+      let vaccines: RegisteredVaccine[] = []
+      if (response) {
+        // Verificar se é um array direto
+        if (Array.isArray(response)) {
+          vaccines = response
+        }
+        // Verificar se tem a propriedade 'data' (resposta envolvida)
+        else if (
+          'data' in response &&
+          Array.isArray((response as { data: RegisteredVaccine[] }).data)
+        ) {
+          vaccines = (response as { data: RegisteredVaccine[] }).data
+        }
+      }
+
+      if (vaccines.length > 0) {
+        setRegisteredVaccines(vaccines)
       }
     } catch (error) {
       console.error('Erro ao carregar vacinas registradas:', error)
