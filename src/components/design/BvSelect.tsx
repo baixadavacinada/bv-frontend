@@ -132,11 +132,14 @@ const BvSelect = ({
 
   const removeItem = React.useCallback(
     (valueToRemove: string) => {
+      const optionLabel = getOptionLabel(valueToRemove)
       if (multiple) {
-        const optionLabel = getOptionLabel(valueToRemove)
         onValueChange?.((normalizedValue as string[]).filter((v) => v !== valueToRemove))
-        announceToScreenReader(`${optionLabel} removido da seleção`)
+      } else {
+        // Para single-select, limpar o valor
+        onValueChange?.('')
       }
+      announceToScreenReader(`${optionLabel} removido da seleção`)
     },
     [multiple, normalizedValue, onValueChange, getOptionLabel, announceToScreenReader],
   )

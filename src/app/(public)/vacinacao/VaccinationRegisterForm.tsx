@@ -51,13 +51,25 @@ export default function VaccinationRegisterForm() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [vaccinesData, healthUnitsData] = await Promise.all([
-          vaccinationService.getAvailableVaccines(),
-          vaccinationService.getAvailableHealthUnits(),
-        ])
-
+        const vaccinesData = await vaccinationService.getAvailableVaccines()
         setVaccines(vaccinesData)
-        setHealthUnits(healthUnitsData)
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/health-units`,
+        )
+        if (response.ok) {
+          const healthUnitsResponse = await response.json()
+          console.log('Health Units Response:', healthUnitsResponse)
+          const ubsList = Array.isArray(healthUnitsResponse.data)
+            ? healthUnitsResponse.data
+            : Array.isArray(healthUnitsResponse)
+              ? healthUnitsResponse
+              : []
+          console.log('Processed UBS List:', ubsList)
+          setHealthUnits(ubsList)
+        } else {
+          throw new Error('Erro ao carregar unidades de saúde')
+        }
       } catch (error) {
         console.error('Erro ao carregar dados:', error)
         toast.error('Erro ao carregar dados das vacinas e UBS')
@@ -135,10 +147,13 @@ export default function VaccinationRegisterForm() {
     label: `${vaccine.name} - ${vaccine.manufacturer}`,
   }))
 
-  const healthUnitOptions = healthUnits.map((unit) => ({
-    value: unit.id || unit._id,
-    label: `${unit.name} - ${unit.city}`,
-  }))
+  const healthUnitOptions = healthUnits.map((unit) => {
+    console.log('Health Unit:', unit)
+    return {
+      value: unit.id || unit._id || `${unit.name}-${unit.city}`,
+      label: `${unit.name} - ${unit.city}`,
+    }
+  })
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -288,7 +303,7 @@ export default function VaccinationRegisterForm() {
             {/* Local da Aplicação */}
             <div className="space-y-6">
               <div className="flex items-center gap-3 border-b pb-3">
-                <MdLocationOn className="text-xl text-purple-600" />
+                <MdLocationOn className="text-primary text-xl" />
                 <h3 className="text-lg font-semibold text-gray-900">Local da Aplicação</h3>
               </div>
 
@@ -332,40 +347,17 @@ export default function VaccinationRegisterForm() {
                 </div>
 
                 {!showCustomLocation ? (
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                    <div className="md:col-span-2">
-                      <label className="mb-2 block text-sm font-medium text-gray-700">UBS *</label>
-                      <BvSelect
-                        options={healthUnitOptions}
-                        placeholder="Selecione uma UBS"
-                        value={watch('healthUnitId') || ''}
-                        onValueChange={(value: string | string[]) => {
-                          const stringValue = Array.isArray(value) ? value[0] : value
-                          setValue('healthUnitId', stringValue)
-                        }}
-                        error={errors.healthUnitId?.message}
-                      />
-                    </div>
-
-                    <BvFormInput
-                      label="Nome da UBS"
-                      readOnly
-                      {...register('healthUnitName')}
-                      error={errors.healthUnitName?.message}
-                    />
-
-                    <BvFormInput
-                      label="Cidade"
-                      disabled
-                      value={watch('city') || ''}
-                      placeholder="Carregado da UBS"
-                    />
-
-                    <BvFormInput
-                      label="Estado"
-                      disabled
-                      value={watch('state') || ''}
-                      placeholder="Carregado da UBS"
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">UBS *</label>
+                    <BvSelect
+                      options={healthUnitOptions}
+                      placeholder="Selecione uma UBS"
+                      value={watch('healthUnitId') || ''}
+                      onValueChange={(value: string | string[]) => {
+                        const stringValue = Array.isArray(value) ? value[0] : value
+                        setValue('healthUnitId', stringValue)
+                      }}
+                      error={errors.healthUnitId?.message}
                     />
                   </div>
                 ) : (
