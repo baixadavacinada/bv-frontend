@@ -146,11 +146,23 @@ export function BvAddVaccineModal({
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button className="my-2" type="button" variant="outline" disabled={isLoading}>
+            <Button
+              className="my-2"
+              type="button"
+              variant="outline"
+              disabled={isLoading}
+              title="Fechar o formulário de adição de vacina"
+            >
               Cancelar
             </Button>
           </DialogClose>
-          <Button className="my-2" type="submit" onClick={handleAddClick} disabled={isLoading}>
+          <Button
+            className="my-2 bg-purple-600 hover:bg-purple-700"
+            type="submit"
+            onClick={handleAddClick}
+            disabled={isLoading}
+            title="Adicionar a vacina selecionada ou digitada"
+          >
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Adicionar'}
           </Button>
         </DialogFooter>
