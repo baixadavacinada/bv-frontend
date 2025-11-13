@@ -46,7 +46,7 @@ export const vaccinationSchema = z
       'Observações devem ter no máximo 500 caracteres',
     ),
 
-    adverseReaction: z.boolean().default(false),
+    adverseReaction: z.boolean(),
     reactionDescription: optionalText.refine(
       (val) => !val || val.length <= 500,
       'Descrição da reação deve ter no máximo 500 caracteres',

@@ -129,11 +129,10 @@ export default function VaccinationRegisterForm() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 text-center">
-          <BvTitleHeader
-            title="Registro de Vacinação"
-            subtitle="Registre suas vacinas na carteira de vacinação digital"
-            className="mb-4"
-          />
+          <BvTitleHeader title="Registro de Vacinação" className="mb-4" />
+          <p className="mb-6 text-center text-gray-600">
+            Registre suas vacinas na carteira de vacinação digital
+          </p>
           <div className="mx-auto max-w-2xl">
             <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-2">
@@ -166,14 +165,15 @@ export default function VaccinationRegisterForm() {
                       { value: 'custom', label: 'Outra vacina (digitar manualmente)' },
                     ]}
                     value={watchVaccineId || 'custom'}
-                    onValueChange={(value: string) => {
-                      if (value === 'custom') {
+                    onValueChange={(value: string | string[]) => {
+                      const stringValue = Array.isArray(value) ? value[0] : value
+                      if (stringValue === 'custom') {
                         setValue('vaccineId', undefined)
                         setValue('vaccineName', '')
                         setValue('manufacturer', '')
                         setSelectedVaccine(null)
                       } else {
-                        setValue('vaccineId', value)
+                        setValue('vaccineId', stringValue)
                       }
                     }}
                     error={errors.vaccineId?.message}

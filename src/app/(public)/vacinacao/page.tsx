@@ -6,18 +6,16 @@ import { useEffect } from 'react'
 import VaccinationRegisterForm from './VaccinationRegisterForm'
 
 export default function VaccinationRegisterScreen() {
-  const { user, isLoading } = useAuth()
+  const { user, loading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      // Redirect to login if user is not authenticated
+    if (!loading && !user) {
       router.push('/login?redirect=/vacinacao')
     }
-  }, [user, isLoading, router])
+  }, [user, loading, router])
 
-  // Show loading while checking authentication
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex min-h-[200px] items-center justify-center">
         <p>Verificando autenticação...</p>
@@ -25,7 +23,6 @@ export default function VaccinationRegisterScreen() {
     )
   }
 
-  // Don't render if user is not authenticated
   if (!user) {
     return null
   }
