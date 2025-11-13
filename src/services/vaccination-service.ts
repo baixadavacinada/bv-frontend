@@ -9,7 +9,7 @@ const VACCINES_CACHE_KEY = 'cache_vaccines'
  */
 export class VaccinationService {
   private static instance: VaccinationService
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+  private baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
 
   static getInstance(): VaccinationService {
     if (!VaccinationService.instance) {

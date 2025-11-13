@@ -26,19 +26,16 @@ export async function updateUserFavorites(favorites: string[]): Promise<void> {
       addedAt: new Date(),
     }))
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/auth/profile`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({
-          favoritesHealthUnit,
-        }),
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/profile`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${idToken}`,
       },
-    )
+      body: JSON.stringify({
+        favoritesHealthUnit,
+      }),
+    })
 
     if (!response.ok) {
       const error = await response.json()

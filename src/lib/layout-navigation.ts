@@ -71,7 +71,7 @@ export const sidebarNavigation: NavigationItem[] = [
   {
     id: 'gestao-ubs',
     icon: BsFileEarmarkText,
-    label: 'G',
+    label: 'Gestão de Unidades de Saúde',
     href: '/gestao-ubs',
     allowedRoles: ['admin'],
   },

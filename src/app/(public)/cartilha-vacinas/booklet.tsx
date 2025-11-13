@@ -104,10 +104,10 @@ export default function VaccineBookletScreen() {
       <div className="mb-8 flex items-center gap-2 md:gap-4">
         <button
           onClick={handlePrevious}
-          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white shadow-md transition-all hover:shadow-lg md:h-10 md:w-10"
+          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white shadow-md transition-all hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none md:h-10 md:w-10"
           aria-label="Faixa etária anterior"
         >
-          <ChevronLeft className="h-5 w-5 text-gray-600 md:h-6 md:w-6" />
+          <ChevronLeft className="h-5 w-5 text-gray-900 md:h-6 md:w-6" />
         </button>
 
         <div
@@ -129,7 +129,7 @@ export default function VaccineBookletScreen() {
                   alt={currentGroup.title}
                   width={80}
                   height={80}
-                  className="object-contain"
+                  className="h-16 w-16 object-contain md:h-20 md:w-20"
                 />
               </div>
 
@@ -148,10 +148,10 @@ export default function VaccineBookletScreen() {
 
         <button
           onClick={handleNext}
-          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white shadow-md transition-all hover:shadow-lg md:h-10 md:w-10"
+          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white shadow-md transition-all hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none md:h-10 md:w-10"
           aria-label="Próxima faixa etária"
         >
-          <ChevronRight className="h-5 w-5 text-gray-600 md:h-6 md:w-6" />
+          <ChevronRight className="h-5 w-5 text-gray-900 md:h-6 md:w-6" />
         </button>
       </div>
 
@@ -217,7 +217,7 @@ export default function VaccineBookletScreen() {
       </div>
 
       <div className="mt-12 rounded-lg border-l-4 border-blue-500 bg-blue-50 p-4 md:p-6">
-        <h3 className="mb-2 text-sm font-semibold text-blue-900 md:text-base">Importante</h3>
+        <h2 className="mb-2 text-sm font-semibold text-blue-900 md:text-base">Importante</h2>
         <p className="text-xs text-blue-800 md:text-sm">
           Este calendário segue as recomendações da Secretaria de Saúde do Estado do Rio de Janeiro.
           Consulte um profissional de saúde para orientação personalizada e sobre possíveis

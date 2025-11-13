@@ -109,8 +109,22 @@ export default function VaccineRegistrationContent() {
       return
     }
 
+    // Validar local de vacinação
+    if (customLocation !== '' && customLocation !== 'Other') {
+      if (!state.trim()) {
+        toast.error('Selecione um estado para o local personalizado')
+        return
+      }
+    }
+
     setLoading(true)
     try {
+      const healthUnitName = selectedHealthUnit
+        ? healthUnits.find((u) => u._id === selectedHealthUnit)?.name
+        : customLocation && customLocation !== 'Other'
+          ? customLocation.trim()
+          : undefined
+
       const vaccineData = {
         vaccineId,
         vaccineName: vaccineName.trim(),
@@ -118,9 +132,7 @@ export default function VaccineRegistrationContent() {
         dose: dose.trim(),
         batchNumber: batchNumber.trim() || undefined,
         applicationDate: applicationDate.trim() || undefined,
-        healthUnitName: selectedHealthUnit
-          ? healthUnits.find((u) => u._id === selectedHealthUnit)?.name
-          : customLocation.trim() || undefined,
+        healthUnitName,
         city: selectedHealthUnit
           ? healthUnits.find((u) => u._id === selectedHealthUnit)?.city
           : city.trim() || undefined,
@@ -329,7 +341,7 @@ export default function VaccineRegistrationContent() {
                 <label className="flex items-center gap-2">
                   <input
                     type="radio"
-                    checked={!!selectedHealthUnit}
+                    checked={selectedHealthUnit !== ''}
                     onChange={() => {
                       setSelectedHealthUnit('')
                       setCustomLocation('')
@@ -338,7 +350,7 @@ export default function VaccineRegistrationContent() {
                   />
                   <span className="text-sm">UBS</span>
                 </label>
-                {selectedHealthUnit !== '' || !customLocation ? (
+                {selectedHealthUnit !== '' && (
                   <BvSelect
                     options={[{ value: '', label: 'Selecione uma UBS...' }, ...healthUnitOptions]}
                     value={selectedHealthUnit}
@@ -346,29 +358,29 @@ export default function VaccineRegistrationContent() {
                       setSelectedHealthUnit(Array.isArray(value) ? value[0] : value)
                     }}
                   />
-                ) : null}
+                )}
               </div>
 
               <div className="mt-3 space-y-2">
                 <label className="flex items-center gap-2">
                   <input
                     type="radio"
-                    checked={!!customLocation}
+                    checked={customLocation !== ''}
                     onChange={() => {
                       setSelectedHealthUnit('')
-                      setCustomLocation('')
+                      setCustomLocation('Other')
                     }}
                     className="h-4 w-4"
                   />
                   <span className="text-sm">Local Personalizado</span>
                 </label>
-                {customLocation !== '' || selectedHealthUnit ? null : (
+                {customLocation !== '' && (
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
                     <BvFormInput
                       label="Local"
                       placeholder="Ex: Clínica Particular..."
-                      value={customLocation}
-                      onChange={(e) => setCustomLocation(e.target.value)}
+                      value={customLocation === 'Other' ? '' : customLocation}
+                      onChange={(e) => setCustomLocation(e.target.value || 'Other')}
                     />
                     <BvFormInput
                       label="Cidade"
@@ -377,15 +389,39 @@ export default function VaccineRegistrationContent() {
                       onChange={(e) => setCity(e.target.value)}
                     />
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">Estado</label>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                        Estado *
+                      </label>
                       <BvSelect
                         options={[
-                          { value: '', label: 'Selecione...' },
-                          { value: 'RJ', label: 'Rio de Janeiro' },
-                          { value: 'SP', label: 'São Paulo' },
-                          { value: 'MG', label: 'Minas Gerais' },
+                          { value: '', label: 'Selecione uma opção' },
+                          { value: 'AC', label: 'Acre' },
+                          { value: 'AL', label: 'Alagoas' },
+                          { value: 'AP', label: 'Amapá' },
+                          { value: 'AM', label: 'Amazonas' },
                           { value: 'BA', label: 'Bahia' },
+                          { value: 'CE', label: 'Ceará' },
+                          { value: 'DF', label: 'Distrito Federal' },
+                          { value: 'ES', label: 'Espírito Santo' },
+                          { value: 'GO', label: 'Goiás' },
+                          { value: 'MA', label: 'Maranhão' },
+                          { value: 'MT', label: 'Mato Grosso' },
+                          { value: 'MS', label: 'Mato Grosso do Sul' },
+                          { value: 'MG', label: 'Minas Gerais' },
+                          { value: 'PA', label: 'Pará' },
+                          { value: 'PB', label: 'Paraíba' },
+                          { value: 'PR', label: 'Paraná' },
+                          { value: 'PE', label: 'Pernambuco' },
+                          { value: 'PI', label: 'Piauí' },
+                          { value: 'RJ', label: 'Rio de Janeiro' },
+                          { value: 'RN', label: 'Rio Grande do Norte' },
                           { value: 'RS', label: 'Rio Grande do Sul' },
+                          { value: 'RO', label: 'Rondônia' },
+                          { value: 'RR', label: 'Roraima' },
+                          { value: 'SC', label: 'Santa Catarina' },
+                          { value: 'SP', label: 'São Paulo' },
+                          { value: 'SE', label: 'Sergipe' },
+                          { value: 'TO', label: 'Tocantins' },
                         ]}
                         value={state}
                         onValueChange={(value: string | string[]) => {
@@ -468,7 +504,7 @@ export default function VaccineRegistrationContent() {
                     </div>
                     <button
                       onClick={() => handleRemoveVaccine(vaccine.vaccineId)}
-                      className="flex-shrink-0 text-gray-400 transition-colors hover:text-red-600"
+                      className="flex-shrink-0 rounded text-gray-600 transition-colors hover:text-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
                       aria-label={`Remover ${vaccine.vaccineName}`}
                       title="Remover esta vacina"
                     >
