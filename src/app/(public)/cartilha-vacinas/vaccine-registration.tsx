@@ -481,7 +481,7 @@ export default function VaccineRegistrationContent() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <h4 className="font-semibold text-gray-900">{vaccine.vaccineName}</h4>
+                      <h3 className="font-semibold text-gray-900">{vaccine.vaccineName}</h3>
                       <p className="text-sm text-gray-600">
                         {vaccine.dose && <span>{vaccine.dose}</span>}
                         {vaccine.manufacturer && <span> • {vaccine.manufacturer}</span>}
