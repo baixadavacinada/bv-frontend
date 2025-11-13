@@ -62,18 +62,29 @@ export function Sidebar() {
         {/* Menu items */}
         <nav className="flex-1" aria-label={accessibility('primaryNavigation')}>
           <ul className="space-y-5" role="list">
-            {allowedNavigationItems.map((action) => (
-              <li key={`sidebar-${action.id}`}>
-                <BvButton
-                  title={action.label}
-                  variant="ghost"
-                  className="w-full justify-start gap-8 text-gray-700 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500"
-                  leftIcon={<action.icon className="size-6" aria-hidden="true" />}
-                  aria-label={`Navegar para ${action.label}`}
-                  onClick={() => handleNavigation(action)}
-                />
-              </li>
-            ))}
+            {allowedNavigationItems.map((action) => {
+              // Renderizar ícone corretamente dependendo do tipo
+              const IconComponent = action.icon
+
+              return (
+                <li key={`sidebar-${action.id}`}>
+                  <BvButton
+                    title={action.label}
+                    variant="ghost"
+                    className="w-full justify-start gap-8 text-gray-700 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500"
+                    leftIcon={
+                      typeof IconComponent === 'function' && 'defaultProps' in IconComponent ? (
+                        <IconComponent className="size-6" aria-hidden="true" />
+                      ) : (
+                        <IconComponent size={24} aria-hidden="true" />
+                      )
+                    }
+                    aria-label={`Navegar para ${action.label}`}
+                    onClick={() => handleNavigation(action)}
+                  />
+                </li>
+              )
+            })}
           </ul>
         </nav>
 

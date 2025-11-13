@@ -1,20 +1,22 @@
 'use client'
 import { BvTitleHeader } from '@/components'
 import { BvTitleIco } from '@/components/design/BvTitleIco'
+import { BvShareMenu } from '@/components/design/BvShareMenu'
+import { LazyUbsMap } from '@/components/design/LazyUbsMap'
 import CaledarIco from '@/assets/icons/calendar.svg'
 import SyringeIco from '@/assets/icons/syringe.svg'
 import React from 'react'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { Button } from '@/components/ui/button'
-import { Syringe, Heart, Share2 } from 'lucide-react'
-import { toast } from 'sonner'
+import { Syringe } from 'lucide-react'
 import { notFound, useRouter } from 'next/navigation'
 import { useHealthUnits } from '@/hooks/use-health-units' // Importar o hook e o tipo
 import { HealthUnit } from '@/types/health-units'
 import { SkeletonLoader } from '@/components/ui/skeleton-loader'
+import { toSlug } from '@/utils/slug'
 
 interface DetailUbsProps {
-  params: Promise<{ id: string }>
+  params: Promise<{ slug: string }>
 }
 
 export default function DetailUbs({ params }: DetailUbsProps) {
@@ -26,8 +28,19 @@ export default function DetailUbs({ params }: DetailUbsProps) {
 
   const ubsDataFromApi = React.useMemo(() => {
     if (!data) return undefined
-    return data.find((unit: HealthUnit) => unit._id === resolvedParams.id)
-  }, [data, resolvedParams.id])
+    // Try to find by _id first (for backward compatibility)
+    let found = data.find((unit: HealthUnit) => unit._id === resolvedParams.slug)
+
+    // If not found, try to find by name converted to slug format
+    if (!found) {
+      found = data.find((unit: HealthUnit) => {
+        const nameSlug = toSlug(unit.name)
+        return nameSlug === resolvedParams.slug
+      })
+    }
+
+    return found
+  }, [data, resolvedParams.slug])
   const [ubs, setUbs] = React.useState<HealthUnit | null>(null)
 
   React.useEffect(() => {
@@ -111,35 +124,16 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   //   )
   // }
 
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(`https://https://baixadavacinada.com/usb/${ubs.id}`)
-      toast.info(`Compartilhando "${name}"...`)
-    } catch (err) {
-      console.error('Falha ao copiar o texto: ', err)
-    }
-  }
-
   const handleEvaluate = () => {
     route.push(`../ubs/avaliar/${ubs.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
   }
 
   return (
     <div>
-      <BvTitleHeader title={`SOBRE: ${name}`} className="mb-6" />
+      <BvTitleHeader title={`Sobre: ${name}`} className="mb-6" />
 
       <div className="mb-8 flex justify-end gap-2">
-        {/* <Button
-          variant="transparent"
-          size="icon"
-          onClick={handleFavoriteToggle}
-          aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-        >
-          <Heart className={cn('h-5 w-5', isFavorite && 'fill-red-500 text-red-500')} />
-        </Button> */}
-        <Button variant="transparent" size="icon" onClick={handleShare} aria-label="Compartilhar">
-          <Share2 className="h-5 w-5" />
-        </Button>
+        <BvShareMenu ubsName={name} ubsSlug={resolvedParams.slug} />
         <Button onClick={handleEvaluate}>Avaliar</Button>
       </div>
 
@@ -171,15 +165,11 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         </div>
 
         <div>
-          <iframe
-            src={`https://maps.google.com/maps?q=${ubs.geolocation.lat},${ubs.geolocation.lng}&z=15&output=embed`}
-            width="100%"
-            height="450"
-            style={{ border: 0, borderRadius: '8px' }} // Borda arredondada
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          ></iframe>
+          <LazyUbsMap
+            latitude={ubs.geolocation.lat}
+            longitude={ubs.geolocation.lng}
+            ubsName={name}
+          />
         </div>
       </div>
 

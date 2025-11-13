@@ -1,8 +1,9 @@
 import { cn } from '@/lib/utils'
-import { Hospital, Home, Compass, ArrowRight, Share2, Heart, X, Edit } from 'lucide-react'
+import { Hospital, Home, Compass, ArrowRight, X, Edit } from 'lucide-react'
 import React from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
+import { BvShareMenu } from './BvShareMenu'
 
 export interface UbsCardProps {
   id?: number
@@ -14,8 +15,6 @@ export interface UbsCardProps {
   component: 'private' | 'public'
   onDelete?: () => void
   onMoreInfo: () => void
-  onShare?: () => void
-  onFavoriteToggle?: () => void
   onEdit?: () => void
   className?: string
 }
@@ -25,10 +24,8 @@ export function BvUbsCard({
   neighborhood,
   distanceInKm,
   component,
-  isFavorite = false,
+  slug,
   onMoreInfo,
-  onShare,
-  onFavoriteToggle,
   onDelete,
   onEdit,
   className,
@@ -72,29 +69,14 @@ export function BvUbsCard({
         </Button>
 
         <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => handleIconClick(e, onShare)}
-            aria-label="Compartilhar"
-          >
-            <Share2 className="h-5 w-5 text-slate-500" />
-          </Button>
+          {slug && <BvShareMenu ubsName={name} ubsSlug={slug} />}
           {component === 'private' ? (
             <>
-              {/* <Button
-                variant="ghost"
-                size="icon"
-                onClick={(e) => handleIconClick(e, onFavoriteToggle)}
-                aria-label={isFavorite ? 'Desfavoritar' : 'Favoritar'}
-              >
-                <Heart className={cn('h-5 w-5', isFavorite && 'fill-red-500 text-red-500')} />
-              </Button> */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={(e) => handleIconClick(e, onEdit)}
-                aria-label={isFavorite ? 'Desfavoritar' : 'Favoritar'}
+                aria-label="Editar"
               >
                 <Edit />
               </Button>

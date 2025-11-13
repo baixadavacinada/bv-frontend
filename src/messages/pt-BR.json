@@ -102,6 +102,10 @@
       "title": "Gestão de vacinas",
       "description": "Adicione vacinas, atualize dados de segundas doses e acompanhe o relatório de doses aplicadas."
     },
+    "evaluation": {
+      "title": "Avaliar UBS",
+      "description": "Compartilhe sua avaliação sobre o atendimento nas unidades de saúde."
+    },
     "educationalMaterials": {
       "title": "Materiais educativos",
       "description": "Edite a Cartilha de Vacinas e adicione conteúdos educativos para os usuários da aplicação."

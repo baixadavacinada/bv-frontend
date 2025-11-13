@@ -4,10 +4,11 @@ import { CiSettings } from 'react-icons/ci'
 import { FaSyringe } from 'react-icons/fa'
 import { IconType } from 'react-icons'
 import { BsHouse, BsGeoAlt, BsFileEarmarkText, BsBell } from 'react-icons/bs'
+import { Star } from 'lucide-react'
 
 export interface NavigationItem {
   id: string
-  icon: IconType
+  icon: IconType | typeof Star
   label?: string
   href: string
   badge?: string | number
@@ -33,6 +34,13 @@ export const sidebarNavigation: NavigationItem[] = [
     allowedRoles: ['public', 'agent', 'admin'],
   },
   {
+    id: 'avaliar',
+    icon: Star,
+    label: 'Avaliar',
+    href: '/ubs/avaliar',
+    allowedRoles: ['public', 'agent', 'admin'],
+  },
+  {
     id: 'notifications',
     icon: BsBell,
     label: 'Notificações',
@@ -55,7 +63,7 @@ export const sidebarNavigation: NavigationItem[] = [
   },
   {
     id: 'gestao-vacinas',
-    icon: BsFileEarmarkText,
+    icon: FaSyringe,
     label: 'Gestão de Vacinas',
     href: '/gestao-vacinas',
     allowedRoles: ['admin'],
@@ -106,5 +114,23 @@ export function filterNavigationByRole<T extends NavigationItem>(
     return items.filter((item) => item.allowedRoles.includes('public'))
   }
 
-  return items.filter((item) => item.allowedRoles.includes(userRole))
+  // Admin has access to all roles (hierarchy: admin > agent > public)
+  if (userRole === 'admin') {
+    return items.filter((item) => 
+      item.allowedRoles.includes('admin') ||
+      item.allowedRoles.includes('agent') ||
+      item.allowedRoles.includes('public')
+    )
+  }
+
+  // Agent can access agent and public items
+  if (userRole === 'agent') {
+    return items.filter((item) => 
+      item.allowedRoles.includes('agent') ||
+      item.allowedRoles.includes('public')
+    )
+  }
+
+  // Public can only access public items
+  return items.filter((item) => item.allowedRoles.includes('public'))
 }

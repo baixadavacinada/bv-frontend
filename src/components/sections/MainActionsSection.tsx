@@ -6,7 +6,9 @@ import { useAppTranslations } from '@/hooks/use-translations'
 import HospitalIcon from '@/assets/icons/hospital.svg'
 import RegisterIcon from '@/assets/icons/register.svg'
 import SettingsIcon from '@/assets/icons/settings.svg'
-import AlertIcon from '@/assets/icons/phone-notifications.svg'
+import StarIcon from '@/assets/icons/star.svg'
+import VaccineIcon from '@/assets/icons/seringa.svg'
+import NotificationsIcon from '@/assets/icons/phone-notifications.svg'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { ActionType, usePermissions } from '@/hooks/use-permissions'
 import { StaticImageData } from 'next/image'
@@ -37,6 +39,14 @@ export function MainActionsSection() {
       action: () => router.push('/ubs'),
       variant: 'stacked',
     },
+    evaluation: {
+      id: 'evaluation',
+      title: cards('evaluation.title'),
+      description: cards('evaluation.description'),
+      icon: StarIcon,
+      action: () => router.push('/ubs'),
+      variant: 'stacked',
+    },
     settings: {
       id: 'settings',
       title: cards('settings.title'),
@@ -50,7 +60,7 @@ export function MainActionsSection() {
       id: 'notifications',
       title: cards('notifications.title'),
       description: cards('notifications.description'),
-      icon: AlertIcon,
+      icon: NotificationsIcon,
       action: () => router.push('/notificacoes'),
       variant: 'stacked',
     },
@@ -74,7 +84,7 @@ export function MainActionsSection() {
       id: 'vaccine-management',
       title: cards('vaccineManagement.title'),
       description: cards('vaccineManagement.description'),
-      icon: AlertIcon,
+      icon: VaccineIcon,
       action: () => router.push('/gestao-vacinas'),
       variant: 'stacked',
     },

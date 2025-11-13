@@ -9,6 +9,7 @@ import { usePermissions } from '@/hooks/use-permissions'
 import { useAppTranslations } from '@/hooks/use-translations'
 import { useAuth } from '@/hooks/use-firebase-auth'
 import { BsArrowBarRight } from 'react-icons/bs'
+import { User } from 'lucide-react'
 
 export function Navbar() {
   const router = useRouter()
@@ -76,17 +77,20 @@ export function Navbar() {
       </button>
 
       <div className="flex items-center gap-1" role="group" aria-label="Ações rápidas">
-        {allowedNavigationItems.map((action) => (
-          <BvButton
-            key={`navbar-${action.id}`}
-            variant="ghost"
-            size="icon"
-            title=""
-            aria-label={`Navegar para ${action.id}`}
-            leftIcon={<action.icon className="size-6" aria-hidden="true" />}
-            onClick={() => handleNavigation(action)}
-          />
-        ))}
+        {allowedNavigationItems.map((action) => {
+          const IconComponent = action.icon as React.ElementType
+          return (
+            <BvButton
+              key={`navbar-${action.id}`}
+              variant="ghost"
+              size="icon"
+              title=""
+              aria-label={`Navegar para ${action.id}`}
+              leftIcon={<IconComponent className="size-6" size={24} aria-hidden="true" />}
+              onClick={() => handleNavigation(action)}
+            />
+          )
+        })}
 
         {shouldShowLogout && (
           <div aria-label={accessibility('sidebar.accountActions')}>
@@ -104,11 +108,12 @@ export function Navbar() {
 
         {!shouldShowLogout && (
           <BvButton
-            variant="default"
-            size="sm"
-            title="Login"
+            variant="ghost"
+            size="icon"
+            title=""
             aria-label="Fazer login na plataforma"
             className="focus-visible:ring-2 focus-visible:ring-blue-500"
+            leftIcon={<User className="size-6" aria-hidden="true" />}
             onClick={handleLogin}
           />
         )}

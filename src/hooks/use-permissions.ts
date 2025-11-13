@@ -3,6 +3,7 @@ import { filterNavigationByRole, NavigationItem } from '@/lib/layout-navigation'
 
 export type ActionType =
   | 'ubs'
+  | 'evaluation'
   | 'settings'
   | 'notifications'
   | 'ubs-management'
@@ -10,9 +11,9 @@ export type ActionType =
   | 'vaccine-management'
 
 export const ROLE_ACTIONS: Record<UserRole, ActionType[]> = {
-  public: ['ubs'],
-  agent: ['ubs', 'notifications'],
-  admin: ['ubs-management', 'user-management', 'vaccine-management', 'notifications'],
+  public: ['ubs', 'evaluation'],
+  agent: ['evaluation', 'notifications'],
+  admin: ['evaluation', 'notifications', 'ubs-management', 'user-management', 'vaccine-management'],
 }
 
 export function usePermissions() {
@@ -20,11 +21,33 @@ export function usePermissions() {
   const role = user?.role || 'public'
 
   const hasPermission = (action: ActionType): boolean => {
-    return ROLE_ACTIONS[role].includes(action)
+    // Admin has access to all actions
+    if (role === 'admin') {
+      return true
+    }
+
+    // Agent has access to agent and public actions
+    if (role === 'agent') {
+      return ROLE_ACTIONS['agent'].includes(action) || ROLE_ACTIONS['public'].includes(action)
+    }
+
+    // Public can only access public actions
+    return ROLE_ACTIONS['public'].includes(action)
   }
 
   const getAllowedActions = (): ActionType[] => {
-    return ROLE_ACTIONS[role]
+    // Admin gets all actions (including public and agent)
+    if (role === 'admin') {
+      return ROLE_ACTIONS['admin']
+    }
+
+    // Agent gets agent + public actions
+    if (role === 'agent') {
+      return [...new Set([...ROLE_ACTIONS['agent'], ...ROLE_ACTIONS['public']])]
+    }
+
+    // Public only gets public actions
+    return ROLE_ACTIONS['public']
   }
 
   const filterNavigationItems = <T extends NavigationItem>(items: T[]): T[] => {

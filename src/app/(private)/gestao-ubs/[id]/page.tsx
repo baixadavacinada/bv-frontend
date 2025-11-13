@@ -1,16 +1,18 @@
 'use client'
 import { BvTitleHeader } from '@/components'
 import { BvTitleIco } from '@/components/design/BvTitleIco'
+import { BvShareMenu } from '@/components/design/BvShareMenu'
+import { LazyUbsMap } from '@/components/design/LazyUbsMap'
 import CaledarIco from '@/assets/icons/calendar.svg'
 import SyringeIco from '@/assets/icons/syringe.svg'
 import React, { useState } from 'react'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { Button } from '@/components/ui/button'
-import { Syringe, Heart, Share2, Edit, Plus, X } from 'lucide-react'
+import { Syringe, Edit, Plus, X } from 'lucide-react'
 import { toast } from 'sonner'
-import { notFound, useRouter } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { useHealthUnits } from '@/hooks/use-health-units' // Importar o hook e o tipo
-import { HealthUnit, OperatingHours } from '@/types/health-units'
+import { HealthUnit } from '@/types/health-units'
 import { LazyBvHoursModal } from '@/components/design/lazy/LazyBvHoursModal'
 import { LazyBvAddVaccineModal } from '@/components/design/lazy/LazyBvAddVaccineModal'
 import { AlertDialog } from '@radix-ui/react-alert-dialog'
@@ -23,7 +25,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { cn } from '@/lib/utils'
 import { updateHealthUnits } from '@/services/actions/ubs-actions'
 import { useVaccinesList } from '@/hooks/use-vaccines-list'
 import { SkeletonLoader } from '@/components/ui/skeleton-loader'
@@ -36,17 +37,12 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   const resolvedParams = React.use(params)
   const [isHoursModalOpen, setIsHoursModalOpen] = useState(false)
   const [isVaccineModalOpen, setIsVaccineModalOpen] = useState(false)
-  const {
-    data: existingVaccines,
-    isLoading: vaccinesLoading,
-    error: vaccinesError,
-  } = useVaccinesList()
+  const { data: existingVaccines } = useVaccinesList()
 
   const [deleteAlert, setDeleteAlert] = useState<{ isOpen: boolean; vaccineName: string | null }>({
     isOpen: false,
     vaccineName: null,
   })
-  const route = useRouter()
   useAccessibilityValidation({ enabled: true })
   const { data, isLoading, error } = useHealthUnits()
 
@@ -125,25 +121,8 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     )
   }
 
-  const {
-    name,
-    neighborhood,
-    address,
-    phone,
-    operatingHours,
-    averageWaitTime,
-    availableVaccines,
-    isFavorite,
-  } = ubs
-
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(`https://https://baixadavacinada.com/usb/${ubs.id}`)
-      toast.info(`Compartilhando "${name}"...`)
-    } catch (err) {
-      console.error('Falha ao copiar o texto: ', err)
-    }
-  }
+  const { name, neighborhood, address, phone, operatingHours, averageWaitTime, availableVaccines } =
+    ubs
 
   const handleSaveHours = async (newHours: HealthUnit['operatingHours'], newWaitTime: string) => {
     const ubsId = ubs?.id
@@ -231,43 +210,11 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     setDeleteAlert({ isOpen: false, vaccineName: null })
   }
 
-  const handleFavoriteToggle = () => {
-    if (!ubs) return
-    setUbs((prev) =>
-      prev
-        ? {
-            ...prev,
-            isFavorite: !prev.isFavorite,
-          }
-        : null,
-    )
-    toast.success(
-      !ubs.isFavorite
-        ? `"${ubs.name}" adicionada aos favoritos!`
-        : `"${ubs.name}" removida dos favoritos.`,
-    )
-  }
-
-  // const handleEvaluate = () => {
-  //   route.push(`../gestao-ubs/avaliar/${ubs.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
-  // }
-
   return (
     <div>
-      <BvTitleHeader title={`SOBRE: ${name}`} className="mb-6" />
+      <BvTitleHeader title={`Sobre: ${name}`} className="mb-6" />
       <div className="mb-8 flex justify-end gap-2">
-        {/* <Button
-          variant="transparent"
-          size="icon"
-          onClick={handleFavoriteToggle}
-          aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-        >
-          <Heart className={cn('h-5 w-5', isFavorite && 'fill-red-500 text-red-500')} />
-        </Button> */}
-        <Button variant="transparent" size="icon" onClick={handleShare} aria-label="Compartilhar">
-          <Share2 className="h-5 w-5" />
-        </Button>
-        {/* <Button onClick={handleEvaluate}>Avaliar</Button> */}
+        <BvShareMenu ubsName={name} ubsSlug={resolvedParams.id} />
       </div>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -298,15 +245,11 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         </div>
 
         <div>
-          <iframe
-            src={`https://maps.google.com/maps?q=${ubs.geolocation.lat},${ubs.geolocation.lng}&z=15&output=embed`}
-            width="100%"
-            height="450"
-            style={{ border: 0, borderRadius: '8px' }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          ></iframe>
+          <LazyUbsMap
+            latitude={ubs.geolocation.lat}
+            longitude={ubs.geolocation.lng}
+            ubsName={name}
+          />
         </div>
       </div>
 

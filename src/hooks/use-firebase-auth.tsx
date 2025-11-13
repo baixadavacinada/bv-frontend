@@ -117,6 +117,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const hasRole = (role: UserRole | UserRole[]): boolean => {
     if (!user) return false
 
+    // Admin always has access to all roles (hierarchy: admin > agent > public)
+    if (user.role === 'admin') return true
+
     if (Array.isArray(role)) {
       return role.includes(user.role)
     }

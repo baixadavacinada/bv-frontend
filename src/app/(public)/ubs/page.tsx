@@ -5,14 +5,14 @@ import { UbsCardProps, BvUbsList, BvTitleHeader } from '@/components/index'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { toast } from 'sonner'
 import { useHealthUnits } from '@/hooks/use-health-units'
 import { useLocationContext } from '@/contexts/LocationContext'
 import { sortByDistance } from '@/utils/geolocation'
 import { HealthUnit } from '@/types/health-units'
 import { SkeletonLoader } from '@/components/ui/skeleton-loader'
+import { toSlug } from '@/utils/slug'
 
-type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle' | 'onDelete'>
+type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onDelete'>
 
 export default function UbsScreen() {
   const [ubsList, setUbsList] = useState<UbsListData[]>([])
@@ -29,12 +29,11 @@ export default function UbsScreen() {
     if (data) {
       let transformedData: UbsListData[] = data.map((unit: HealthUnit, index: number) => ({
         id: index,
-        slug: unit._id,
+        slug: toSlug(unit.name),
         component: 'public' as const,
         name: unit.name,
         neighborhood: unit.neighborhood,
         distanceInKm: 0,
-        isFavorite: unit.isFavorite || false,
       }))
 
       // Se temos coordenadas do usuário, calcular distância
@@ -52,43 +51,17 @@ export default function UbsScreen() {
 
         transformedData = sortedData.map((unit, index) => ({
           id: index,
-          slug: unit._id,
+          slug: toSlug(unit.name),
           component: 'public' as const,
           name: unit.name,
           neighborhood: unit.neighborhood,
           distanceInKm: unit.distance || 0,
-          isFavorite: unit.isFavorite || false,
         }))
       }
 
       setUbsList(transformedData)
     }
-  }, [data, userCoords]) // const handleFavoriteToggle = (id: number) => {
-  //   const ubs = ubsList.find((u) => u.id === id)
-  //   if (!ubs) return
-
-  //   const isCurrentlyFavorite = ubs.isFavorite
-  //   const ubsName = ubs.name
-
-  //   setUbsList((currentList) =>
-  //     currentList.map((u) => (u.id === id ? { ...u, isFavorite: !u.isFavorite } : u)),
-  //   )
-
-  //   toast.success(
-  //     !isCurrentlyFavorite
-  //       ? `"${ubsName}" adicionada aos favoritos!`
-  //       : `"${ubsName}" removida dos favoritos.`,
-  //   )
-  // }
-
-  const handleShare = async (name: string, id: string) => {
-    try {
-      await navigator.clipboard.writeText(`https://https://baixadavacinada.com/usb/${id}`)
-      toast.info(`Compartilhando "${name}"...`)
-    } catch (err) {
-      console.error('Falha ao copiar o texto: ', err)
-    }
-  }
+  }, [data, userCoords])
 
   const handleProximityFilterChange = (checked: boolean | 'indeterminate') => {
     setFilters((prev) => ({ ...prev, filterByProximity: checked === true }))
@@ -178,7 +151,7 @@ export default function UbsScreen() {
         </CollapsibleFilter>
       </div>
 
-      <BvUbsList ubsList={filteredUbsList} path="/ubs" onShareRequest={handleShare} />
+      <BvUbsList ubsList={filteredUbsList} path="/ubs" />
     </div>
   )
 }

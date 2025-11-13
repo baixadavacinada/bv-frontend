@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { Navbar } from './Navbar'
 import { Sidebar } from './Sidebar'
 import { FooterBar } from './FooterBar'
@@ -16,9 +17,13 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children, className }: AppLayoutProps) {
+  const pathname = usePathname()
   const { accessibility } = useAppTranslations()
   const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
   const { announceToScreenReader } = useLiveRegion()
+
+  // Detectar se está na página de login ou registro
+  const isAuthPage = pathname === '/login' || pathname === '/registro-usuario'
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -33,29 +38,44 @@ export function AppLayout({ children, className }: AppLayoutProps) {
       <LocationPermissionHandler />
       <Navbar />
 
-      <div className="flex">
-        <div className="hidden lg:block">
-          <Sidebar />
-        </div>
-
+      {isAuthPage ? (
+        // Layout para páginas de login/registro
         <main
           id="main-content"
-          className={cn(
-            'min-h-[calc(100vh-64px)] flex-1',
-            'lg:ml-64',
-            'overflow-x-hidden',
-            'w-full px-10 py-8 lg:px-8',
-            className,
-          )}
+          className="flex min-h-[calc(100vh-64px)] w-full items-center justify-center px-4 py-8"
           role="main"
           aria-label={accessibility('mainContent')}
           tabIndex={-1}
         >
           <h1 className="sr-only">{accessibility('mainContent')} - Baixada Vacinada</h1>
-
-          <div className="mx-auto max-w-7xl pb-10">{children}</div>
+          <div className="w-full max-w-md">{children}</div>
         </main>
-      </div>
+      ) : (
+        // Layout normal com sidebar
+        <div className="flex">
+          <div className="hidden lg:block">
+            <Sidebar />
+          </div>
+
+          <main
+            id="main-content"
+            className={cn(
+              'min-h-[calc(100vh-64px)] flex-1',
+              'lg:ml-64',
+              'overflow-x-hidden',
+              'w-full px-10 py-8 lg:px-8',
+              className,
+            )}
+            role="main"
+            aria-label={accessibility('mainContent')}
+            tabIndex={-1}
+          >
+            <h1 className="sr-only">{accessibility('mainContent')} - Baixada Vacinada</h1>
+
+            <div className="mx-auto max-w-7xl pb-10">{children}</div>
+          </main>
+        </div>
+      )}
 
       <div className="lg:hidden">
         <FooterBar />

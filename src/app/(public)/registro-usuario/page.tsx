@@ -13,7 +13,7 @@ export default function RegisterPage() {
   const router = useRouter()
 
   return (
-    <div className="mx-auto mt-8 max-w-md">
+    <div>
       <div className="mb-8 text-center">
         <Image
           src="/criola-logo.png"

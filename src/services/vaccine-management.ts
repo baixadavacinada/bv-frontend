@@ -69,7 +69,6 @@ export function useVaccineManagement() {
     return mergedVaccines
   }, [])
 
-  // Aplica filtro de busca nas vacinas
   const applySearchFilter = useCallback((vaccines: Vaccine[], search: string): Vaccine[] => {
     if (!search?.trim()) return vaccines
 
@@ -82,9 +81,7 @@ export function useVaccineManagement() {
     )
   }, [])
 
-  /**
-   * Lista vacinas com busca
-   */
+
   const listVaccines = useCallback(
     async (search?: string, page = 1, limit = 20): Promise<Vaccine[]> => {
       try {
@@ -119,9 +116,6 @@ export function useVaccineManagement() {
     [convertApiToVaccine, mergeWithLocalVaccines, applySearchFilter],
   )
 
-  /**
-   * Busca vacina por ID
-   */
   const getVaccineById = useCallback(
     async (id: string): Promise<Vaccine> => {
       const localVaccine = localVaccines.get(id)
@@ -155,9 +149,6 @@ export function useVaccineManagement() {
     [convertApiToVaccine, listVaccines],
   )
 
-  /**
-   * Cria nova vacina
-   */
   const createVaccine = useCallback(
     async (vaccineData: CreateVaccineRequest): Promise<Vaccine> => {
       try {
