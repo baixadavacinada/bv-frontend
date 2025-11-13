@@ -214,7 +214,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     <div>
       <BvTitleHeader title={`Sobre: ${name}`} className="mb-6" />
       <div className="mb-8 flex justify-end gap-2">
-        <BvShareMenu ubsName={name} ubsSlug={resolvedParams.id} />
+        <BvShareMenu ubsName={name} ubsSlug={resolvedParams.id} neighborhood={neighborhood} />
       </div>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">

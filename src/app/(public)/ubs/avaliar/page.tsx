@@ -33,9 +33,7 @@ export default function AvaliarUbsPage() {
         setLoading(true)
         setError(null)
         const data = await listHealthUnits()
-        console.log('Dados retornados:', data)
 
-        // apiClient já retorna desempacotado (apenas data.data)
         if (Array.isArray(data)) {
           setUbsList(data)
         } else if (data && typeof data === 'object' && 'data' in data) {

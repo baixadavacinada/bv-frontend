@@ -88,7 +88,14 @@ export function BvUbsCard({
               />
             </Button>
           )}
-          {slug && <BvShareMenu ubsName={name} ubsSlug={slug} />}
+          {slug && (
+            <BvShareMenu
+              ubsName={name}
+              ubsSlug={slug}
+              neighborhood={neighborhood}
+              distanceInKm={distanceInKm}
+            />
+          )}
           {component === 'private' ? (
             <>
               <Button

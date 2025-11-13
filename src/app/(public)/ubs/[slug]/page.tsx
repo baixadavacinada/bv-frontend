@@ -133,7 +133,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
       <BvTitleHeader title={`Sobre: ${name}`} className="mb-6" />
 
       <div className="mb-8 flex justify-end gap-2">
-        <BvShareMenu ubsName={name} ubsSlug={resolvedParams.slug} />
+        <BvShareMenu ubsName={name} ubsSlug={resolvedParams.slug} neighborhood={neighborhood} />
         <Button onClick={handleEvaluate}>Avaliar</Button>
       </div>
 
