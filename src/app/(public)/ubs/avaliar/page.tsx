@@ -78,7 +78,7 @@ export default function AvaliarUbsPage() {
     if (!ubs) return
 
     const slug = toSlug(ubs.name)
-    router.push(`/ubs/avaliar/${ubs._id}/${slug}`)
+    router.push(`/ubs/avaliar/${slug}`)
   }
 
   return (
