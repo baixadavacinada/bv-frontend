@@ -59,13 +59,11 @@ export default function VaccinationRegisterForm() {
         )
         if (response.ok) {
           const healthUnitsResponse = await response.json()
-          console.log('Health Units Response:', healthUnitsResponse)
           const ubsList = Array.isArray(healthUnitsResponse.data)
             ? healthUnitsResponse.data
             : Array.isArray(healthUnitsResponse)
               ? healthUnitsResponse
               : []
-          console.log('Processed UBS List:', ubsList)
           setHealthUnits(ubsList)
         } else {
           throw new Error('Erro ao carregar unidades de saúde')
@@ -120,7 +118,6 @@ export default function VaccinationRegisterForm() {
   const onSubmit = async (data: VaccinationFormData) => {
     try {
       setLoading(true)
-      console.log('Dados do formulário:', data)
 
       if (!data.healthUnitId && !data.customLocation) {
         toast.error('Informe o local da vacinação')
@@ -148,7 +145,6 @@ export default function VaccinationRegisterForm() {
   }))
 
   const healthUnitOptions = healthUnits.map((unit) => {
-    console.log('Health Unit:', unit)
     return {
       value: unit.id || unit._id || `${unit.name}-${unit.city}`,
       label: `${unit.name} - ${unit.city}`,
