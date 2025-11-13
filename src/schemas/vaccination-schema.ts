@@ -4,13 +4,25 @@ const requiredText = z.string().min(1, 'Este campo é obrigatório').trim()
 const optionalText = z.string().optional()
 const date = z
   .string()
-  .min(1, 'Este campo é obrigatório')
-  .regex(/^\d{2}\/\d{2}\/\d{4}$/, 'Data inválida')
+  .min(1, 'Data da aplicação é obrigatória')
   .refine((date) => {
-    const [d, m, y] = date.split('/').map(Number)
-    const dt = new Date(y, m - 1, d)
-    return dt.getDate() === d && dt.getMonth() === m - 1 && dt.getFullYear() === y
-  }, 'Data inválida')
+    // Aceita formatos: dd/mm/aaaa ou yyyy-mm-dd
+    const ddmmyyyy = /^\d{2}\/\d{2}\/\d{4}$/
+    const yyyymmdd = /^\d{4}-\d{2}-\d{2}$/
+    
+    if (ddmmyyyy.test(date)) {
+      const [d, m, y] = date.split('/').map(Number)
+      const dt = new Date(y, m - 1, d)
+      return dt.getDate() === d && dt.getMonth() === m - 1 && dt.getFullYear() === y
+    }
+    
+    if (yyyymmdd.test(date)) {
+      const dt = new Date(date)
+      return !isNaN(dt.getTime())
+    }
+    
+    return false
+  }, 'Data inválida. Use dd/mm/aaaa ou yyyy-mm-dd')
 
 export const vaccinationSchema = z
   .object({

@@ -138,11 +138,11 @@ export class VaccinationService {
   }
 
   /**
-   * Salva o registro de vacinação localmente
-   * TODO: Integrar com backend quando necessário
+   * Salva o registro de vacinação no backend vinculado ao perfil do usuário
    */
-  saveVaccinationRecord(data: VaccinationFormData): void {
+  async saveVaccinationRecord(data: VaccinationFormData): Promise<VaccinationFormData> {
     try {
+      // Primeiro salva localmente como backup
       const existingRecords = this.getLocalVaccinationRecords()
       const newRecord = {
         id: Date.now().toString(),
@@ -152,6 +152,42 @@ export class VaccinationService {
 
       const updatedRecords = [...existingRecords, newRecord]
       localStorage.setItem('vaccination_records', JSON.stringify(updatedRecords))
+
+      // Depois tenta salvar no backend
+      try {
+        const vaccineData = {
+          vaccineId: data.vaccineId || Date.now().toString(),
+          vaccineName: data.vaccineName,
+          manufacturer: data.manufacturer || undefined,
+          dose: data.dose,
+          batchNumber: data.batchNumber || undefined,
+          applicationDate: data.applicationDate,
+          healthUnitName: data.healthUnitName || data.customLocation,
+          city: data.city || data.customCity,
+          state: data.state || data.customState,
+        }
+
+        const response = await fetch(`${this.baseUrl}/api/public/user/vaccines`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Inclui cookies com auth
+          body: JSON.stringify(vaccineData),
+        })
+
+        if (!response.ok) {
+          console.warn('Erro ao salvar vacina no backend:', response.statusText)
+          // Continua mesmo se falhar - dados estão salvos localmente
+        }
+
+        const result = await response.json()
+        return result.data || data
+      } catch (backendError) {
+        console.warn('Erro ao comunicar com backend:', backendError)
+        // Falha silenciosa - dados já foram salvos localmente
+        return data
+      }
     } catch (error) {
       console.error('Erro ao salvar registro de vacinação:', error)
       throw new Error('Não foi possível salvar o registro')

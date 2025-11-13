@@ -99,16 +99,6 @@ export async function loginWithGoogle(): Promise<{
     const result = await signInWithPopup(auth, provider)
     const token = await result.user.getIdToken()
 
-    const decodedToken = await result.user.getIdTokenResult()
-    console.log('🔐 Firebase Google Login Successful:', {
-      uid: result.user.uid,
-      email: result.user.email,
-      displayName: result.user.displayName,
-      role: decodedToken.claims.role || 'public',
-      claims: decodedToken.claims,
-      timestamp: new Date().toISOString(),
-    })
-
     if (typeof document !== 'undefined') {
       const isProduction = process.env.NODE_ENV === 'production'
       const secureFlag = isProduction ? 'secure;' : ''

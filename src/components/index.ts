@@ -8,6 +8,7 @@ export * from './design/BvTitleHeader'
 export * from './design/BvUbsCard'
 export * from './design/BvButton'
 export * from './design/BvFormInput'
+export * from './design/BvDateInput'
 export * from './design/BvUbsList'
 export * from './design/BvCollapsibleFilter'
 

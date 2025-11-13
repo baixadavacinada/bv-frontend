@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { Plus, X, CheckCircle, AlertCircle } from 'lucide-react'
 import { vaccinationService } from '@/services/vaccination-service'
 import { apiClient } from '@/services/api'
+import { brazilianCitiesByState } from '@/data/brazilian-cities'
 import type { VaccineFromDB, HealthUnitFromDB } from '@/schemas/vaccination-schema'
 
 interface RegisteredVaccine {
@@ -43,6 +44,7 @@ export default function VaccineRegistrationContent() {
   const [customLocation, setCustomLocation] = useState('')
   const [city, setCity] = useState('')
   const [state, setState] = useState('')
+  const [availableCities, setAvailableCities] = useState<string[]>([])
 
   useEffect(() => {
     if (user) {
@@ -51,6 +53,16 @@ export default function VaccineRegistrationContent() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
+
+  // Atualizar cidades disponíveis quando o estado muda
+  useEffect(() => {
+    if (state && brazilianCitiesByState[state]) {
+      setAvailableCities(brazilianCitiesByState[state])
+      setCity('') // Limpar cidade quando estado muda
+    } else {
+      setAvailableCities([])
+    }
+  }, [state])
 
   const loadVaccinesAndHealthUnits = async () => {
     try {
@@ -375,26 +387,20 @@ export default function VaccineRegistrationContent() {
                   <span className="text-sm">Local Personalizado</span>
                 </label>
                 {customLocation !== '' && (
-                  <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                     <BvFormInput
                       label="Local"
                       placeholder="Ex: Clínica Particular..."
                       value={customLocation === 'Other' ? '' : customLocation}
                       onChange={(e) => setCustomLocation(e.target.value || 'Other')}
                     />
-                    <BvFormInput
-                      label="Cidade"
-                      placeholder="Ex: Rio de Janeiro"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                    />
                     <div>
                       <label className="mb-2 block text-sm font-medium text-gray-700">
                         Estado *
                       </label>
                       <BvSelect
+                        fullWidth
                         options={[
-                          { value: '', label: 'Selecione uma opção' },
                           { value: 'AC', label: 'Acre' },
                           { value: 'AL', label: 'Alagoas' },
                           { value: 'AP', label: 'Amapá' },
@@ -423,12 +429,29 @@ export default function VaccineRegistrationContent() {
                           { value: 'SE', label: 'Sergipe' },
                           { value: 'TO', label: 'Tocantins' },
                         ]}
+                        placeholder="Selecione um estado"
                         value={state}
                         onValueChange={(value: string | string[]) => {
                           setState(Array.isArray(value) ? value[0] : value)
                         }}
                       />
                     </div>
+                    {state && availableCities.length > 0 && (
+                      <div>
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                          Cidade *
+                        </label>
+                        <BvSelect
+                          fullWidth
+                          options={availableCities.map((c) => ({ value: c, label: c }))}
+                          placeholder="Selecione uma cidade"
+                          value={city}
+                          onValueChange={(value: string | string[]) => {
+                            setCity(Array.isArray(value) ? value[0] : value)
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -439,18 +462,16 @@ export default function VaccineRegistrationContent() {
               <BvButton
                 onClick={handleAddVaccine}
                 disabled={loading}
+                title={loading ? 'Salvando...' : 'Confirmar Cadastro'}
                 className="flex-1 bg-green-600 hover:bg-green-700"
-              >
-                {loading ? 'Salvando...' : 'Confirmar Cadastro'}
-              </BvButton>
+              />
               <BvButton
                 onClick={() => setShowForm(false)}
                 disabled={loading}
                 variant="outline"
+                title="Cancelar"
                 className="flex-1"
-              >
-                Cancelar
-              </BvButton>
+              />
             </div>
           </div>
         </div>

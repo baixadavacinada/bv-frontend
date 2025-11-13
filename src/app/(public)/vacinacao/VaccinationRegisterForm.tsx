@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { BvButton, BvTitleHeader } from '@/components'
 import { BvFormInput } from '@/components/design/BvFormInput'
+import { BvDateInput } from '@/components/design/BvDateInput'
 import BvSelect from '@/components/design/BvSelect'
 import {
   VaccinationFormData,
@@ -15,6 +16,7 @@ import {
   VaccineFromDB,
   HealthUnitFromDB,
 } from '@/schemas/vaccination-schema'
+import { brazilianCitiesByState } from '@/data/brazilian-cities'
 import { vaccinationService } from '@/services/vaccination-service'
 import { FaSyringe, FaMapMarkerAlt, FaCalendarAlt, FaUser } from 'react-icons/fa'
 import { MdLocationOn } from 'react-icons/md'
@@ -25,6 +27,7 @@ export default function VaccinationRegisterForm() {
   const [healthUnits, setHealthUnits] = useState<HealthUnitFromDB[]>([])
   const [showCustomLocation, setShowCustomLocation] = useState(false)
   const [selectedVaccine, setSelectedVaccine] = useState<VaccineFromDB | null>(null)
+  const [availableCities, setAvailableCities] = useState<string[]>([])
 
   const {
     register,
@@ -43,6 +46,7 @@ export default function VaccinationRegisterForm() {
   const watchHealthUnitId = watch('healthUnitId')
   const watchVaccineId = watch('vaccineId')
   const watchAdverseReaction = watch('adverseReaction')
+  const watchCustomState = watch('customState')
 
   useEffect(() => {
     const loadData = async () => {
@@ -92,16 +96,27 @@ export default function VaccinationRegisterForm() {
     }
   }, [watchHealthUnitId, healthUnits, setValue, showCustomLocation])
 
+  useEffect(() => {
+    if (watchCustomState && brazilianCitiesByState[watchCustomState]) {
+      setAvailableCities(brazilianCitiesByState[watchCustomState])
+      setValue('customCity', '')
+    } else {
+      setAvailableCities([])
+    }
+  }, [watchCustomState, setValue])
+
   const onSubmit = async (data: VaccinationFormData) => {
     try {
       setLoading(true)
+      console.log('Dados do formulário:', data)
 
       if (!data.healthUnitId && !data.customLocation) {
         toast.error('Informe o local da vacinação')
+        setLoading(false)
         return
       }
 
-      vaccinationService.saveVaccinationRecord(data)
+      await vaccinationService.saveVaccinationRecord(data)
 
       toast.success('Registro de vacinação salvo com sucesso!')
       reset()
@@ -236,13 +251,13 @@ export default function VaccinationRegisterForm() {
               </div>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                <BvFormInput
+                <BvDateInput
                   label="Data da Aplicação"
-                  type="text"
-                  placeholder="dd/mm/aaaa"
                   required
-                  {...register('applicationDate')}
+                  value={watch('applicationDate') || ''}
+                  onChange={(value) => setValue('applicationDate', value)}
                   error={errors.applicationDate?.message}
+                  id="applicationDate"
                 />
 
                 <BvFormInput
@@ -256,7 +271,14 @@ export default function VaccinationRegisterForm() {
                   <label className="mb-2 block text-sm font-medium text-gray-700">Dose *</label>
                   <BvSelect
                     options={[...doseTypes]}
-                    {...register('dose')}
+                    value={watch('dose') || ''}
+                    onValueChange={(value: string | string[]) => {
+                      const stringValue = Array.isArray(value) ? value[0] : value
+                      setValue(
+                        'dose',
+                        stringValue as '1ª dose' | '2ª dose' | '3ª dose' | 'dose única' | 'reforço',
+                      )
+                    }}
                     error={errors.dose?.message}
                   />
                 </div>
@@ -315,7 +337,11 @@ export default function VaccinationRegisterForm() {
                       <label className="mb-2 block text-sm font-medium text-gray-700">UBS *</label>
                       <BvSelect
                         options={healthUnitOptions}
-                        {...register('healthUnitId')}
+                        value={watch('healthUnitId') || ''}
+                        onValueChange={(value: string | string[]) => {
+                          const stringValue = Array.isArray(value) ? value[0] : value
+                          setValue('healthUnitId', stringValue)
+                        }}
                         error={errors.healthUnitId?.message}
                       />
                     </div>
@@ -329,21 +355,21 @@ export default function VaccinationRegisterForm() {
 
                     <BvFormInput
                       label="Cidade"
-                      readOnly
-                      {...register('city')}
-                      error={errors.city?.message}
+                      disabled
+                      value={watch('city') || ''}
+                      placeholder="Carregado da UBS"
                     />
 
                     <BvFormInput
                       label="Estado"
-                      readOnly
-                      {...register('state')}
-                      error={errors.state?.message}
+                      disabled
+                      value={watch('state') || ''}
+                      placeholder="Carregado da UBS"
                     />
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                    <div className="md:col-span-2">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div className="border-l-4 border-yellow-300 bg-yellow-50 px-4 py-3 md:col-span-2">
                       <BvFormInput
                         label="Local da Vacinação *"
                         placeholder="Ex: Clínica Particular, Hospital..."
@@ -352,23 +378,39 @@ export default function VaccinationRegisterForm() {
                       />
                     </div>
 
-                    <BvFormInput
-                      label="Cidade *"
-                      placeholder="Ex: Rio de Janeiro"
-                      {...register('customCity')}
-                      error={errors.customCity?.message}
-                    />
-
                     <div>
                       <label className="mb-2 block text-sm font-medium text-gray-700">
                         Estado *
                       </label>
                       <BvSelect
-                        options={[...brazilianStates]}
-                        {...register('customState')}
+                        options={Array.from(brazilianStates)}
+                        value={watchCustomState || ''}
+                        placeholder="Selecione um estado"
+                        onValueChange={(value: string | string[]) => {
+                          const stringValue = Array.isArray(value) ? value[0] : value
+                          setValue('customState', stringValue)
+                        }}
                         error={errors.customState?.message}
                       />
                     </div>
+
+                    {watchCustomState && availableCities.length > 0 && (
+                      <div>
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                          Cidade *
+                        </label>
+                        <BvSelect
+                          options={availableCities.map((c) => ({ value: c, label: c }))}
+                          value={watch('customCity') || ''}
+                          placeholder="Selecione uma cidade"
+                          onValueChange={(value: string | string[]) => {
+                            const stringValue = Array.isArray(value) ? value[0] : value
+                            setValue('customCity', stringValue)
+                          }}
+                          error={errors.customCity?.message}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
