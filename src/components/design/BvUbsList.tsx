@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation'
 import { BvUbsCard, UbsCardProps } from '@/components/index'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
-interface UbsListProps {
+export interface UbsListProps {
   ubsList: Omit<UbsCardProps, 'onMoreInfo' | 'onDelete'>[]
   path: string
   onDeleteRequest?: (id: number) => void
