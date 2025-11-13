@@ -89,7 +89,8 @@ export class VaccinationService {
       }
 
       // Se não estiver em cache, busca da API
-      const response = await fetch(`${this.baseUrl}/api/public/health-units`)
+      const url = `${this.baseUrl}/api/public/health-units`
+      const response = await fetch(url)
 
       if (!response.ok) {
         throw new Error('Erro ao buscar unidades de saúde')

@@ -6,7 +6,7 @@ import { apiClient } from '../api'
  * Toggle favorite status for an educational material
  */
 export const toggleFavoriteEducationalMaterial = async (userId: string, materialId: string) => {
-  const endpoint = `/api/admin/users/${userId}/educational-materials/favorite`
+  const endpoint = `/api/public/users/favorites/educational-materials`
 
   try {
     const result = await apiClient.patch(endpoint, { materialId })
@@ -20,8 +20,8 @@ export const toggleFavoriteEducationalMaterial = async (userId: string, material
 /**
  * Get user's favorite educational materials
  */
-export const getUserFavoriteEducationalMaterials = async (userId: string) => {
-  const endpoint = `/api/admin/users/${userId}/educational-materials/favorites`
+export const getUserFavoriteEducationalMaterials = async () => {
+  const endpoint = `/api/public/users/favorites/educational-materials`
 
   try {
     const result = await apiClient.get(endpoint)
