@@ -30,14 +30,14 @@ export const sidebarNavigation: NavigationItem[] = [
     icon: BsGeoAlt,
     label: 'UBS',
     href: '/ubs',
-    allowedRoles: ['public', 'agent'],
+    allowedRoles: ['public', 'agent', 'admin'],
   },
   {
     id: 'notifications',
     icon: BsBell,
     label: 'Notificações',
     href: '/notificacoes',
-    allowedRoles: ['public', 'agent', 'admin'],
+    allowedRoles: ['agent', 'admin'],
   },
   {
     id: 'gestao-ubs',

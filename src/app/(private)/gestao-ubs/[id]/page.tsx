@@ -11,8 +11,8 @@ import { toast } from 'sonner'
 import { notFound, useRouter } from 'next/navigation'
 import { useHealthUnits } from '@/hooks/use-health-units' // Importar o hook e o tipo
 import { HealthUnit, OperatingHours } from '@/types/health-units'
-import { BvHoursModal } from '@/components/design/BvHoursModal'
-import { BvAddVaccineModal } from '@/components/design/BvAddVaccineModal'
+import { LazyBvHoursModal } from '@/components/design/lazy/LazyBvHoursModal'
+import { LazyBvAddVaccineModal } from '@/components/design/lazy/LazyBvAddVaccineModal'
 import { AlertDialog } from '@radix-ui/react-alert-dialog'
 import {
   AlertDialogAction,
@@ -23,9 +23,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { cn } from '@/lib/utils' // Importei o 'cn' para o botão de favorito
+import { cn } from '@/lib/utils'
 import { updateHealthUnits } from '@/services/actions/ubs-actions'
 import { useVaccinesList } from '@/hooks/use-vaccines-list'
+import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 
 interface DetailUbsProps {
   params: Promise<{ id: string }>
@@ -93,7 +94,15 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   }, [ubsDataFromApi])
 
   if (isLoading) {
-    return <div>Carregando...</div>
+    return (
+      <SkeletonLoader
+        count={1}
+        variant="card"
+        height="h-64"
+        width="w-full"
+        ariaLabel="Carregando detalhes da unidade de saúde"
+      />
+    )
   }
 
   if (error) {
@@ -105,7 +114,15 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   }
 
   if (!ubs) {
-    return <div>Carregando...</div>
+    return (
+      <SkeletonLoader
+        count={1}
+        variant="card"
+        height="h-64"
+        width="w-full"
+        ariaLabel="Carregando dados da unidade de saúde"
+      />
+    )
   }
 
   const {
@@ -136,12 +153,10 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     }
 
     try {
-      // 1. ESPERE a API salvar os dois dados
       await updateHealthUnits(ubsId, {
         operatingHours: newHours,
       })
 
-      // 2. Se a API deu certo, ATUALIZE O ESTADO local
       setUbs((prev) =>
         prev
           ? {
@@ -152,14 +167,11 @@ export default function DetailUbs({ params }: DetailUbsProps) {
           : null,
       )
 
-      // 3. Avise o usuário e FECHE O MODAL
       toast.success('Horário atualizado com sucesso!')
-      setIsHoursModalOpen(false) // <--- Fecha o modal
+      setIsHoursModalOpen(false)
     } catch (error) {
-      // 4. Se a API falhou, avise o usuário
       console.error('Falha ao salvar horários:', error)
       toast.error('Não foi possível salvar. Tente novamente.')
-      // Importante: NÃO feche o modal aqui, deixe o usuário tentar de novo
     }
   }
 
@@ -366,14 +378,14 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         <p>Confira a cartilha de vacinas para saber quais vacinas são indicadas para cada idade.</p>
       </div>
 
-      <BvHoursModal
+      <LazyBvHoursModal
         isOpen={isHoursModalOpen}
         setIsOpen={setIsHoursModalOpen}
         currentHours={operatingHours}
         currentWaitTime={averageWaitTime}
         onSave={handleSaveHours}
       />
-      <BvAddVaccineModal
+      <LazyBvAddVaccineModal
         isOpen={isVaccineModalOpen}
         setIsOpen={setIsVaccineModalOpen}
         onAdd={handleAddVaccine}

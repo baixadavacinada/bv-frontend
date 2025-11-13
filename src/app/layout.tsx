@@ -5,7 +5,9 @@ import { getMessages } from 'next-intl/server'
 import './globals.css'
 import { cn } from '@/lib/utils'
 import { AuthProvider } from '@/hooks/use-firebase-auth'
-import { Toaster } from 'sonner'
+import { LocationProvider } from '@/contexts/LocationContext'
+import { LazyCookieConsentModal } from '@/components'
+import { ToasterWithAuth } from '@/components/common/ToasterWithAuth'
 
 const barlow = Barlow({
   subsets: ['latin'],
@@ -17,6 +19,9 @@ const barlow = Barlow({
 export const metadata: Metadata = {
   title: 'Baixada Vacinada',
   description: 'Plataforma de informações sobre vacinação',
+  icons: {
+    icon: '/criola-logo.png',
+  },
   other: {
     'Content-Language': 'pt-BR',
   },
@@ -30,10 +35,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={cn(barlow.className, 'bg-background antialiased dark:bg-slate-900')}>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
-            <div>{children}</div>
+            <LocationProvider>
+              <LazyCookieConsentModal />
+              <div>{children}</div>
+              <ToasterWithAuth />
+            </LocationProvider>
           </AuthProvider>
         </NextIntlClientProvider>
-        <Toaster />
       </body>
     </html>
   )

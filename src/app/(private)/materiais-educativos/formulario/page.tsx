@@ -5,7 +5,7 @@ import { EducationalMaterialsFormContent } from './EducationalMaterialsFormConte
 
 export default function EducationalMaterialsFormPage() {
   return (
-    <Suspense fallback={<div>Carregando...</div>}>
+    <Suspense fallback={null}>
       <EducationalMaterialsFormContent />
     </Suspense>
   )

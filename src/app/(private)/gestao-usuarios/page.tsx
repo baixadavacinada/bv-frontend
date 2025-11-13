@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import { PlusIcon, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { BvButton, BvTitleHeader, RoleGuard } from '@/components'
-import { DeleteModal } from '@/components/common/DeleteModal'
+import { DeleteConfirmationDialog } from '@/components/common/DeleteConfirmationDialog'
 import { ManagementTable } from '@/components/common/ManagementTable'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { useDeleteConfirmation } from '@/hooks/use-delete-confirmation'
 import { useAuth } from '@/hooks/use-firebase-auth'
 import { useUserManagement } from '@/services/user-management'
 import { UserProfile } from '@/types/user-management'
@@ -28,8 +29,26 @@ export default function UserManagementPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm] = useState('')
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [userToDelete, setUserToDelete] = useState<UserProfile | null>(null)
+
+  const {
+    isOpen,
+    itemName,
+    itemId,
+    isDeleting,
+    openDeleteDialog,
+    closeDeleteDialog,
+    handleDelete,
+  } = useDeleteConfirmation({
+    onConfirm: async (id) => {
+      const userToDelete = users.find((u) => u.uid === id)
+      if (!userToDelete) {
+        throw new Error('Usuário não encontrado')
+      }
+      await deleteUser(id)
+      setUsers((prevUsers) => prevUsers.filter((u) => u.uid !== id))
+    },
+    successMessage: 'Usuário deletado com sucesso',
+  })
 
   const listUsersRef = useRef(listUsers)
   listUsersRef.current = listUsers
@@ -133,28 +152,12 @@ export default function UserManagementPage() {
   }
 
   const handleDeleteClick = (user: UserTableItem) => {
-    setUserToDelete(user)
-    setShowDeleteModal(true)
-  }
-
-  const handleCloseModal = () => {
-    setShowDeleteModal(false)
-    setUserToDelete(null)
+    openDeleteDialog('user', user.uid, user.displayName || user.email)
   }
 
   const handleConfirmDelete = async () => {
-    if (!userToDelete) return
-
-    try {
-      await deleteUser(userToDelete.uid)
-      setUsers(users.filter((u) => u.uid !== userToDelete.uid))
-      toast.success('Usuário removido com sucesso')
-
-      handleCloseModal()
-      loadUsers(searchTerm)
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao remover usuário'
-      toast.error(errorMessage)
+    if (itemId) {
+      await handleDelete('user', itemId, itemName)
     }
   }
 
@@ -256,15 +259,14 @@ export default function UserManagementPage() {
           )}
         </div>
 
-        <DeleteModal
-          isOpen={showDeleteModal}
-          onClose={handleCloseModal}
+        <DeleteConfirmationDialog
+          isOpen={isOpen}
+          itemName={itemName}
+          itemType="user"
+          isDeleting={isDeleting}
           onConfirm={handleConfirmDelete}
-          itemName={
-            userToDelete
-              ? `"${userToDelete.displayName || userToDelete.email}"`
-              : 'o usuário selecionado'
-          }
+          onCancel={closeDeleteDialog}
+          actionLabel="Sim, deletar"
         />
       </div>
     </RoleGuard>

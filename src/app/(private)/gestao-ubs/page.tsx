@@ -2,29 +2,23 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { BvTitleHeader, RoleGuard } from '@/components'
+import { BvTitleHeader } from '@/components'
 import { CollapsibleFilter } from '@/components/design/BvCollapsibleFilter'
 import { BvUbsList } from '@/components/index'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox' // Verifique se este é o caminho correto
+import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
-import { useHealthUnits } from '@/hooks/use-health-units' // Ajuste o caminho se necessário
+import { useHealthUnits } from '@/hooks/use-health-units'
+import { useLocationContext } from '@/contexts/LocationContext'
+import { sortByDistance } from '@/utils/geolocation'
 import { HealthUnit } from '@/types/health-units'
 import { deleteHealthUnits } from '@/services/actions/ubs-actions'
+import { useDeleteConfirmation } from '@/hooks/use-delete-confirmation'
+import { DeleteConfirmationDialog } from '@/components/common/DeleteConfirmationDialog'
 
 type UbsListData = {
   id: number
@@ -39,35 +33,76 @@ type UbsListData = {
 
 export default function UbsScreen() {
   const { data, isLoading, error } = useHealthUnits()
+  const { userCoords } = useLocationContext()
   const [ubsList, setUbsList] = useState<UbsListData[]>([])
   const [filters, setFilters] = useState({
     name: '',
     neighborhood: '',
     open24h: false,
-  })
-
-  const [deleteAlert, setDeleteAlert] = useState<{ isOpen: boolean; id: number | null }>({
-    isOpen: false,
-    id: null,
+    filterByProximity: false,
   })
 
   const router = useRouter()
 
+  const {
+    isOpen,
+    itemName,
+    itemId,
+    isDeleting,
+    openDeleteDialog,
+    closeDeleteDialog,
+    handleDelete,
+  } = useDeleteConfirmation({
+    onConfirm: async (id) => {
+      const ubsToDelete = ubsList.find((u) => u.slug === id)
+      if (!ubsToDelete) {
+        throw new Error('UBS não encontrada')
+      }
+      await deleteHealthUnits(id)
+      setUbsList((currentList) => currentList.filter((u) => u.slug !== id))
+    },
+    successMessage: 'UBS deletada com sucesso',
+  })
+
   useEffect(() => {
     if (data) {
-      const transformedData: UbsListData[] = data.map((unit: HealthUnit, index: number) => ({
+      let transformedData: UbsListData[] = data.map((unit: HealthUnit, index: number) => ({
         id: index,
         slug: unit._id || '',
-        component: 'private',
+        component: 'private' as const,
         name: unit.name,
         neighborhood: unit.neighborhood,
-        distanceInKm: Math.floor(Math.random() * 20) + 1,
+        distanceInKm: 0,
         isFavorite: unit.isFavorite || false,
       }))
 
+      // Se temos coordenadas do usuário, calcular distância
+      if (userCoords && userCoords.latitude && userCoords.longitude) {
+        const unitsWithGeo = data.map((unit: HealthUnit) => ({
+          ...unit,
+          latitude: unit.geolocation?.lat || 0,
+          longitude: unit.geolocation?.lng || 0,
+        }))
+
+        const sortedData = sortByDistance(unitsWithGeo, userCoords, {
+          lat: 'latitude',
+          lng: 'longitude',
+        })
+
+        transformedData = sortedData.map((unit, index) => ({
+          id: index,
+          slug: unit._id || '',
+          component: 'private' as const,
+          name: unit.name,
+          neighborhood: unit.neighborhood,
+          distanceInKm: unit.distance || 0,
+          isFavorite: unit.isFavorite || false,
+        }))
+      }
+
       setUbsList(transformedData)
     }
-  }, [data])
+  }, [data, userCoords])
   const handleFavoriteToggle = (id: number) => {
     const ubs = ubsList.find((u) => u.id === id)
     if (!ubs) return
@@ -92,6 +127,11 @@ export default function UbsScreen() {
   const handleCheckboxChange = (checked: boolean | 'indeterminate') => {
     setFilters((prev) => ({ ...prev, open24h: checked === true }))
   }
+
+  const handleProximityFilterChange = (checked: boolean | 'indeterminate') => {
+    setFilters((prev) => ({ ...prev, filterByProximity: checked === true }))
+  }
+
   const filteredUbsList = useMemo(() => {
     let list = ubsList
 
@@ -109,31 +149,24 @@ export default function UbsScreen() {
       list = list.filter((ubs) => ubs.isOpen24h === true)
     }
 
+    // Filtrar por proximidade se ativado
+    if (filters.filterByProximity && userCoords) {
+      list = list.filter((ubs) => ubs.distanceInKm > 0 && ubs.distanceInKm <= 50) // 50km de raio
+    }
+
     return list
-  }, [ubsList, filters])
+  }, [ubsList, filters, userCoords])
 
   const handleDeleteRequest = (id: number) => {
-    setDeleteAlert({ isOpen: true, id: id })
+    const ubsToDelete = ubsList.find((u) => u.id === id)
+    if (ubsToDelete) {
+      openDeleteDialog('ubs', ubsToDelete.slug || '', ubsToDelete.name)
+    }
   }
 
   const handleConfirmDelete = async () => {
-    if (deleteAlert.id === null) return
-
-    const ubsToDelete = ubsList.find((u) => u.id === deleteAlert.id)
-    if (!ubsToDelete) {
-      toast.error('UBS não encontrada.')
-      setDeleteAlert({ isOpen: false, id: null })
-      return
-    }
-
-    try {
-      await deleteHealthUnits(ubsToDelete.slug || '')
-      setUbsList((currentList) => currentList.filter((u) => u.id !== deleteAlert.id))
-      toast.success(`UBS "${ubsToDelete.name}" deletada com sucesso.`)
-    } catch (error) {
-      toast.error(`Falha ao deletar a UBS "${ubsToDelete.name}". Tente novamente mais tarde.`)
-    } finally {
-      setDeleteAlert({ isOpen: false, id: null })
+    if (itemId) {
+      await handleDelete('ubs', itemId, itemName)
     }
   }
 
@@ -199,7 +232,7 @@ export default function UbsScreen() {
                 onChange={handleInputChange}
               />
             </div>
-            <div className="flex items-end">
+            <div className="flex flex-col gap-2">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="open-24h"
@@ -208,12 +241,24 @@ export default function UbsScreen() {
                 />
                 <Label htmlFor="open-24h">Aberto 24h</Label>
               </div>
+              {userCoords && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="proximity-filter"
+                    checked={filters.filterByProximity}
+                    onCheckedChange={handleProximityFilterChange}
+                  />
+                  <Label htmlFor="proximity-filter" className="text-sm">
+                    Mostrar próximas (50km)
+                  </Label>
+                </div>
+              )}
             </div>
           </div>
         </CollapsibleFilter>
       </div>
       <div className="mb-8 flex justify-end">
-        <Button className="w-full" onClick={() => router.push('gestao-ubs/form-ubs/novo')}>
+        <Button className="w-full" onClick={() => router.push('gestao-ubs/adicionar')}>
           <Plus className="mr-2 h-4 w-4" />
           Adicionar Nova UBS
         </Button>
@@ -227,31 +272,15 @@ export default function UbsScreen() {
         onShareRequest={handleShare}
       />
 
-      <AlertDialog
-        open={deleteAlert.isOpen}
-        onOpenChange={(isOpen) => setDeleteAlert({ ...deleteAlert, isOpen })}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso removerá permanentemente a UBS &quot;
-              {ubsList.find((ubs) => ubs.id === deleteAlert.id)?.name}&quot; da lista.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteAlert({ isOpen: false, id: null })}>
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Sim, excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={isOpen}
+        itemName={itemName}
+        itemType="ubs"
+        isDeleting={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={closeDeleteDialog}
+        actionLabel="Sim, deletar"
+      />
     </>
   )
 }

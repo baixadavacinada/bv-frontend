@@ -7,36 +7,63 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { toast } from 'sonner'
 import { useHealthUnits } from '@/hooks/use-health-units'
+import { useLocationContext } from '@/contexts/LocationContext'
+import { sortByDistance } from '@/utils/geolocation'
 import { HealthUnit } from '@/types/health-units'
+import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 
 type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onShare' | 'onFavoriteToggle' | 'onDelete'>
 
 export default function UbsScreen() {
   const [ubsList, setUbsList] = useState<UbsListData[]>([])
   const { data, isLoading, error } = useHealthUnits()
+  const { userCoords } = useLocationContext()
   const [filters, setFilters] = useState({
     name: '',
     neighborhood: '',
     open24h: false,
+    filterByProximity: false,
   })
 
   useEffect(() => {
     if (data) {
-      const transformedData: UbsListData[] = data.map((unit: HealthUnit, index: number) => ({
+      let transformedData: UbsListData[] = data.map((unit: HealthUnit, index: number) => ({
         id: index,
         slug: unit._id,
-        component: 'public',
+        component: 'public' as const,
         name: unit.name,
         neighborhood: unit.neighborhood,
-        distanceInKm: Math.floor(Math.random() * 20) + 1,
+        distanceInKm: 0,
         isFavorite: unit.isFavorite || false,
       }))
 
+      // Se temos coordenadas do usuário, calcular distância
+      if (userCoords && userCoords.latitude && userCoords.longitude) {
+        const unitsWithGeo = data.map((unit: HealthUnit) => ({
+          ...unit,
+          latitude: unit.geolocation?.lat || 0,
+          longitude: unit.geolocation?.lng || 0,
+        }))
+
+        const sortedData = sortByDistance(unitsWithGeo, userCoords, {
+          lat: 'latitude',
+          lng: 'longitude',
+        })
+
+        transformedData = sortedData.map((unit, index) => ({
+          id: index,
+          slug: unit._id,
+          component: 'public' as const,
+          name: unit.name,
+          neighborhood: unit.neighborhood,
+          distanceInKm: unit.distance || 0,
+          isFavorite: unit.isFavorite || false,
+        }))
+      }
+
       setUbsList(transformedData)
     }
-  }, [data])
-
-  // const handleFavoriteToggle = (id: number) => {
+  }, [data, userCoords]) // const handleFavoriteToggle = (id: number) => {
   //   const ubs = ubsList.find((u) => u.id === id)
   //   if (!ubs) return
 
@@ -63,25 +90,34 @@ export default function UbsScreen() {
     }
   }
 
+  const handleProximityFilterChange = (checked: boolean | 'indeterminate') => {
+    setFilters((prev) => ({ ...prev, filterByProximity: checked === true }))
+  }
+
   const filteredUbsList = useMemo(() => {
-    return ubsList.filter((ubs) => {
+    let list = ubsList
+
+    list = list.filter((ubs) => {
       const nameMatch = ubs.name.toLowerCase().includes(filters.name.toLowerCase())
       const neighborhoodMatch = ubs.neighborhood
         .toLowerCase()
         .includes(filters.neighborhood.toLowerCase())
 
-      // NOTA: O filtro "Aberto 24h" não pode ser aplicado
-      // pois seus dados em `mockUbsData` não têm essa informação.
-      // Se tivesse, a lógica seria:
-      // const open24hMatch = !filters.open24h || ubs.isOpen24h;
-      // return nameMatch && neighborhoodMatch && open24hMatch;
-
       return nameMatch && neighborhoodMatch
     })
-  }, [ubsList, filters])
+
+    // Filtrar por proximidade se ativado
+    if (filters.filterByProximity && userCoords) {
+      list = list.filter((ubs) => ubs.distanceInKm > 0 && ubs.distanceInKm <= 50) // 50km de raio
+    }
+
+    return list
+  }, [ubsList, filters, userCoords])
 
   if (isLoading) {
-    return <div>Carregando...</div>
+    return (
+      <SkeletonLoader count={5} variant="card" ariaLabel="Carregando unidades básicas de saúde" />
+    )
   }
 
   if (error) {
@@ -114,7 +150,7 @@ export default function UbsScreen() {
                 onChange={(e) => setFilters((prev) => ({ ...prev, neighborhood: e.target.value }))}
               />
             </div>
-            <div className="flex items-end">
+            <div className="flex flex-col gap-2">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="open-24h"
@@ -125,6 +161,18 @@ export default function UbsScreen() {
                 />
                 <Label htmlFor="open-24h">Aberto 24h</Label>
               </div>
+              {userCoords && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="proximity-filter"
+                    checked={filters.filterByProximity}
+                    onCheckedChange={handleProximityFilterChange}
+                  />
+                  <Label htmlFor="proximity-filter" className="text-sm">
+                    Mostrar próximas (50km)
+                  </Label>
+                </div>
+              )}
             </div>
           </div>
         </CollapsibleFilter>

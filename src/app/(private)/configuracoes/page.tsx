@@ -9,19 +9,17 @@ import { getPersonalDataSchema } from '@/schemas/personal-data-schema'
 import { BvFormInput } from '@/components/design/BvFormInput'
 import { TitleSection } from '@/components/sections/TitleSection'
 import { BvNotificationToggle } from '@/components/design/BvNotificationToggle'
-import { usePermissions } from '@/hooks/use-permissions'
 import { useAuth } from '@/hooks/use-firebase-auth'
 import { toast } from 'sonner'
 import { getAuth } from 'firebase/auth'
 import { ApiClient } from '@/services/api'
 
 export default function SettingsScreen() {
-  const { role } = usePermissions()
   const { user, refreshUser } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const firebaseAuth = getAuth()
 
-  const schema = useMemo(() => getPersonalDataSchema(role), [role])
+  const schema = useMemo(() => getPersonalDataSchema(user?.role || 'public'), [user?.role])
 
   const {
     register,

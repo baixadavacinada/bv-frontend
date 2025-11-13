@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { useCEPLookup } from '@/hooks/use-cep-lookup'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -125,6 +126,8 @@ interface UbsFormProps {
 export function UbsForm({ initialData, slug }: UbsFormProps) {
   const router = useRouter()
   useAccessibilityValidation({ enabled: true })
+  const { lookupCEP, isLoading: cepLoading, error: cepError } = useCEPLookup()
+  const [logradouroPreenchido, setLogradouroPreenchido] = useState(!!initialData?.address)
 
   const [step, setStep] = useState(1)
   const [vaccineInput, setVaccineInput] = useState('')

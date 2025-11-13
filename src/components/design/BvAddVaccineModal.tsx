@@ -46,7 +46,6 @@ export function BvAddVaccineModal({
 
   const handleAddClick = async () => {
     const vaccineToAdd = newVaccineName.trim() || selectedVaccine
-    console.log('Vacina a ser adicionada:', vaccineToAdd)
 
     if (!vaccineToAdd) {
       toast.warning('Atenção!', {

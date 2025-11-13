@@ -4,6 +4,7 @@ import { ReactNode, useEffect } from 'react'
 import { Navbar } from './Navbar'
 import { Sidebar } from './Sidebar'
 import { FooterBar } from './FooterBar'
+import { LocationPermissionHandler } from '../common/LocationPermissionHandler'
 import { cn } from '@/lib/utils'
 import { useAppTranslations } from '@/hooks/use-translations'
 import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
@@ -29,6 +30,7 @@ export function AppLayout({ children, className }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen">
+      <LocationPermissionHandler />
       <Navbar />
 
       <div className="flex">
