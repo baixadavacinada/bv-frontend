@@ -84,7 +84,7 @@ export const sidebarNavigation: NavigationItem[] = [
   },
   {
     id: 'gestao-vacinas',
-    icon: FaSyringe,
+    icon: BsFileEarmarkText,
     label: 'Gestão de Vacinas',
     href: '/gestao-vacinas',
     allowedRoles: ['admin'],
