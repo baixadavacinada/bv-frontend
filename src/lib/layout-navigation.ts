@@ -4,7 +4,7 @@ import { CiSettings } from 'react-icons/ci'
 import { FaSyringe } from 'react-icons/fa'
 import { IconType } from 'react-icons'
 import { BsHouse, BsGeoAlt, BsFileEarmarkText, BsBell } from 'react-icons/bs'
-import { Star } from 'lucide-react'
+import { Star, Calendar } from 'lucide-react'
 
 export interface NavigationItem {
   id: string
@@ -38,6 +38,13 @@ export const sidebarNavigation: NavigationItem[] = [
     icon: Star,
     label: 'Avaliar',
     href: '/ubs/avaliar',
+    allowedRoles: ['public', 'agent', 'admin'],
+  },
+  {
+    id: 'calendario-vacinas',
+    icon: Calendar,
+    label: 'Calendário de Vacinação',
+    href: '/cartilha-vacinas',
     allowedRoles: ['public', 'agent', 'admin'],
   },
   {
