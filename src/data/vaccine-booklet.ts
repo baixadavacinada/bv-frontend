@@ -1,3 +1,10 @@
+import crianca0_5Icon from '@/assets/icons/crianca-0-5.svg'
+import crianca5_10Icon from '@/assets/icons/crianca-5-10.svg'
+import adolescenteIcon from '@/assets/icons/adolescente-11-19.svg'
+import adultoIcon from '@/assets/icons/adulto-20-59.svg'
+import gestanteIcon from '@/assets/icons/gestante.svg'
+import idosoIcon from '@/assets/icons/idoso.svg'
+
 export interface VaccinePeriod {
   period: string
   vaccines: Vaccine[]
@@ -27,7 +34,7 @@ export const ageGroups: AgeGroup[] = [
     subtitle: '0 a 5 meses',
     ageRange: '0 a 5 meses',
     color: 'bg-amber-100',
-    icon: '/assets/icons/crianca-0-5.svg',
+    icon: crianca0_5Icon,
     periods: [
       {
         period: 'Ao nascer',
@@ -114,7 +121,7 @@ export const ageGroups: AgeGroup[] = [
     subtitle: '6 a 12 meses',
     ageRange: '6 a 12 meses',
     color: 'bg-purple-100',
-    icon: '/assets/icons/crianca-5-10.svg',
+    icon: crianca5_10Icon,
     periods: [
       {
         period: '6 meses',
@@ -188,7 +195,7 @@ export const ageGroups: AgeGroup[] = [
     subtitle: '1 a 2 anos',
     ageRange: '1 a 2 anos',
     color: 'bg-blue-100',
-    icon: '/assets/icons/crianca-5-10.svg',
+    icon: crianca5_10Icon,
     periods: [
       {
         period: '15 meses',
@@ -227,7 +234,7 @@ export const ageGroups: AgeGroup[] = [
     subtitle: '3 a 4 anos',
     ageRange: '3 a 4 anos',
     color: 'bg-emerald-100',
-    icon: '/assets/icons/crianca-5-10.svg',
+    icon: crianca5_10Icon,
     periods: [
       {
         period: '4 anos',
@@ -260,7 +267,7 @@ export const ageGroups: AgeGroup[] = [
     subtitle: '5 a 10 anos',
     ageRange: '5 a 10 anos',
     color: 'bg-teal-100',
-    icon: '/assets/icons/crianca-5-10.svg',
+    icon: crianca5_10Icon,
     periods: [
       {
         period: '5 a 10 anos',
@@ -288,7 +295,7 @@ export const ageGroups: AgeGroup[] = [
     subtitle: '11 a 19 anos',
     ageRange: '11 a 19 anos',
     color: 'bg-pink-100',
-    icon: '/assets/icons/adolescente-11-19.svg',
+    icon: adolescenteIcon,
     periods: [
       {
         period: '9 a 14 anos',
@@ -339,7 +346,7 @@ export const ageGroups: AgeGroup[] = [
     subtitle: '20 a 59 anos',
     ageRange: '20 a 59 anos',
     color: 'bg-sky-100',
-    icon: '/assets/icons/adulto-20-59.svg',
+    icon: adultoIcon,
     periods: [
       {
         period: 'Ao longo da vida adulta',
@@ -392,7 +399,7 @@ export const ageGroups: AgeGroup[] = [
     subtitle: 'Durante a gestação',
     ageRange: 'Gestação',
     color: 'bg-rose-100',
-    icon: '/assets/icons/gestante.svg',
+    icon: gestanteIcon,
     periods: [
       {
         period: 'Ao saber da gravidez',
@@ -438,7 +445,7 @@ export const ageGroups: AgeGroup[] = [
     subtitle: '60 anos ou mais',
     ageRange: 'A partir de 60 anos',
     color: 'bg-lime-100',
-    icon: '/assets/icons/idoso.svg',
+    icon: idosoIcon,
     periods: [
       {
         period: 'A partir dos 60 anos',
