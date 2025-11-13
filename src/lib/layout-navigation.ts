@@ -71,7 +71,7 @@ export const sidebarNavigation: NavigationItem[] = [
   {
     id: 'gestao-ubs',
     icon: BsFileEarmarkText,
-    label: 'Gestão de UBS',
+    label: 'G',
     href: '/gestao-ubs',
     allowedRoles: ['admin'],
   },
