@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 import { Loader2, Send, Star } from 'lucide-react'
-import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -21,20 +21,25 @@ import { BvTitleHeader } from '@/components'
 import { toast } from 'sonner'
 import { submitSurvey } from '@/services/actions/ubs-actions'
 
-function AvaliarUBSContent() {
-  useAccessibilityValidation({ enabled: true })
+const formSchema = z.object({
+  vaccineSuccess: z.string().min(1, 'Campo obrigatório'),
+  waitTime: z.string().min(1, 'Campo obrigatório'),
+  respectfulService: z.string().min(1, 'Campo obrigatório'),
+  cleanLocation: z.string().min(1, 'Campo obrigatório'),
+  recommendation: z.string().min(1, 'Campo obrigatório'),
+  rating: z.number().min(1, 'Selecione pelo menos 1 estrela').max(5),
+})
 
+export default function OrderDetailsPage() {
   const params = useParams()
-  const router = useRouter()
   const name = params.name as string
   const id = params.id as string
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const form = useForm<FeedbackFormData>({
-    resolver: zodResolver(feedbackSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      healthUnitId: id,
       vaccineSuccess: '',
       waitTime: '',
       respectfulService: '',
@@ -44,7 +49,7 @@ function AvaliarUBSContent() {
     },
   })
 
-  async function onSubmit(values: FeedbackFormData) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
     const surveyData = {
       healthUnitId: id,
@@ -66,18 +71,15 @@ function AvaliarUBSContent() {
     }
   }
 
-  const cleanName = name.replace(/-/g, ' ').replace(/ubs/gi, '').trim()
-
   return (
     <div className="mx-auto max-w-4xl rounded-lg p-6">
-      <BvTitleHeader title="Avaliação da UBS" className="mb-6" />
+      <BvTitleHeader title={'Avaliação da UBS'} className="mb-6" />
 
       {/* <h2 className="mb-6 text-xl font-bold">UBS {name.replace(/-/g, ' ').replace(/ubs/g, '')}</h2> */}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 gap-x-12 gap-y-6 md:grid-cols-2">
-            {/* Vacina bem-sucedida */}
             <FormField
               control={form.control}
               name="vaccineSuccess"
@@ -87,18 +89,12 @@ function AvaliarUBSContent() {
                     Você conseguiu tomar a vacina no dia que procurou o posto de saúde?
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Ex: Sim / Não / Parcialmente"
-                      className="h-12 border-none bg-white"
-                      {...field}
-                    />
+                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            {/* Tempo de espera */}
             <FormField
               control={form.control}
               name="waitTime"
@@ -108,18 +104,12 @@ function AvaliarUBSContent() {
                     Quanto tempo você esperou para ser atendido?
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Ex: 30 minutos / 1 hora"
-                      className="h-12 border-none bg-white"
-                      {...field}
-                    />
+                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            {/* Atendimento respeitoso */}
             <FormField
               control={form.control}
               name="respectfulService"
@@ -129,18 +119,12 @@ function AvaliarUBSContent() {
                     O atendimento foi respeitoso e acolhedor?
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Ex: Sim, muito atencioso"
-                      className="h-12 border-none bg-white"
-                      {...field}
-                    />
+                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            {/* Local limpo */}
             <FormField
               control={form.control}
               name="cleanLocation"
@@ -150,18 +134,12 @@ function AvaliarUBSContent() {
                     O local estava limpo e organizado?
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Ex: Sim, muito limpo"
-                      className="h-12 border-none bg-white"
-                      {...field}
-                    />
+                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            {/* Recomendação */}
             <FormField
               control={form.control}
               name="recommendation"
@@ -171,18 +149,12 @@ function AvaliarUBSContent() {
                     Você recomenda essa Unidade Básica de Saúde para amigos ou parentes?
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Ex: Sim, recomendo"
-                      className="h-12 border-none bg-white"
-                      {...field}
-                    />
+                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            {/* Avaliação geral (Rating) */}
             <FormField
               control={form.control}
               name="rating"
@@ -200,7 +172,6 @@ function AvaliarUBSContent() {
                           type="button"
                           onClick={() => field.onChange(star)}
                           className="transition-transform hover:scale-110 focus:outline-none"
-                          aria-label={`Classificar com ${star} estrelas`}
                         >
                           <Star
                             className={`h-8 w-8 ${
@@ -218,8 +189,6 @@ function AvaliarUBSContent() {
               )}
             />
           </div>
-
-          {/* Botões de ação */}
           <div className="flex flex-col items-center justify-between space-x-4 md:flex-row">
             <Button
               type="button"
@@ -236,10 +205,7 @@ function AvaliarUBSContent() {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Enviando...
-                </>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <>
                   Enviar avaliação
@@ -251,13 +217,5 @@ function AvaliarUBSContent() {
         </form>
       </Form>
     </div>
-  )
-}
-
-export default function AvaliarUBSPage() {
-  return (
-    <RoleGuard requireAuth={true}>
-      <AvaliarUBSContent />
-    </RoleGuard>
   )
 }
