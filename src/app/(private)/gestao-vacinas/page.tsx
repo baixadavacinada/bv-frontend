@@ -17,6 +17,7 @@ export default function VaccineManagementPage() {
   const router = useRouter()
   const [vaccines, setVaccines] = useState<Vaccine[]>([])
   const [loading, setLoading] = useState(true)
+  const [recentlyAdded, setRecentlyAdded] = useState<string | null>(null)
 
   const { listVaccines, canManageVaccines, deleteVaccine } = useVaccineManagement()
 
@@ -44,6 +45,9 @@ export default function VaccineManagementPage() {
 
     const handleRefreshVaccines = () => {
       loadVaccines()
+      toast.success('Vacina adicionada com sucesso!', {
+        description: 'Verifique a lista abaixo',
+      })
     }
 
     window.addEventListener('refreshVaccines', handleRefreshVaccines)
@@ -121,6 +125,23 @@ export default function VaccineManagementPage() {
               Aqui você pode adicionar e remover as vacinas. Também pode atualizar os dados de
               vacinas com segundas doses.
             </p>
+
+            {recentlyAdded && (
+              <div className="flex items-center gap-3 rounded-lg border-l-4 border-green-500 bg-green-50 p-4">
+                <div className="flex-1">
+                  <p className="font-semibold text-green-900">
+                    Vacina &quot;{recentlyAdded}&quot; adicionada com sucesso!
+                  </p>
+                </div>
+                <button
+                  onClick={() => setRecentlyAdded(null)}
+                  className="text-green-600 hover:text-green-700"
+                  aria-label="Fechar mensagem"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
 
             {canManageVaccines && (
               <BvButton

@@ -120,21 +120,32 @@ export function VaccineFormContent() {
 
       if (isEdit) {
         await updateVaccine(vaccineId!, vaccineData)
-        toast.success(`Vacina "${data.name}" atualizada com sucesso!`)
+        toast.success(`Vacina "${data.name}" atualizada com sucesso!`, {
+          description: 'Redirecionando para a lista de vacinas...',
+        })
 
         // Dispara evento para atualizar a listagem
         window.dispatchEvent(new CustomEvent('refreshVaccines'))
       } else {
         await createVaccine(vaccineData)
-        toast.success(`Vacina "${data.name}" criada com sucesso!`)
+        toast.success(`Vacina "${data.name}" criada com sucesso!`, {
+          description: 'Redirecionando para a lista de vacinas...',
+        })
 
         window.dispatchEvent(new CustomEvent('refreshVaccines'))
       }
 
-      router.push('/gestao-vacinas')
+      // Aguarda um pouco antes de redirecionar para o usuário ver o toast
+      setTimeout(() => {
+        router.push('/gestao-vacinas')
+      }, 1000)
     } catch (error) {
       console.error('Erro ao salvar vacina:', error)
-      toast.error('Ocorreu um erro ao salvar a vacina. Tente novamente.')
+      const errorMessage =
+        error instanceof Error ? error.message : 'Ocorreu um erro ao salvar a vacina'
+      toast.error('Erro ao salvar', {
+        description: errorMessage,
+      })
     }
   }
 
