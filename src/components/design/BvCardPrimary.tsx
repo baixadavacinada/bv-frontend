@@ -48,17 +48,15 @@ interface LayoutProps {
 
 // Componente para renderizar o ícone
 const CardIcon: React.FC<CardIconProps> = ({ icon, title, className = '' }) => (
-  <Image
-    src={icon}
-    alt={`Ícone de ${title}`}
-    width={60}
-    height={60}
-    className={`text-gray-600 ${className}`}
-    style={{
-      width: 'auto',
-      height: 'auto',
-    }}
-  />
+  <div className={`flex h-20 w-20 flex-shrink-0 items-center justify-center ${className}`}>
+    <Image
+      src={icon}
+      alt={`Ícone de ${title}`}
+      width={80}
+      height={80}
+      className="h-full w-full object-contain"
+    />
+  </div>
 )
 
 // Componente para renderizar título e descrição
@@ -86,10 +84,10 @@ const layouts = {
   stacked: ({ title, description, icon }: LayoutProps) => (
     <>
       {/* Desktop layout */}
-      <div className="hidden lg:flex lg:flex-col lg:items-center lg:text-center">
-        <CardTitle className="mb-4 text-xl font-semibold">{title}</CardTitle>
+      <div className="hidden lg:flex lg:flex-col lg:items-center lg:gap-4 lg:text-center">
+        <CardTitle className="text-xl font-semibold">{title}</CardTitle>
         {icon && (
-          <div className="mb-4">
+          <div className="flex items-center justify-center">
             <CardIcon icon={icon} title={title} />
           </div>
         )}

@@ -89,7 +89,11 @@ export default function OrderDetailsPage() {
                     Você conseguiu tomar a vacina no dia que procurou o posto de saúde?
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
+                    <Input
+                      placeholder="Sim, consegui tomar a vacina"
+                      className="h-12 border-none bg-white"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -104,7 +108,11 @@ export default function OrderDetailsPage() {
                     Quanto tempo você esperou para ser atendido?
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
+                    <Input
+                      placeholder="Ex: 30 minutos"
+                      className="h-12 border-none bg-white"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -119,7 +127,11 @@ export default function OrderDetailsPage() {
                     O atendimento foi respeitoso e acolhedor?
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
+                    <Input
+                      placeholder="Sim, os profissionais foram muito atencioso"
+                      className="h-12 border-none bg-white"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -134,7 +146,11 @@ export default function OrderDetailsPage() {
                     O local estava limpo e organizado?
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
+                    <Input
+                      placeholder="Sim, o local estava bem limpo e organizado"
+                      className="h-12 border-none bg-white"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -149,7 +165,11 @@ export default function OrderDetailsPage() {
                     Você recomenda essa Unidade Básica de Saúde para amigos ou parentes?
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Exemplo" className="h-12 border-none bg-white" {...field} />
+                    <Input
+                      placeholder="Sim, recomendo"
+                      className="h-12 border-none bg-white"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

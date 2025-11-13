@@ -92,15 +92,15 @@
     },
     "ubsManagement": {
       "title": "Gestão de UBSs",
-      "description": "Adicione novas UBSs, visualize informações e localização das unidades e atualize dados sempre que necessário."
+      "description": "Adicione novas UBSs, visualize informações e atualize dados sempre que necessário."
     },
     "userManagement": {
       "title": "Gestão de usuários",
-      "description": "Visualize e adicione usuários, valide alterações na carteira de vacinação dos moradores e edite informações."
+      "description": "Visualize e adicione usuários e edite informações."
     },
     "vaccineManagement": {
       "title": "Gestão de vacinas",
-      "description": "Adicione vacinas, atualize dados de segundas doses e acompanhe o relatório de doses aplicadas."
+      "description": "Adicione vacinase atualize dados de segundas doses."
     },
     "evaluation": {
       "title": "Avaliar UBS",
@@ -116,7 +116,7 @@
     },
     "notifications": {
       "title": "Notificações",
-      "description": "Configure suas preferências de notificações para lembretes de vacinas e agendamentos."
+      "description": "Configure suas preferências de notificações para lembretes de vacinas."
     }
   }
 }

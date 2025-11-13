@@ -6,7 +6,7 @@ import { useAppTranslations } from '@/hooks/use-translations'
 import HospitalIcon from '@/assets/icons/hospital.svg'
 import RegisterIcon from '@/assets/icons/register.svg'
 import SettingsIcon from '@/assets/icons/settings.svg'
-import StarIcon from '@/assets/icons/star.svg'
+import EvaluationIcon from '@/assets/icons/evaluation.svg'
 import VaccineIcon from '@/assets/icons/seringa.svg'
 import NotificationsIcon from '@/assets/icons/phone-notifications.svg'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
@@ -43,7 +43,7 @@ export function MainActionsSection() {
       id: 'evaluation',
       title: cards('evaluation.title'),
       description: cards('evaluation.description'),
-      icon: StarIcon,
+      icon: EvaluationIcon,
       action: () => router.push('/ubs'),
       variant: 'stacked',
     },
