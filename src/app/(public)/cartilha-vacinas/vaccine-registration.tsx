@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-firebase-auth'
+import { useRouter } from 'next/navigation'
 import { BvButton, BvTitleHeader } from '@/components'
 import { BvFormInput } from '@/components/design/BvFormInput'
 import BvSelect from '@/components/design/BvSelect'
@@ -25,8 +26,13 @@ interface RegisteredVaccine {
   addedAt: string
 }
 
-export default function VaccineRegistrationContent() {
+export default function VaccineRegistrationContent({
+  onVaccineAdded,
+}: {
+  onVaccineAdded?: () => void
+}) {
   const { user } = useAuth()
+  const router = useRouter()
   const [showForm, setShowForm] = useState(false)
   const [vaccines, setVaccines] = useState<VaccineFromDB[]>([])
   const [healthUnits, setHealthUnits] = useState<HealthUnitFromDB[]>([])
@@ -193,6 +199,9 @@ export default function VaccineRegistrationContent() {
       setCity('')
       setState('')
       setShowForm(false)
+
+      // Redirecionar para "Minhas Vacinas"
+      onVaccineAdded?.()
     } catch (error) {
       console.error('Erro ao adicionar vacina:', error)
       toast.error('Erro ao adicionar vacina. Tente novamente.')
@@ -267,10 +276,12 @@ export default function VaccineRegistrationContent() {
       {/* Botão para abrir formulário */}
       {!showForm && (
         <div className="mb-6">
-          <BvButton onClick={() => setShowForm(true)} className="bg-purple-600 hover:bg-purple-700">
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar Vacina
-          </BvButton>
+          <BvButton
+            onClick={() => router.push('/vacinacao')}
+            title="Adicionar Vacina"
+            className="bg-purple-600 hover:bg-purple-700"
+            leftIcon={<Plus className="h-4 w-4" />}
+          />
         </div>
       )}
 
