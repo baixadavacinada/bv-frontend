@@ -6,6 +6,7 @@ export type ActionType =
   | 'evaluation'
   | 'calendar'
   | 'cartilha'
+  | 'vaccination'
   | 'settings'
   | 'notifications'
   | 'ubs-management'
@@ -13,12 +14,13 @@ export type ActionType =
   | 'vaccine-management'
 
 export const ROLE_ACTIONS: Record<UserRole, ActionType[]> = {
-  public: ['ubs', 'evaluation', 'calendar', 'cartilha'],
-  agent: ['evaluation', 'calendar', 'cartilha', 'notifications'],
+  public: ['ubs', 'evaluation', 'calendar', 'cartilha', 'vaccination'],
+  agent: ['evaluation', 'calendar', 'cartilha', 'vaccination', 'notifications'],
   admin: [
     'evaluation',
     'calendar',
     'cartilha',
+    'vaccination',
     'notifications',
     'ubs-management',
     'user-management',

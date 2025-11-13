@@ -60,8 +60,16 @@ export function MainActionsSection() {
       id: 'cartilha',
       title: cards('cartilha.title'),
       description: cards('cartilha.description'),
-      icon: CalendarIcon,
+      icon: VaccineIcon,
       action: () => router.push('/cartilha-vacinas'),
+      variant: 'stacked',
+    },
+    vaccination: {
+      id: 'vaccination',
+      title: cards('vaccination.title'),
+      description: cards('vaccination.description'),
+      icon: RegisterIcon,
+      action: () => router.push('/vacinacao'),
       variant: 'stacked',
     },
     settings: {

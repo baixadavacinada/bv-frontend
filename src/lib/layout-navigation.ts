@@ -20,9 +20,9 @@ export interface NavigationItem {
 // Menu principal do sidebar (desktop)
 export const sidebarNavigation: NavigationItem[] = [
   {
-    id: 'home',
+    id: 'inicio',
     icon: BsHouse,
-    label: 'Home',
+    label: 'Início',
     href: '/inicio',
     allowedRoles: ['public', 'agent', 'admin'],
   },
@@ -34,9 +34,9 @@ export const sidebarNavigation: NavigationItem[] = [
     allowedRoles: ['public', 'agent', 'admin'],
   },
   {
-    id: 'avaliar',
+    id: 'avaliar-ubs',
     icon: Star,
-    label: 'Avaliar',
+    label: 'Avaliar UBS',
     href: '/ubs/avaliar',
     allowedRoles: ['public', 'agent', 'admin'],
   },
@@ -55,7 +55,14 @@ export const sidebarNavigation: NavigationItem[] = [
     allowedRoles: ['public', 'agent', 'admin'],
   },
   {
-    id: 'notifications',
+    id: 'registro-vacinacao',
+    icon: FaSyringe,
+    label: 'Registro de Vacinação',
+    href: '/vacinacao',
+    allowedRoles: ['public', 'agent', 'admin'],
+  },
+  {
+    id: 'notificacoes',
     icon: BsBell,
     label: 'Notificações',
     href: '/notificacoes',
@@ -97,16 +104,23 @@ export const navbarActions: NavigationItem[] = [
 // Menu principal do footer (mobile/tablet)
 export const footerNavigation: NavigationItem[] = [
   {
-    id: 'home',
+    id: 'inicio',
     icon: BsHouse,
-    label: 'Home',
+    label: 'Início',
     href: '/inicio',
     allowedRoles: ['public', 'agent', 'admin'],
   },
   {
-    id: 'carteira-vacinacao',
+    id: 'registro-vacinacao',
     icon: FaSyringe,
-    label: 'Cartilha de Vacinação',
+    label: 'Registro de Vacinação',
+    href: '/vacinacao',
+    allowedRoles: ['public', 'agent', 'admin'],
+  },
+  {
+    id: 'cartilha-vacinas',
+    icon: BookOpen,
+    label: 'Cartilha de Vacinas',
     href: '/cartilha-vacinas',
     allowedRoles: ['public', 'agent', 'admin'],
   },
