@@ -14,7 +14,7 @@ import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 import { toSlug } from '@/utils/slug'
 import { toast } from 'sonner'
 
-type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onDelete'>
+type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onDelete'> & { healthUnitId: string }
 
 export default function UbsScreen() {
   const [ubsList, setUbsList] = useState<UbsListData[]>([])
@@ -31,13 +31,14 @@ export default function UbsScreen() {
   useEffect(() => {
     if (data) {
       let transformedData: UbsListData[] = data.map((unit: HealthUnit, index: number) => ({
+        healthUnitId: unit._id || '',
         id: index,
         slug: toSlug(unit.name),
         component: 'public' as const,
         name: unit.name,
         neighborhood: unit.neighborhood,
         distanceInKm: 0,
-        isFavorite: isFavorite(toSlug(unit.name)),
+        isFavorite: isFavorite(unit._id || ''),
       }))
 
       if (userCoords && userCoords.latitude && userCoords.longitude) {
@@ -53,13 +54,14 @@ export default function UbsScreen() {
         })
 
         transformedData = sortedData.map((unit, index) => ({
+          healthUnitId: unit._id || '',
           id: index,
           slug: toSlug(unit.name),
           component: 'public' as const,
           name: unit.name,
           neighborhood: unit.neighborhood,
           distanceInKm: unit.distance || 0,
-          isFavorite: isFavorite(toSlug(unit.name)),
+          isFavorite: isFavorite(unit._id || ''),
         }))
       }
 
@@ -73,8 +75,8 @@ export default function UbsScreen() {
 
   const handleFavoriteToggle = (id: number) => {
     const ubs = ubsList.find((u) => u.id === id)
-    if (ubs && ubs.slug) {
-      toggleFavorite(ubs.slug)
+    if (ubs && ubs.healthUnitId) {
+      toggleFavorite(ubs.healthUnitId)
       setUbsList((currentList) =>
         currentList.map((u) => (u.id === id ? { ...u, isFavorite: !u.isFavorite } : u)),
       )

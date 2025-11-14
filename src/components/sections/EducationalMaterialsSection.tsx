@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useId, useEffect } from 'react'
+import React, { useId, useEffect, useMemo } from 'react'
 import { BvCardSecondary } from '@/components/design/BvCardSecondary'
 import { EducationalMaterial } from '@/types/cards'
 import { useAppTranslations } from '@/hooks/use-translations'
 import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
 import { handleSmartDownload } from '@/utils/deviceDetection'
+import { useFavoriteMaterials } from '@/contexts/FavoriteMaterialsContext'
 
 interface EducationalMaterialsSectionProps {
   materials: EducationalMaterial[]
@@ -18,9 +19,24 @@ export const EducationalMaterialsSection: React.FC<EducationalMaterialsSectionPr
 }) => {
   const { educationalMaterials, accessibility } = useAppTranslations()
   const { announceToScreenReader } = useLiveRegion()
+  const { favoriteMaterials } = useFavoriteMaterials()
   const sectionId = useId()
 
   useAccessibilityValidation()
+
+  // Ordenar materiais com favoritos primeiro
+  const sortedMaterials = useMemo(() => {
+    return [...materials].sort((a, b) => {
+      const aIsFavorite = favoriteMaterials.has(a.id)
+      const bIsFavorite = favoriteMaterials.has(b.id)
+
+      // Se ambos são favoritos ou ambos não são, manter ordem original
+      if (aIsFavorite === bIsFavorite) return 0
+
+      // Colocar favoritos primeiro
+      return aIsFavorite ? -1 : 1
+    })
+  }, [materials, favoriteMaterials])
 
   const handleMaterialInteraction = (material: EducationalMaterial) => {
     announceToScreenReader(
@@ -44,21 +60,21 @@ export const EducationalMaterialsSection: React.FC<EducationalMaterialsSectionPr
 
     try {
       const message =
-        materials.length === 0
+        sortedMaterials.length === 0
           ? educationalMaterials('emptyState')
-          : educationalMaterials('materialsLoaded', { count: materials.length })
+          : educationalMaterials('materialsLoaded', { count: sortedMaterials.length })
 
       announceToScreenReader(message)
     } catch (error) {
       console.warn('Translation error:', error)
 
       announceToScreenReader(
-        materials.length === 0
+        sortedMaterials.length === 0
           ? 'Nenhum material disponível'
-          : `${materials.length} materiais carregados`,
+          : `${sortedMaterials.length} materiais carregados`,
       )
     }
-  }, [loading, materials.length, announceToScreenReader, educationalMaterials])
+  }, [loading, sortedMaterials.length, announceToScreenReader, educationalMaterials])
 
   const renderSkeletonLoader = () =>
     Array.from({ length: 3 }, (_, index) => (
@@ -77,9 +93,11 @@ export const EducationalMaterialsSection: React.FC<EducationalMaterialsSectionPr
   const renderMaterialCard = (material: EducationalMaterial) => (
     <div key={material.id} role="listitem">
       <BvCardSecondary
+        id={material.id}
         title={material.title}
         description={material.description}
         image={material.image}
+        link={material.downloadUrl}
         onClick={() => handleMaterialInteraction(material)}
         onKeyDown={(event) => handleKeyDown(event, material)}
         aria-label={educationalMaterials('openMaterial', { title: material.title })}
@@ -100,8 +118,8 @@ export const EducationalMaterialsSection: React.FC<EducationalMaterialsSectionPr
 
   const renderContent = () => {
     if (loading) return renderSkeletonLoader()
-    if (materials.length === 0) return renderEmptyState()
-    return materials.map(renderMaterialCard)
+    if (sortedMaterials.length === 0) return renderEmptyState()
+    return sortedMaterials.map(renderMaterialCard)
   }
 
   const sectionTitle = educationalMaterials('title')
@@ -132,7 +150,7 @@ export const EducationalMaterialsSection: React.FC<EducationalMaterialsSectionPr
         </h2>
       </div>
 
-      {materials.length === 0 ? (
+      {sortedMaterials.length === 0 ? (
         renderEmptyState()
       ) : (
         <div className="relative">

@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { AuthProvider } from '@/hooks/use-firebase-auth'
 import { LocationProvider } from '@/contexts/LocationContext'
 import { FavoritesProvider } from '@/contexts/FavoritesContext'
+import { FavoriteMaterialsProvider } from '@/contexts/FavoriteMaterialsContext'
 import { LazyCookieConsentModal } from '@/components'
 import { ToasterWithAuth } from '@/components/common/ToasterWithAuth'
 
@@ -38,9 +39,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <AuthProvider>
             <LocationProvider>
               <FavoritesProvider>
-                <LazyCookieConsentModal />
-                <div>{children}</div>
-                <ToasterWithAuth />
+                <FavoriteMaterialsProvider>
+                  <LazyCookieConsentModal />
+                  <div>{children}</div>
+                  <ToasterWithAuth />
+                </FavoriteMaterialsProvider>
               </FavoritesProvider>
             </LocationProvider>
           </AuthProvider>

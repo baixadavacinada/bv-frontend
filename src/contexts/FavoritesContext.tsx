@@ -2,10 +2,11 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { getAuth } from 'firebase/auth'
+import { toggleFavoriteHealthUnit } from '@/services/actions/favorites-actions'
 
 interface FavoritesContextType {
   favorites: Set<string>
-  toggleFavorite: (ubsId: string) => void
+  toggleFavorite: (ubsId: string) => Promise<void>
   isFavorite: (ubsId: string) => boolean
 }
 
@@ -29,29 +30,36 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     setIsLoaded(true)
   }, [])
 
-  // Salvar favoritos no localStorage e no backend
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem('ubsFavorites', JSON.stringify(Array.from(favorites)))
+  const toggleFavorite = async (ubsId: string) => {
+    try {
+      setFavorites((prev) => {
+        const newSet = new Set(prev)
+        if (newSet.has(ubsId)) {
+          newSet.delete(ubsId)
+        } else {
+          newSet.add(ubsId)
+        }
+        return newSet
+      })
 
-      // Sincronizar com backend se usuário estiver autenticado
+      // Salvar no localStorage
+      const newFavorites = Array.from(favorites)
+      if (favorites.has(ubsId)) {
+        newFavorites.splice(newFavorites.indexOf(ubsId), 1)
+      } else {
+        newFavorites.push(ubsId)
+      }
+      localStorage.setItem('ubsFavorites', JSON.stringify(newFavorites))
+
+      // Sincronizar com backend usando toggle endpoint
       const auth = getAuth()
       if (auth.currentUser) {
-        syncFavoritesWithBackend(Array.from(favorites))
+        await toggleFavoriteHealthUnit(ubsId)
       }
+    } catch (error) {
+      console.error('Erro ao alternar favorito:', error)
+      throw error
     }
-  }, [favorites, isLoaded])
-
-  const toggleFavorite = (ubsId: string) => {
-    setFavorites((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(ubsId)) {
-        newSet.delete(ubsId)
-      } else {
-        newSet.add(ubsId)
-      }
-      return newSet
-    })
   }
 
   const isFavorite = (ubsId: string) => {
@@ -63,42 +71,6 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
       {children}
     </FavoritesContext.Provider>
   )
-}
-
-// Função para sincronizar favoritos com backend
-async function syncFavoritesWithBackend(favorites: string[]) {
-  try {
-    const auth = getAuth()
-    const user = auth.currentUser
-
-    if (!user) return
-
-    const idToken = await user.getIdToken()
-    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL
-
-    const favoritesHealthUnit = favorites.map((healthUnitId) => ({
-      healthUnitId,
-      isFavorite: true,
-      addedAt: new Date(),
-    }))
-
-    const response = await fetch(`${apiUrl}/auth/profile`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${idToken}`,
-      },
-      body: JSON.stringify({
-        favoritesHealthUnit,
-      }),
-    })
-
-    if (!response.ok) {
-      console.warn('Failed to sync favorites with backend')
-    }
-  } catch (error) {
-    console.error('Error syncing favorites with backend:', error)
-  }
 }
 
 export function useFavorites() {

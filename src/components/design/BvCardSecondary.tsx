@@ -1,12 +1,13 @@
 'use client'
 
-import React, { forwardRef, useState, useEffect } from 'react'
+import React, { forwardRef } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
 import { Heart, Share2 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-firebase-auth'
 import { toggleFavoriteEducationalMaterial } from '@/services/actions/educational-materials-actions'
+import { useFavoriteMaterials } from '@/contexts/FavoriteMaterialsContext'
 import {
   AccessibilityLoadingIndicator,
   useCardAccessibilityIds,
@@ -21,6 +22,7 @@ interface CardSecondaryProps extends CardAccessibilityProps {
   description: string
   image: string
   id?: string
+  link?: string
   onClick: () => void
   onKeyDown?: (event: React.KeyboardEvent) => void
 }
@@ -31,51 +33,27 @@ interface CardTextContentProps {
 }
 
 // Componente para renderizar o footer do card com botões de like e share
-const CardFooter: React.FC<{ id?: string; title: string }> = ({ id, title }) => {
+const CardFooter: React.FC<{ id?: string; title: string; link?: string }> = ({
+  id,
+  title,
+  link,
+}) => {
+  // Usar o id fornecido, caso contrário gerar um slug do título
   const cardId = id || title.replace(/\s+/g, '-').toLowerCase()
-  const [isLiked, setIsLiked] = useState(false)
   const { user } = useAuth()
-
-  // Carrega o estado inicial do like
-  useEffect(() => {
-    const likedMaterials = localStorage.getItem('liked_materials')
-    const likedList = likedMaterials ? JSON.parse(likedMaterials) : []
-    setIsLiked(likedList.includes(cardId))
-  }, [cardId])
+  const { isFavoriteMaterial, toggleFavoriteMaterial } = useFavoriteMaterials()
+  const isLiked = isFavoriteMaterial(cardId)
 
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation()
 
     try {
-      const newState = !isLiked
-
-      // Se o usuário estiver autenticado, atualiza no backend
+      // Sincronizar com backend
       if (user?.uid) {
-        await toggleFavoriteEducationalMaterial(user.uid, cardId)
+        await toggleFavoriteMaterial(cardId, link)
       }
-
-      // Atualiza estado local
-      setIsLiked(newState)
-
-      // Atualiza localStorage
-      const likedMaterials = localStorage.getItem('liked_materials')
-      let likedList = likedMaterials ? JSON.parse(likedMaterials) : []
-
-      if (newState) {
-        if (!likedList.includes(cardId)) {
-          likedList.push(cardId)
-        }
-      } else {
-        likedList = likedList.filter((id: string) => id !== cardId)
-      }
-
-      localStorage.setItem('liked_materials', JSON.stringify(likedList))
     } catch (error) {
       console.error('Erro ao atualizar favorito:', error)
-      // Reverte em caso de erro se havia tentativa de salvar no backend
-      if (user?.uid) {
-        setIsLiked(!isLiked)
-      }
     }
   }
 
@@ -101,16 +79,18 @@ const CardFooter: React.FC<{ id?: string; title: string }> = ({ id, title }) => 
 
   return (
     <div className="mt-auto flex justify-end gap-1 border-t pt-3">
-      <button
-        onClick={handleLike}
-        aria-label={isLiked ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-        className="flex items-center justify-center rounded px-2 py-1 text-sm transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
-      >
-        <Heart
-          className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-500'}`}
-          aria-hidden="true"
-        />
-      </button>
+      {user && (
+        <button
+          onClick={handleLike}
+          aria-label={isLiked ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+          className="flex items-center justify-center rounded px-2 py-1 text-sm transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          <Heart
+            className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-500'}`}
+            aria-hidden="true"
+          />
+        </button>
+      )}
       <button
         onClick={handleShare}
         aria-label="Compartilhar este material"
@@ -193,6 +173,7 @@ export const BvCardSecondary = forwardRef<HTMLDivElement, CardSecondaryProps>(
       title,
       description,
       id,
+      link,
       onClick,
       onKeyDown,
       loading = false,
@@ -241,7 +222,7 @@ export const BvCardSecondary = forwardRef<HTMLDivElement, CardSecondaryProps>(
           {/* {image && <CardImage image={image} title={title} />} */}
 
           <AccessibilityLoadingIndicator isValidating={isValidating} />
-          <CardFooter id={id} title={title} />
+          <CardFooter id={id} title={title} link={link} />
         </CardContent>
       </Card>
     )

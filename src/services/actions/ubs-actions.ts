@@ -50,17 +50,8 @@ export const deleteHealthUnits = async (id: string) => {
   }
 }
 
-export const toggleFavoriteHealthUnit = async (id: string | number, isFavorite: boolean) => {
-  const endpoint = `/api/admin/health-units/${id}/favorite`
-
-  try {
-    const result = await apiClient.patch(endpoint, { isFavorite })
-    return result
-  } catch (error) {
-    console.error('Falha ao alternar favorito da unidade de saúde:', error)
-    throw error
-  }
-}
+// Favoritos de UBS foram movidos para favorites-actions.ts
+// Use toggleFavoriteHealthUnit de @/services/actions/favorites-actions
 
 export const getHealthUnitById = async (id: string | number) => {
   const endpoint = `/api/public/health-units/${id}`

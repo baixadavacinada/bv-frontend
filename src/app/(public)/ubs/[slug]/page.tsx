@@ -14,7 +14,7 @@ import { useHealthUnits } from '@/hooks/use-health-units' // Importar o hook e o
 import { HealthUnit } from '@/types/health-units'
 import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 import { toSlug } from '@/utils/slug'
-import { toggleFavoriteHealthUnit } from '@/services/actions/ubs-actions'
+import { toggleFavoriteHealthUnit } from '@/services/actions/favorites-actions'
 
 interface DetailUbsProps {
   params: Promise<{ slug: string }>
@@ -132,7 +132,8 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   // }
 
   const handleEvaluate = () => {
-    route.push(`../ubs/avaliar/${ubs.id}/${name.replace(/\s+/g, '-').toLowerCase()}`)
+    const slug = toSlug(name)
+    route.push(`/ubs/avaliar/${slug}`)
   }
 
   const handleToggleLike = async () => {
@@ -140,7 +141,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
       const newState = !isLiked
 
       if (ubsDataFromApi?._id) {
-        await toggleFavoriteHealthUnit(ubsDataFromApi._id, newState)
+        await toggleFavoriteHealthUnit(ubsDataFromApi._id)
       }
 
       setIsLiked(newState)

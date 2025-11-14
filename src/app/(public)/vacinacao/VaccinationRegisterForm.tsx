@@ -346,7 +346,7 @@ export default function VaccinationRegisterForm() {
                     }}
                     className={`flex-1 rounded-lg border-2 p-4 text-left transition-colors ${
                       showCustomLocation
-                        ? 'border-purple-500 bg-purple-50 text-purple-900'
+                        ? 'text-primary border-purple-500 bg-purple-50'
                         : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
                     }`}
                   >
