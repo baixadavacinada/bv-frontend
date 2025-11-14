@@ -84,33 +84,36 @@ export function Sidebar() {
           </ul>
         </nav>
 
-        {shouldShowLogout && (
-          <footer className="border-t border-gray-200 pt-4" aria-label="Ações da conta do usuário">
-            <div aria-label={accessibility('sidebar.accountActions')}>
-              <BvButton
-                title={common('logout')}
-                aria-label={navigation('logoutAction')}
-                className="focus-visible:ring-2 focus-visible:ring-red-500"
-                onClick={handleLogout}
-              />
-            </div>
-          </footer>
-        )}
+        {/* Footer section with logout and partnership info */}
+        <footer className="border-t border-gray-200 pt-4" aria-label="Rodapé da navegação">
+          <div className="mb-4">
+            {shouldShowLogout && (
+              <div aria-label={accessibility('sidebar.accountActions')}>
+                <BvButton
+                  title={common('logout')}
+                  aria-label={navigation('logoutAction')}
+                  className="w-full focus-visible:ring-2 focus-visible:ring-red-500"
+                  onClick={handleLogout}
+                />
+              </div>
+            )}
+          </div>
 
-        {/* Partnership Footer */}
-        <footer className="border-t border-gray-200 px-4 py-3 text-center">
-          <div className="flex flex-col items-center gap-2">
-            <Image
-              src="/logo-prefeitura-japeri-branco.png"
-              alt="Prefeitura Municipal de Japeri"
-              width={40}
-              height={40}
-              className="object-contain"
-            />
-            <p className="text-xs text-gray-600">
-              Realizado em parceria com a<br />
-              Prefeitura Municipal de Japeri
-            </p>
+          {/* Partnership Footer */}
+          <div className="px-4 py-3 text-center">
+            <div className="flex flex-col items-center gap-2">
+              <Image
+                src="/logo-prefeitura-japeri-branco.png"
+                alt="Prefeitura Municipal de Japeri"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
+              <p className="text-xs text-gray-600">
+                Realizado em parceria com a<br />
+                Prefeitura Municipal de Japeri
+              </p>
+            </div>
           </div>
         </footer>
 

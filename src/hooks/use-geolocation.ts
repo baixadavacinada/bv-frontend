@@ -20,6 +20,46 @@ export interface UseGeolocationReturn {
 
 const STORAGE_KEY = 'bv_geolocation_permission'
 const COORDS_STORAGE_KEY = 'bv_user_coords'
+const TIMESTAMP_STORAGE_KEY = 'bv_geolocation_timestamp'
+const EXPIRATION_DAYS = 15
+const EXPIRATION_MS = EXPIRATION_DAYS * 24 * 60 * 60 * 1000
+
+// Distância mínima em metros para considerar que a localização mudou
+const MIN_DISTANCE_CHANGE = 500
+
+/**
+ * Calcula a distância entre dois pontos usando a fórmula de Haversine
+ * Retorna a distância em metros
+ */
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000 // Raio da Terra em metros
+  const dLat = ((lat2 - lat1) * Math.PI) / 180
+  const dLon = ((lon2 - lon1) * Math.PI) / 180
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+
+/**
+ * Verifica se o cache de geolocalização expirou
+ */
+function isCacheExpired(): boolean {
+  try {
+    const timestamp = localStorage.getItem(TIMESTAMP_STORAGE_KEY)
+    if (!timestamp) return true
+
+    const storedTime = parseInt(timestamp, 10)
+    const now = Date.now()
+    return now - storedTime > EXPIRATION_MS
+  } catch {
+    return true
+  }
+}
 
 /**
  * Hook para gerenciar geolocalização do usuário
@@ -35,6 +75,16 @@ export function useGeolocation(): UseGeolocationReturn {
   // Verificar se há coordenadas armazenadas ao montar
   useEffect(() => {
     try {
+      // Verificar se o cache expirou
+      if (isCacheExpired()) {
+        localStorage.removeItem(STORAGE_KEY)
+        localStorage.removeItem(COORDS_STORAGE_KEY)
+        localStorage.removeItem(TIMESTAMP_STORAGE_KEY)
+        setHasPermission(null)
+        setCoords(null)
+        return
+      }
+
       const storedPermission = localStorage.getItem(STORAGE_KEY)
       const storedCoords = localStorage.getItem(COORDS_STORAGE_KEY)
 
@@ -64,26 +114,50 @@ export function useGeolocation(): UseGeolocationReturn {
     return new Promise((resolve) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const coords: GeolocationCoords = {
+          const newCoords: GeolocationCoords = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
             accuracy: position.coords.accuracy,
           }
 
-          setCoords(coords)
+          // Verificar se a localização mudou significativamente
+          const storedCoords = localStorage.getItem(COORDS_STORAGE_KEY)
+          if (storedCoords) {
+            try {
+              const oldCoords = JSON.parse(storedCoords) as GeolocationCoords
+              const distance = calculateDistance(
+                oldCoords.latitude,
+                oldCoords.longitude,
+                newCoords.latitude,
+                newCoords.longitude,
+              )
+
+              // Se a localização mudou mais de 500m, limpar cache
+              if (distance > MIN_DISTANCE_CHANGE) {
+                localStorage.removeItem(STORAGE_KEY)
+                localStorage.removeItem(TIMESTAMP_STORAGE_KEY)
+                setHasPermission(null)
+              }
+            } catch (err) {
+              console.error('Erro ao comparar localizações:', err)
+            }
+          }
+
+          setCoords(newCoords)
           setHasPermission(true)
           setError(null)
           setIsLoading(false)
 
-          // Armazenar coordenadas e permissão
+          // Armazenar coordenadas, permissão e timestamp
           try {
             localStorage.setItem(STORAGE_KEY, 'granted')
-            localStorage.setItem(COORDS_STORAGE_KEY, JSON.stringify(coords))
+            localStorage.setItem(COORDS_STORAGE_KEY, JSON.stringify(newCoords))
+            localStorage.setItem(TIMESTAMP_STORAGE_KEY, Date.now().toString())
           } catch (err) {
             console.error('Erro ao armazenar geolocalização:', err)
           }
 
-          resolve(coords)
+          resolve(newCoords)
         },
         (geoError) => {
           let errorMsg = 'Erro ao obter localização'
@@ -122,6 +196,8 @@ export function useGeolocation(): UseGeolocationReturn {
     setError(null)
     try {
       localStorage.removeItem(COORDS_STORAGE_KEY)
+      localStorage.removeItem(STORAGE_KEY)
+      localStorage.removeItem(TIMESTAMP_STORAGE_KEY)
     } catch (err) {
       console.error('Erro ao limpar geolocalização:', err)
     }

@@ -23,7 +23,6 @@ export * from './common/LocationPermissionModal'
 export * from './common/CookieConsentModal'
 export * from './common/ToasterWithAuth'
 
-export * from './common/lazy/LazyLocationPermissionModal'
 export * from './common/lazy/LazyCookieConsentModal'
 export * from './design/lazy/LazyBvHoursModal'
 export * from './design/lazy/LazyBvAddVaccineModal'

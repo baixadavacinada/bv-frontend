@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Cookie } from 'lucide-react'
 import { BvButton } from '@/components'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
@@ -27,6 +28,7 @@ export interface StoredCookieData {
 
 export function CookieConsentModal() {
   useAccessibilityValidation({ enabled: true })
+  const pathname = usePathname()
   const [showModal, setShowModal] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
   const [showPreferences, setShowPreferences] = useState(false)
@@ -36,22 +38,29 @@ export function CookieConsentModal() {
     essential: true,
   })
 
+  // Verifica consentimento de cookies toda vez que a rota muda
   useEffect(() => {
     try {
       const savedConsent = localStorage.getItem(COOKIE_CONSENT_KEY)
       const savedPreferences = localStorage.getItem(COOKIE_PREFERENCES_KEY)
 
+      // Se não tem consentimento salvo, mostra o modal
       if (!savedConsent) {
         setShowModal(true)
-      } else if (savedPreferences) {
-        setPreferences(JSON.parse(savedPreferences))
+        setShowPreferences(false)
+      } else {
+        // Se tem consentimento, carrega as preferências e esconde o modal
+        setShowModal(false)
+        if (savedPreferences) {
+          setPreferences(JSON.parse(savedPreferences))
+        }
       }
     } catch (err) {
       console.error('Erro ao verificar consentimento de cookies:', err)
       setShowModal(true)
     }
     setIsInitialized(true)
-  }, [])
+  }, [pathname])
 
   const handleAcceptAll = () => {
     try {
@@ -152,6 +161,7 @@ export function CookieConsentModal() {
     return null
   }
 
+  // Modal de preferências - renderiza por cima do modal de consentimento
   if (showPreferences) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -219,6 +229,8 @@ export function CookieConsentModal() {
     )
   }
 
+  // Modal de consentimento - sempre renderizado até o usuário fazer uma escolha
+  // O componente fica visível em todas as páginas até aceitação/rejeição
   if (!showModal) {
     return null
   }

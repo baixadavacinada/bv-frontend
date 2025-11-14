@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { LazyLocationPermissionModal } from '@/components/common/lazy/LazyLocationPermissionModal'
+import { LocationPermissionModal } from '@/components/common/LocationPermissionModal'
 import { useGeolocation, GeolocationCoords } from '@/hooks/use-geolocation'
 import { useLocationContext } from '@/contexts/LocationContext'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
@@ -60,5 +60,12 @@ export function LocationPermissionHandler() {
     return null
   }
 
-  return <LazyLocationPermissionModal isOpen={showModal} onPermissionGranted={handlePermit} />
+  return (
+    <LocationPermissionModal
+      isOpen={showModal}
+      onClose={handleClose}
+      onPermit={handlePermit}
+      loading={isLoading}
+    />
+  )
 }

@@ -14,7 +14,6 @@ import { HealthUnit } from '@/types/health-units'
 import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 import { toSlug } from '@/utils/slug'
 import { toast } from 'sonner'
-import { LocationPermissionModal } from '@/components/modals/LocationPermissionModal'
 
 type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onDelete'> & {
   healthUnitId: string
@@ -32,12 +31,6 @@ export default function UbsScreen() {
     open24h: false,
     filterByProximity: false,
   })
-
-  // Request location on page load
-  useEffect(() => {
-    showLocationModal()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   useEffect(() => {
     if (data) {
@@ -145,7 +138,6 @@ export default function UbsScreen() {
 
   return (
     <div>
-      <LocationPermissionModal />
       <BvTitleHeader title={'Unidades Básicas de Saúde'} className="mb-6" />
       <div className="mb-8">
         <CollapsibleFilter>
