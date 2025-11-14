@@ -49,7 +49,6 @@ export function useVaccineManagement() {
       isActive: apiVaccine.isActive !== false,
       createdAt: apiVaccine.createdAt || apiVaccine.created_at,
       updatedAt: apiVaccine.updatedAt || apiVaccine.updated_at,
-      createdBy: apiVaccine.createdBy,
     }
   }, [])
 
@@ -81,7 +80,6 @@ export function useVaccineManagement() {
     )
   }, [])
 
-
   const listVaccines = useCallback(
     async (search?: string, page = 1, limit = 20): Promise<Vaccine[]> => {
       try {
@@ -93,14 +91,9 @@ export function useVaccineManagement() {
           params.append('search', search.trim())
         }
 
-        const response = await apiClient.get<{
-          success: boolean
-          data: ApiVaccineData[]
-          message: string
-          count: number
-        }>(`/api/public/vaccines?${params}`)
+        const response = await apiClient.get<ApiVaccineData[]>(`/api/public/vaccines?${params}`)
 
-        const apiVaccines = (response.data || []).map(convertApiToVaccine)
+        const apiVaccines = (response || []).map(convertApiToVaccine)
 
         let vaccines = mergeWithLocalVaccines(apiVaccines)
         vaccines = applySearchFilter(vaccines, search || '')
@@ -124,12 +117,9 @@ export function useVaccineManagement() {
       }
 
       try {
-        const response = await apiClient.get<{
-          message: string
-          data: ApiVaccineData
-        }>(`/api/admin/vaccines/${id}`)
+        const response = await apiClient.get<ApiVaccineData>(`/api/admin/vaccines/${id}`)
 
-        return convertApiToVaccine(response.data)
+        return convertApiToVaccine(response)
       } catch (error) {
         console.warn('Erro ao buscar vacina:', error)
 
@@ -190,7 +180,6 @@ export function useVaccineManagement() {
           isActive: true,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          createdBy: user?.uid || 'unknown-user',
         }
 
         localVaccines.set(newVaccineId, newVaccine)
@@ -199,7 +188,7 @@ export function useVaccineManagement() {
         return newVaccine
       }
     },
-    [convertApiToVaccine, user?.uid],
+    [convertApiToVaccine],
   )
 
   /**

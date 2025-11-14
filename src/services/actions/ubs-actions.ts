@@ -66,7 +66,7 @@ export const getHealthUnitById = async (id: string | number) => {
 }
 
 export const getVaccines = async () => {
-  const endpoint = '/api/admin/vaccines'
+  const endpoint = '/api/public/vaccines'
 
   try {
     const result = await apiClient.get(endpoint)

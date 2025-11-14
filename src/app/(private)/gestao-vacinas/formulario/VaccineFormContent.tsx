@@ -16,7 +16,7 @@ const vaccineSchema = z.object({
   name: z.string().min(1, 'Nome da vacina é obrigatório'),
   manufacturer: z.string().min(1, 'Fabricante é obrigatório'),
   ageGroup: z.string().min(1, 'Faixa etária é obrigatória'),
-  doses: z.string().min(1, 'Doses são obrigatórias'),
+  doses: z.array(z.string()).min(1, 'Pelo menos uma dose é obrigatória'),
   batchNumber: z.string().optional(),
   description: z.string().min(1, 'Descrição é obrigatória'),
 })
@@ -24,20 +24,44 @@ const vaccineSchema = z.object({
 type VaccineFormData = z.infer<typeof vaccineSchema>
 
 const dosageOptions = [
+  { value: 'dose única', label: 'Dose única' },
   { value: '1ª dose', label: '1ª dose' },
   { value: '2ª dose', label: '2ª dose' },
   { value: '3ª dose', label: '3ª dose' },
-  { value: 'Reforço', label: 'Reforço' },
+  { value: 'reforço', label: 'Reforço' },
 ]
 
 const ageGroupOptions = [
-  { value: '0-28', label: 'Recém-nascido (0-28 dias)' },
-  { value: '29-24', label: 'Lactente (29 dias - 2 anos)' },
-  { value: '2-12', label: 'Criança (2-12 anos)' },
-  { value: '12-18', label: 'Adolescente (12-18 anos)' },
-  { value: '18-60', label: 'Adulto (18-60 anos)' },
-  { value: '60+', label: 'Idoso (60+ anos)' },
-  { value: 'Todas as idades', label: 'Todas as idades' },
+  // Recém-nascidos
+  { value: '0-28', label: 'Recém-nascido (0-28)' },
+  { value: '0-28 dias', label: 'Recém-nascido (0-28 dias)' },
+
+  // Lactentes
+  { value: '2-7 meses', label: 'Lactente inicial (2-7 meses)' },
+  { value: '2-24 meses', label: 'Lactente (2-24 meses)' },
+
+  // Crianças
+  { value: '2-59 meses', label: 'Criança pequena (2-59 meses)' },
+  { value: '2-72 meses', label: 'Criança (2-72 meses)' },
+  { value: '3-144 meses', label: 'Criança/Adolescente (3-144 meses)' },
+  { value: '15-24 meses', label: 'Criança (15-24 meses)' },
+  { value: '15-72 meses', label: 'Criança (15-72 meses)' },
+
+  // Adolescentes
+  { value: '108-192 meses', label: 'Adolescente (9-16 anos)' },
+  { value: '144-600 meses', label: 'Adolescente/Adulto (12-50 anos)' },
+
+  // Adultos específicos
+  { value: '216-600 meses', label: 'Adulto (18-50 anos)' },
+  { value: '216-720 meses', label: 'Adulto (18-60 anos)' },
+  { value: '216-1200 meses', label: 'Adulto (18-100 anos)' },
+
+  // Faixas amplas
+  { value: '6-1200 meses', label: 'Criança/Adulto (6 meses-100 anos)' },
+  { value: '9-1440 meses', label: 'Criança/Adulto (9 meses-120 anos)' },
+  { value: '12-708 meses', label: 'Criança/Adulto (12-708 meses)' },
+  { value: '144-1200 meses', label: 'Adolescente/Adulto/Idoso (12-100 anos)' },
+  { value: '0-1200 meses', label: 'Todas as idades (0-100 anos)' },
 ]
 
 export function VaccineFormContent() {
@@ -64,7 +88,7 @@ export function VaccineFormContent() {
       name: '',
       manufacturer: '',
       ageGroup: '',
-      doses: '',
+      doses: [],
       batchNumber: '',
       description: '',
     },
@@ -79,7 +103,7 @@ export function VaccineFormContent() {
         name: vaccine.name,
         manufacturer: vaccine.manufacturer || '',
         ageGroup: vaccine.ageGroup || '',
-        doses: vaccine.doses?.join(', ') || '',
+        doses: vaccine.doses || [],
         batchNumber: vaccine.batchNumber || '',
         description: vaccine.description || '',
       })
@@ -108,10 +132,7 @@ export function VaccineFormContent() {
         name: data.name.trim(),
         manufacturer: data.manufacturer.trim(),
         ageGroup: data.ageGroup,
-        doses: data.doses
-          .split(',')
-          .map((item: string) => item.trim())
-          .filter(Boolean),
+        doses: data.doses,
         description: data.description?.trim() || '',
         lote: data.batchNumber?.trim() || '',
       }
@@ -194,13 +215,14 @@ export function VaccineFormContent() {
               {/* Tipo de dose */}
               <BvSelect
                 title="Dose"
-                placeholder="Selecione a dose"
+                placeholder="Selecione as doses"
                 options={dosageOptions}
                 value={watch('doses')}
-                onValueChange={(value) => setValue('doses', value as string)}
+                onValueChange={(value) => setValue('doses', Array.isArray(value) ? value : [value])}
                 error={errors.doses?.message}
                 fullWidth
-                showSelectedBadges={false}
+                multiple
+                showSelectedBadges
               />
 
               {/* Faixa etária recomendada */}
