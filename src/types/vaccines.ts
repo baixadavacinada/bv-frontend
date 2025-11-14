@@ -15,7 +15,6 @@ export interface Vaccine {
   isActive?: boolean
   createdAt?: string
   updatedAt?: string
-  createdBy?: string
 
   recommendedAge?: string
   intervalBetweenDoses?: number
@@ -30,7 +29,6 @@ export interface CreateVaccineRequest {
   doses: string[]
   description: string
   lote: string
-  createdBy?: string
 }
 
 export interface UpdateVaccineRequest {
@@ -66,5 +64,4 @@ export interface ApiVaccineData {
   updatedAt?: string
   created_at?: string
   updated_at?: string
-  createdBy?: string
 }

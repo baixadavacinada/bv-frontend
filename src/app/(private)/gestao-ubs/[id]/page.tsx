@@ -334,7 +334,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         isOpen={isVaccineModalOpen}
         setIsOpen={setIsVaccineModalOpen}
         onAdd={handleAddVaccine}
-        existingVaccines={existingVaccines || []}
+        existingVaccines={existingVaccines?.map((vaccine) => vaccine.name) || []}
       />
 
       <AlertDialog
