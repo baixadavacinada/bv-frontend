@@ -74,7 +74,7 @@ export function SelectedItemsList({
               <BvButton
                 type="button"
                 onClick={() => handleRemoveItem(itemValue)}
-                className="text-primary hover:text-primary ml-2 inline-flex h-4 w-4 items-center justify-center rounded-full bg-purple-100 hover:bg-purple-200"
+                className="text-primary hover:s-800 ml-2 inline-flex h-4 w-4 items-center justify-center rounded-full bg-purple-100 hover:bg-purple-200"
                 variant="ghost"
                 size="icon"
                 leftIcon={<X className="size-3" />}

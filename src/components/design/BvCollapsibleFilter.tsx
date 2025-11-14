@@ -16,7 +16,7 @@ interface CollapsibleFilterProps {
 export function CollapsibleFilter({
   title = 'Filtro',
   children,
-  className,
+  className = 'text-primary',
 }: CollapsibleFilterProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   useAccessibilityValidation({ enabled: true })

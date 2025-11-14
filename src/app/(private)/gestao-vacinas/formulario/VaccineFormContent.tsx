@@ -16,7 +16,7 @@ const vaccineSchema = z.object({
   name: z.string().min(1, 'Nome da vacina é obrigatório'),
   manufacturer: z.string().min(1, 'Fabricante é obrigatório'),
   ageGroup: z.string().min(1, 'Faixa etária é obrigatória'),
-  doses: z.string().min(1, 'Doses são obrigatórias'),
+  doses: z.array(z.string()).min(1, 'Pelo menos uma dose é obrigatória'),
   batchNumber: z.string().optional(),
   description: z.string().min(1, 'Descrição é obrigatória'),
 })
@@ -50,7 +50,6 @@ export function VaccineFormContent() {
   const isEdit = !!vaccineId
 
   const { createVaccine, updateVaccine, getVaccineById, canManageVaccines } = useVaccineManagement()
-
   const {
     register,
     handleSubmit,
@@ -64,7 +63,7 @@ export function VaccineFormContent() {
       name: '',
       manufacturer: '',
       ageGroup: '',
-      doses: '',
+      doses: [],
       batchNumber: '',
       description: '',
     },
@@ -78,7 +77,7 @@ export function VaccineFormContent() {
         name: vaccine.name,
         manufacturer: vaccine.manufacturer || '',
         ageGroup: vaccine.ageGroup || '',
-        doses: vaccine.doses?.join(', ') || '',
+        doses: vaccine.doses || [],
         batchNumber: vaccine.batchNumber || '',
         description: vaccine.description || '',
       })
@@ -107,10 +106,7 @@ export function VaccineFormContent() {
         name: data.name.trim(),
         manufacturer: data.manufacturer.trim(),
         ageGroup: data.ageGroup,
-        doses: data.doses
-          .split(',')
-          .map((item: string) => item.trim())
-          .filter(Boolean),
+        doses: data.doses,
         description: data.description?.trim() || '',
         lote: data.batchNumber?.trim() || '',
       }
@@ -187,16 +183,17 @@ export function VaccineFormContent() {
                 />
               </div>
 
-              {/* Tipo de dose */}
+              {/* Tipo de dose - MULTI-SELECT */}
               <BvSelect
-                title="Dose"
-                placeholder="Selecione a dose"
+                title="Doses"
+                placeholder="Selecione as doses"
                 options={dosageOptions}
                 value={watch('doses')}
-                onValueChange={(value) => setValue('doses', value as string)}
+                onValueChange={(value) => setValue('doses', value as string[])}
                 error={errors.doses?.message}
                 fullWidth
-                showSelectedBadges={false}
+                multiple={true}
+                showSelectedBadges={true}
               />
 
               {/* Faixa etária recomendada */}

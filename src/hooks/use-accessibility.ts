@@ -74,7 +74,13 @@ export const useAccessibilityValidation = (config: A11yConfig = {}) => {
   )
 
   useEffect(() => {
-    if (!finalConfig.enabled || hasRun.current || typeof window === 'undefined') return
+    if (!finalConfig.enabled || hasRun.current || typeof window === 'undefined') {
+      // Se não está habilitado, marque como completado
+      if (!finalConfig.enabled && !hasRun.current) {
+        hasRun.current = true
+      }
+      return
+    }
 
     const validateAccessibility = async () => {
       try {
@@ -98,7 +104,11 @@ export const useAccessibilityValidation = (config: A11yConfig = {}) => {
     }
 
     const timeoutId = setTimeout(validateAccessibility, finalConfig.delay)
-    return () => clearTimeout(timeoutId)
+    return () => {
+      clearTimeout(timeoutId)
+      // Marque como executado ao desmontar para evitar infinite loading
+      hasRun.current = true
+    }
   }, [finalConfig, logResult])
 
   return {

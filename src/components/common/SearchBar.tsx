@@ -140,7 +140,7 @@ export function SearchBar({
                       onSelect={() => handleSelect(item.value)}
                       className={cn(
                         'cursor-pointer',
-                        isItemSelected(item.value) && 'text-primary gap-0.5 bg-purple-50',
+                        isItemSelected(item.value) && 'bg-primary gap-0.5 text-white/70',
                       )}
                       role="option"
                       aria-selected={isItemSelected(item.value)}

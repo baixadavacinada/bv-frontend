@@ -155,7 +155,7 @@ export default function AvaliarUbsPage() {
   // Success screen
   if (showSuccessScreen) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 to-indigo-100 p-4">
+      <div className="from-primary flex min-h-screen items-center justify-center bg-gradient-to-br to-indigo-100 p-4">
         <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl">
           <div className="mb-6">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">

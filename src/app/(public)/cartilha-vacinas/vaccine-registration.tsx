@@ -313,7 +313,7 @@ export default function VaccineRegistrationContent({
 
       {/* Formulário de cadastro */}
       {showForm && (
-        <div className="mb-8 rounded-lg border-2 border-purple-200 bg-purple-50 p-6">
+        <div className="border-primary bg-primary mb-8 rounded-lg border-2 p-6">
           <h3 className="text-primary mb-4 text-lg font-semibold">Adicionar Nova Vacina</h3>
 
           <div className="space-y-4">

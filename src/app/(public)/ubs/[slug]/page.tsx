@@ -8,13 +8,20 @@ import SyringeIco from '@/assets/icons/syringe.svg'
 import React from 'react'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { Button } from '@/components/ui/button'
-import { Syringe, Heart } from 'lucide-react'
+import { Syringe, Heart, Plus } from 'lucide-react'
 import { notFound, useRouter } from 'next/navigation'
-import { useHealthUnits } from '@/hooks/use-health-units' // Importar o hook e o tipo
+import { useHealthUnits } from '@/hooks/use-health-units'
 import { HealthUnit } from '@/types/health-units'
 import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 import { toSlug } from '@/utils/slug'
 import { toggleFavoriteHealthUnit } from '@/services/actions/favorites-actions'
+import SecondDoseModal from '@/components/common/SecondDoseModal'
+import {
+  saveSecondDoseConfiguration,
+  getSecondDoseConfiguration,
+} from '@/services/second-dose-service'
+import { toast } from 'sonner'
+import { useAuth } from '@/hooks/use-firebase-auth'
 
 interface DetailUbsProps {
   params: Promise<{ slug: string }>
@@ -23,16 +30,17 @@ interface DetailUbsProps {
 export default function DetailUbs({ params }: DetailUbsProps) {
   const resolvedParams = React.use(params)
   const route = useRouter()
+  const { user } = useAuth()
   useAccessibilityValidation({ enabled: true })
 
   const { data, isLoading, error } = useHealthUnits()
+  const [showSecondDoseModal, setShowSecondDoseModal] = React.useState(false)
+  const [selectedVaccines, setSelectedVaccines] = React.useState<string[]>([])
 
   const ubsDataFromApi = React.useMemo(() => {
     if (!data) return undefined
-    // Try to find by _id first (for backward compatibility)
     let found = data.find((unit: HealthUnit) => unit._id === resolvedParams.slug)
 
-    // If not found, try to find by name converted to slug format
     if (!found) {
       found = data.find((unit: HealthUnit) => {
         const nameSlug = toSlug(unit.name)
@@ -42,12 +50,29 @@ export default function DetailUbs({ params }: DetailUbsProps) {
 
     return found
   }, [data, resolvedParams.slug])
+
   const [ubs, setUbs] = React.useState<HealthUnit | null>(null)
+  // Carregar vacinas selecionadas ao abrir a página
+  React.useEffect(() => {
+    const loadSelectedVaccines = async () => {
+      try {
+        const config = await getSecondDoseConfiguration?.()
+        if (config && config.selectedVaccines) {
+          setSelectedVaccines(config.selectedVaccines)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar vacinas selecionadas:', error)
+      }
+    }
+
+    if (user) {
+      loadSelectedVaccines()
+    }
+  }, [user])
   const [isLiked, setIsLiked] = React.useState(false)
 
   React.useEffect(() => {
     if (ubsDataFromApi) {
-      // Recupera o estado de like do localStorage
       const likedUbs = localStorage.getItem('liked_ubs')
       const likedList = likedUbs ? JSON.parse(likedUbs) : []
       setIsLiked(likedList.includes(ubsDataFromApi._id))
@@ -121,16 +146,6 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   const { name, neighborhood, address, phone, operatingHours, averageWaitTime, availableVaccines } =
     ubs
 
-  // const handleFavoriteToggle = () => {
-  //   setUbs((prev) => {
-  //     if (!prev) return null
-  //     return { ...prev, isFavorite: !prev.isFavorite }
-  //   })
-  //   toast.success(
-  //     !isFavorite ? `"${name}" adicionada aos favoritos!` : `"${name}" removida dos favoritos.`,
-  //   )
-  // }
-
   const handleEvaluate = () => {
     const slug = toSlug(name)
     route.push(`/ubs/avaliar/${slug}`)
@@ -164,9 +179,13 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     }
   }
 
+  const handleAddVaccine = () => {
+    setShowSecondDoseModal(true)
+  }
+
   return (
     <div>
-      <BvTitleHeader title={`Sobre: ${name}`} className="mb-6" />
+      <BvTitleHeader title={`Sobre: ${name}`} className="mb-6 break-words" />
 
       <div className="mb-8 flex justify-end gap-1">
         <button
@@ -180,7 +199,9 @@ export default function DetailUbs({ params }: DetailUbsProps) {
           />
         </button>
         <BvShareMenu ubsName={name} ubsSlug={resolvedParams.slug} neighborhood={neighborhood} />
-        <Button onClick={handleEvaluate}>Avaliar</Button>
+        <Button onClick={handleEvaluate} className="block sm:block md:block">
+          Avaliar
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -257,6 +278,36 @@ export default function DetailUbs({ params }: DetailUbsProps) {
           Confira o calendário de vacinação para saber quais vacinas são indicadas para cada idade.
         </p>
       </div>
+
+      {user && (
+        <div className="mt-8">
+          <Button onClick={handleAddVaccine} className="w-full">
+            <Plus className="mr-2 h-4 w-4" />
+            Adicionar vacina
+          </Button>
+        </div>
+      )}
+
+      <SecondDoseModal
+        isOpen={showSecondDoseModal}
+        onClose={() => setShowSecondDoseModal(false)}
+        onSelectVaccines={async (vaccines, createdBy) => {
+          try {
+            setSelectedVaccines(vaccines)
+            if (createdBy) {
+              await saveSecondDoseConfiguration({
+                selectedVaccines: vaccines,
+                createdBy,
+              })
+              toast.success('Vacinas de segunda dose salvas com sucesso!')
+            }
+          } catch (error) {
+            console.error('Erro ao salvar configuração:', error)
+            toast.error('Erro ao salvar configuração de segunda dose')
+          }
+          setShowSecondDoseModal(false)
+        }}
+      />
     </div>
   )
 }
