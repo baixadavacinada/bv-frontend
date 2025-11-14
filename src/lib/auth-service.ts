@@ -88,6 +88,8 @@ export async function loginWithGoogle(): Promise<{
 }> {
   try {
     const provider = new GoogleAuthProvider()
+    // Force account selection every time
+    provider.setCustomParameters({ prompt: 'select_account' })
     const result = await signInWithPopup(auth, provider)
     const token = await result.user.getIdToken()
 
