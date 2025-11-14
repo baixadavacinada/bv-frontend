@@ -36,6 +36,7 @@ export default function UbsScreen() {
   // Request location on page load
   useEffect(() => {
     showLocationModal()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
