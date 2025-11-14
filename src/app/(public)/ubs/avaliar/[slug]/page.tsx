@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input'
 import { BvTitleHeader } from '@/components'
 import { toast } from 'sonner'
 import { submitSurvey, listHealthUnits } from '@/services/actions/ubs-actions'
+import { toSlug } from '@/utils/slug'
 
 const formSchema = z.object({
   vaccineSuccess: z.string().min(1, 'Campo obrigatório'),
@@ -46,18 +47,6 @@ export default function AvaliarUbsPage() {
   const [showSuccessScreen, setShowSuccessScreen] = useState(false)
   const [ubs, setUbs] = useState<HealthUnit | null>(null)
   const [loading, setLoading] = useState(true)
-
-  // Função para converter nome em slug (mesma lógica da página anterior)
-  const toSlug = (text: string): string => {
-    return text
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim()
-  }
 
   // Buscar UBS pelo slug
   useEffect(() => {

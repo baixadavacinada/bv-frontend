@@ -31,28 +31,28 @@ export const sidebarNavigation: NavigationItem[] = [
     icon: BsGeoAlt,
     label: 'UBS',
     href: '/ubs',
-    allowedRoles: ['public', 'agent', 'admin'],
+    allowedRoles: ['public', 'admin'],
   },
   {
     id: 'avaliar-ubs',
     icon: Star,
     label: 'Avaliar UBS',
     href: '/ubs/avaliar',
-    allowedRoles: ['public', 'agent', 'admin'],
+    allowedRoles: ['public'],
   },
   {
     id: 'cartilha-vacinas',
     icon: BookOpen,
     label: 'Cartilha de Vacinas',
     href: '/cartilha-vacinas',
-    allowedRoles: ['public', 'agent', 'admin'],
+    allowedRoles: ['public', 'admin'],
   },
   {
     id: 'registro-vacinacao',
     icon: FaSyringe,
     label: 'Registro de Vacinação',
     href: '/vacinacao',
-    allowedRoles: ['public', 'agent', 'admin'],
+    allowedRoles: ['public'],
   },
   {
     id: 'notificacoes',
@@ -66,7 +66,7 @@ export const sidebarNavigation: NavigationItem[] = [
     icon: BsFileEarmarkText,
     label: 'Gestão de Unidades de Saúde',
     href: '/gestao-ubs',
-    allowedRoles: ['admin'],
+    allowedRoles: ['admin', 'agent'],
   },
   {
     id: 'gestao-usuarios',
@@ -80,7 +80,7 @@ export const sidebarNavigation: NavigationItem[] = [
     icon: BsFileEarmarkText,
     label: 'Gestão de Vacinas',
     href: '/gestao-vacinas',
-    allowedRoles: ['admin'],
+    allowedRoles: ['admin', 'agent'],
   },
 ]
 
@@ -108,21 +108,14 @@ export const footerNavigation: NavigationItem[] = [
     icon: FaSyringe,
     label: 'Registro de Vacinação',
     href: '/vacinacao',
-    allowedRoles: ['public', 'agent', 'admin'],
-  },
-  {
-    id: 'cartilha-vacinas',
-    icon: BookOpen,
-    label: 'Cartilha de Vacinas',
-    href: '/cartilha-vacinas',
-    allowedRoles: ['public', 'agent', 'admin'],
+    allowedRoles: ['public'],
   },
   {
     id: 'ubs',
     icon: BsGeoAlt,
     label: 'UBS',
     href: '/ubs',
-    allowedRoles: ['public', 'agent', 'admin'],
+    allowedRoles: ['public', 'admin'],
   },
 ]
 
@@ -152,11 +145,9 @@ export function filterNavigationByRole<T extends NavigationItem>(
         item.allowedRoles.includes('public'),
     )
   }
-  // Agent can access agent and public items
+  // Agent can access agent items ONLY (not public items)
   else if (userRole === 'agent') {
-    allowedItems = items.filter(
-      (item) => item.allowedRoles.includes('agent') || item.allowedRoles.includes('public'),
-    )
+    allowedItems = items.filter((item) => item.allowedRoles.includes('agent'))
   }
   // Public can only access public items
   else {

@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { useHealthUnits } from '@/hooks/use-health-units'
 import { useLocationContext } from '@/contexts/LocationContext'
 import { sortByDistance } from '@/utils/geolocation'
+import { isOpen24Hours } from '@/utils/ubs-hours'
 import { HealthUnit } from '@/types/health-units'
 import { deleteHealthUnits } from '@/services/actions/ubs-actions'
 import { useDeleteConfirmation } from '@/hooks/use-delete-confirmation'
@@ -74,6 +75,7 @@ export default function UbsScreen() {
         neighborhood: unit.neighborhood,
         distanceInKm: 0,
         isFavorite: unit.isFavorite || false,
+        isOpen24h: isOpen24Hours(unit.operatingHours),
       }))
 
       // Se temos coordenadas do usuário, calcular distância
@@ -97,6 +99,7 @@ export default function UbsScreen() {
           neighborhood: unit.neighborhood,
           distanceInKm: unit.distance || 0,
           isFavorite: unit.isFavorite || false,
+          isOpen24h: isOpen24Hours(unit.operatingHours),
         }))
       }
 

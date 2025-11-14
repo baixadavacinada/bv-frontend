@@ -9,12 +9,16 @@ import { useHealthUnits } from '@/hooks/use-health-units'
 import { useLocationContext } from '@/contexts/LocationContext'
 import { useFavorites } from '@/contexts/FavoritesContext'
 import { sortByDistance } from '@/utils/geolocation'
+import { isOpen24Hours } from '@/utils/ubs-hours'
 import { HealthUnit } from '@/types/health-units'
 import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 import { toSlug } from '@/utils/slug'
 import { toast } from 'sonner'
 
-type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onDelete'> & { healthUnitId: string }
+type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onDelete'> & {
+  healthUnitId: string
+  isOpen24h: boolean
+}
 
 export default function UbsScreen() {
   const [ubsList, setUbsList] = useState<UbsListData[]>([])
@@ -39,6 +43,7 @@ export default function UbsScreen() {
         neighborhood: unit.neighborhood,
         distanceInKm: 0,
         isFavorite: isFavorite(unit._id || ''),
+        isOpen24h: isOpen24Hours(unit.operatingHours),
       }))
 
       if (userCoords && userCoords.latitude && userCoords.longitude) {
@@ -62,6 +67,7 @@ export default function UbsScreen() {
           neighborhood: unit.neighborhood,
           distanceInKm: unit.distance || 0,
           isFavorite: isFavorite(unit._id || ''),
+          isOpen24h: isOpen24Hours(unit.operatingHours),
         }))
       }
 
@@ -99,6 +105,10 @@ export default function UbsScreen() {
 
       return nameMatch && neighborhoodMatch
     })
+
+    if (filters.open24h) {
+      list = list.filter((ubs) => ubs.isOpen24h === true)
+    }
 
     if (filters.filterByProximity && userCoords) {
       list = list.filter((ubs) => ubs.distanceInKm > 0 && ubs.distanceInKm <= 50) // 50km de raio

@@ -22,6 +22,7 @@ import {
 } from '@/services/second-dose-service'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/use-firebase-auth'
+import { usePermissions } from '@/hooks/use-permissions'
 
 interface DetailUbsProps {
   params: Promise<{ slug: string }>
@@ -31,6 +32,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   const resolvedParams = React.use(params)
   const route = useRouter()
   const { user } = useAuth()
+  const { hasPermission } = usePermissions()
   useAccessibilityValidation({ enabled: true })
 
   const { data, isLoading, error } = useHealthUnits()
@@ -199,9 +201,11 @@ export default function DetailUbs({ params }: DetailUbsProps) {
           />
         </button>
         <BvShareMenu ubsName={name} ubsSlug={resolvedParams.slug} neighborhood={neighborhood} />
-        <Button onClick={handleEvaluate} className="block sm:block md:block">
-          Avaliar
-        </Button>
+        {hasPermission('evaluation') && (
+          <Button onClick={handleEvaluate} className="block sm:block md:block">
+            Avaliar
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">

@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/use-firebase-auth'
 import { useRouter } from 'next/navigation'
 import { BvButton, BvTitleHeader } from '@/components'
 import { BvFormInput } from '@/components/design/BvFormInput'
+import { BvDateInput } from '@/components/design/BvDateInput'
 import BvSelect from '@/components/design/BvSelect'
 import { toast } from 'sonner'
 import { Plus, X, CheckCircle, AlertCircle } from 'lucide-react'
@@ -12,6 +13,7 @@ import { vaccinationService } from '@/services/vaccination-service'
 import { apiClient } from '@/services/api'
 import { brazilianCitiesByState } from '@/data/brazilian-cities'
 import type { VaccineFromDB, HealthUnitFromDB } from '@/schemas/vaccination-schema'
+import { formatDateBR } from '@/utils/date-utils'
 
 interface RegisteredVaccine {
   vaccineId: string
@@ -285,8 +287,16 @@ export default function VaccineRegistrationContent({
   if (!user) {
     return (
       <div className="flex min-h-[200px] items-center justify-center">
-        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-center">
-          <p className="text-yellow-800">Por favor, faça login para acessar esta seção</p>
+        <div className="max-w-sm rounded-lg border border-blue-200 bg-blue-50 p-6 text-center">
+          <h3 className="mb-2 font-semibold text-blue-900">Registre suas Vacinas</h3>
+          <p className="mb-4 text-blue-800">
+            Para manter um registro pessoal de suas vacinas, crie uma conta em nosso sistema.
+          </p>
+          <BvButton
+            onClick={() => router.push('/registro-usuario')}
+            title="Criar Conta"
+            className="w-full bg-blue-600 hover:bg-blue-700"
+          />
         </div>
       </div>
     )
@@ -363,11 +373,11 @@ export default function VaccineRegistrationContent({
 
             {/* Data e Dose */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <BvFormInput
+              <BvDateInput
                 label="Data da Aplicação"
-                type="date"
                 value={applicationDate}
-                onChange={(e) => setApplicationDate(e.target.value)}
+                onChange={(value) => setApplicationDate(value)}
+                id="applicationDate"
               />
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700">Dose *</label>
@@ -549,8 +559,7 @@ export default function VaccineRegistrationContent({
                       </p>
                       {vaccine.applicationDate && (
                         <p className="text-xs text-gray-500">
-                          Aplicada em{' '}
-                          {new Date(vaccine.applicationDate).toLocaleDateString('pt-BR')}
+                          Aplicada em {formatDateBR(vaccine.applicationDate)}
                         </p>
                       )}
                       {vaccine.healthUnitName && (

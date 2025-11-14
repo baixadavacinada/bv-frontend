@@ -11,7 +11,7 @@ type TabType = 'cartilha' | 'minhas-vacinas' | 'calendario'
 
 function VaccineBookletScreenContent() {
   const searchParams = useSearchParams()
-  const [activeTab, setActiveTab] = useState<TabType>('minhas-vacinas')
+  const [activeTab, setActiveTab] = useState<TabType>('cartilha')
 
   useEffect(() => {
     // Ler o parâmetro de query 'tab' se fornecido

@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { convertDDMMYYYYtoISO, convertISOtoDDMMYYYY, parseDate } from '@/utils/date-utils'
 
 interface BvDateInputProps {
   label?: string
@@ -39,35 +40,28 @@ export const BvDateInput = React.forwardRef<HTMLInputElement, BvDateInputProps>(
     useAccessibilityValidation({ enabled: true })
     const [isFocused, setIsFocused] = useState(false)
 
-    const formatDateInput = (inputValue: string) => {
-      // Remove tudo que não é número
-      const numbers = inputValue.replace(/\D/g, '')
-
-      // Limita a 8 dígitos (ddmmaaaa)
-      if (numbers.length === 0) return ''
-      if (numbers.length <= 2) return numbers
-      if (numbers.length <= 4) return `${numbers.slice(0, 2)}/${numbers.slice(2)}`
-      return `${numbers.slice(0, 2)}/${numbers.slice(2, 4)}/${numbers.slice(4, 8)}`
+    // Converte o valor para formato ISO (yyyy-mm-dd) para o input[type="date"]
+    const getISOValue = () => {
+      if (!value) return ''
+      // Se já está em ISO, retorna
+      if (value.includes('-') && value.length === 10) {
+        return value
+      }
+      // Se está em dd/mm/aaaa, converte
+      if (value.includes('/')) {
+        return convertDDMMYYYYtoISO(value)
+      }
+      return value
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const formatted = formatDateInput(e.target.value)
-      onChange?.(formatted)
-    }
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      // Permite backspace e delete
-      if (e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Tab') {
-        return
-      }
-
-      // Bloqueia tudo que não é número
-      if (!/\d/.test(e.key)) {
-        e.preventDefault()
-      }
+      const isoValue = e.target.value
+      // Armazena em formato ISO (yyyy-mm-dd) internamente
+      onChange?.(isoValue)
     }
 
     const isEmpty = !value || value === ''
+    const dateValue = getISOValue()
 
     return (
       <div className="flex flex-col space-y-2">
@@ -82,13 +76,11 @@ export const BvDateInput = React.forwardRef<HTMLInputElement, BvDateInputProps>(
 
         <input
           ref={ref}
-          type="text"
-          inputMode="numeric"
+          type="date"
           name={name}
           id={id}
-          value={value}
+          value={dateValue}
           onChange={handleChange}
-          onKeyDown={handleKeyDown}
           onFocus={() => setIsFocused(true)}
           onBlur={() => {
             setIsFocused(false)

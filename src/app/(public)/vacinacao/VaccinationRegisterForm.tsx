@@ -153,6 +153,54 @@ export default function VaccinationRegisterForm() {
     }
   }
 
+  /**
+   * Renderiza mensagens de erro de validação para o usuário
+   */
+  const renderErrorAlert = () => {
+    const errorMessages: string[] = []
+
+    if (errors.vaccineId) {
+      errorMessages.push('Selecione uma vacina')
+    }
+    if (errors.vaccineName) {
+      errorMessages.push('Nome da vacina: ' + errors.vaccineName.message)
+    }
+    if (errors.applicationDate) {
+      errorMessages.push('Data da aplicação: ' + errors.applicationDate.message)
+    }
+    if (errors.dose) {
+      errorMessages.push('Selecione a dose')
+    }
+    if (errors.healthUnitId) {
+      errorMessages.push('Selecione uma UBS ou informe um local personalizado')
+    }
+    if (errors.customLocation) {
+      errorMessages.push('Informe o local de vacinação personalizado')
+    }
+    if (errors.customState) {
+      errorMessages.push('Selecione um estado para o local personalizado')
+    }
+    if (errors.customCity) {
+      errorMessages.push('Selecione uma cidade para o local personalizado')
+    }
+
+    if (errorMessages.length === 0) return null
+
+    return (
+      <div className="mb-6 rounded-lg border-l-4 border-red-500 bg-red-50 p-4">
+        <h3 className="mb-2 font-semibold text-red-900">⚠️ Erros de validação</h3>
+        <ul className="space-y-1 text-sm text-red-800">
+          {errorMessages.map((msg, idx) => (
+            <li key={idx} className="flex items-start gap-2">
+              <span className="mt-0.5">•</span>
+              <span>{msg}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
   const vaccineOptions = vaccines.map((vaccine) => ({
     value: vaccine.id || vaccine._id,
     label: `${vaccine.name} - ${vaccine.manufacturer}`,
@@ -189,6 +237,8 @@ export default function VaccinationRegisterForm() {
 
         <div className="rounded-xl bg-white p-8 shadow-lg">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            {/* Alerta de erros de validação */}
+            {renderErrorAlert()}
             {/* Dados da Vacina */}
             <div className="space-y-6">
               <div className="flex items-center gap-3 border-b pb-3">

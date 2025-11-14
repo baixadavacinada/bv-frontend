@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { sidebarNavigation } from '@/lib/layout-navigation'
 import { BvButton } from '../design/BvButton'
 import { useRouter } from 'next/navigation'
@@ -16,7 +15,6 @@ import { usePermissions } from '@/hooks/use-permissions'
 
 export function Sidebar() {
   const router = useRouter()
-  const [loadingActionId, setLoadingActionId] = useState<string | null>(null)
 
   const { navigation, accessibility, common } = useAppTranslations()
   const { isValidating } = useAccessibilityValidation(DEFAULT_A11Y_CONFIG)
@@ -28,21 +26,20 @@ export function Sidebar() {
   const allowedNavigationItems = filterNavigationItems(sidebarNavigation)
 
   const handleNavigation = (action: (typeof sidebarNavigation)[0]) => {
-    setLoadingActionId(action.id)
     announceToScreenReader(`Navegando para ${action.label}`, 'polite')
     router.push(action.href)
+    // Não mostrar loading no menu lateral - o loading deve aparecer na página sendo carregada
   }
 
   const handleLogout = async () => {
     try {
-      setLoadingActionId('logout')
       announceToScreenReader(accessibility('actionCompleted') + ': Saindo da conta', 'assertive')
 
       await logout()
       router.push('/inicio')
       router.refresh()
     } catch {
-      setLoadingActionId(null)
+      // Erro ao fazer logout
     }
   }
 
@@ -79,7 +76,6 @@ export function Sidebar() {
                     leftIcon={<IconComponent size={24} aria-hidden="true" />}
                     aria-label={`Navegar para ${action.label}`}
                     onClick={() => handleNavigation(action)}
-                    isLoading={loadingActionId === action.id}
                   />
                 </li>
               )
@@ -95,7 +91,6 @@ export function Sidebar() {
                 aria-label={navigation('logoutAction')}
                 className="focus-visible:ring-2 focus-visible:ring-red-500"
                 onClick={handleLogout}
-                isLoading={loadingActionId === 'logout'}
               />
             </div>
           </footer>

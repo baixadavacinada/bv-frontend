@@ -1,11 +1,12 @@
 import { z } from 'zod'
+import { parseDate } from '@/utils/date-utils'
 
 const optionalText = z.string().optional()
 const date = z
   .string()
   .min(1, 'Data da aplicação é obrigatória')
   .refine((date) => {
-    // Aceita formatos: dd/mm/aaaa ou yyyy-mm-dd
+    // Aceita formatos: dd/mm/aaaa, yyyy-mm-dd ou ISO string
     const ddmmyyyy = /^\d{2}\/\d{2}\/\d{4}$/
     const yyyymmdd = /^\d{4}-\d{2}-\d{2}$/
 

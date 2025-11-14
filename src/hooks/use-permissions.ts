@@ -13,8 +13,8 @@ export type ActionType =
   | 'vaccine-management'
 
 export const ROLE_ACTIONS: Record<UserRole, ActionType[]> = {
-  public: ['ubs', 'evaluation', 'cartilha', 'vaccination'],
-  agent: ['ubs', 'evaluation', 'cartilha', 'notifications'],
+  public: ['ubs', 'evaluation', 'cartilha'],
+  agent: ['notifications', 'ubs-management', 'vaccine-management'],
   admin: [
     'evaluation',
     'cartilha',
@@ -57,18 +57,18 @@ export function usePermissions() {
     if (role === 'admin') {
       allowedActions = ROLE_ACTIONS['admin']
     }
-    // Agent gets agent + public actions
+    // Agent gets only agent actions (not public actions)
     else if (role === 'agent') {
-      allowedActions = [...new Set([...ROLE_ACTIONS['agent'], ...ROLE_ACTIONS['public']])]
+      allowedActions = ROLE_ACTIONS['agent']
     }
     // Public only gets public actions
     else {
       allowedActions = ROLE_ACTIONS['public']
     }
 
-    // Filter out vaccination if user is not authenticated
-    if (!isAuthenticated) {
-      allowedActions = allowedActions.filter((action) => action !== 'vaccination')
+    // Add vaccination if user is authenticated
+    if (isAuthenticated && !allowedActions.includes('vaccination')) {
+      allowedActions = [...allowedActions, 'vaccination']
     }
 
     return allowedActions
