@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { PlusIcon } from 'lucide-react'
 import * as z from 'zod'
 
@@ -12,7 +12,10 @@ import { TitleSection } from '@/components/sections/TitleSection'
 import SecondDoseModal from '@/components/common/SecondDoseModal'
 import Tag from '@/components/design/Tag'
 import { useAuth } from '@/hooks/use-firebase-auth'
-import { saveSecondDoseConfiguration } from '@/services/second-dose-service'
+import {
+  saveSecondDoseConfiguration,
+  getSecondDoseConfiguration,
+} from '@/services/second-dose-service'
 import { toast } from 'sonner'
 import DataIcon from '@/assets/icons/profile.svg'
 
@@ -230,6 +233,25 @@ export default function NotificationsPage() {
   const handleRemoveVaccine = (vaccine: string) => {
     setSelectedVaccines((prev) => prev.filter((v) => v !== vaccine))
   }
+
+  // Carregar vacinas selecionadas ao abrir a página
+  useEffect(() => {
+    const loadSelectedVaccines = async () => {
+      try {
+        const config = await getSecondDoseConfiguration()
+        if (config && config.selectedVaccines) {
+          setSelectedVaccines(config.selectedVaccines)
+          setCreatedByEmail(config.createdBy || '')
+        }
+      } catch (error) {
+        console.error('Erro ao carregar vacinas selecionadas:', error)
+      }
+    }
+
+    if (user) {
+      loadSelectedVaccines()
+    }
+  }, [user])
 
   return (
     <RoleGuard requireAuth={true}>

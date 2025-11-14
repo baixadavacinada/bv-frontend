@@ -91,14 +91,9 @@ export function useVaccineManagement() {
           params.append('search', search.trim())
         }
 
-        const response = await apiClient.get<{
-          success: boolean
-          data: ApiVaccineData[]
-          message: string
-          count: number
-        }>(`/api/public/vaccines?${params}`)
+        const response = await apiClient.get<ApiVaccineData[]>(`/api/public/vaccines?${params}`)
 
-        const apiVaccines = (response.data || []).map(convertApiToVaccine)
+        const apiVaccines = (Array.isArray(response) ? response : []).map(convertApiToVaccine)
 
         let vaccines = mergeWithLocalVaccines(apiVaccines)
         vaccines = applySearchFilter(vaccines, search || '')
