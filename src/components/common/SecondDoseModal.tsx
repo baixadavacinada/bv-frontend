@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { BvModal } from '../design/BvModal'
 import { BvButton } from '../design/BvButton'
-import Tag from '../design/Tag'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { useAuth } from '@/hooks/use-firebase-auth'
 import { vaccinationService } from '@/services/vaccination-service'
@@ -40,10 +39,19 @@ const SecondDoseModal: React.FC<Props> = ({ isOpen, onClose, onSelectVaccines })
       setLoading(true)
       vaccinationService.clearVaccinesCache()
       const availableVaccines = await vaccinationService.getAvailableVaccines()
-      setVaccines(availableVaccines)
+      console.log('Vacinas carregadas no modal:', availableVaccines)
+
+      // Garantir que é um array
+      if (Array.isArray(availableVaccines)) {
+        setVaccines(availableVaccines)
+      } else {
+        console.error('availableVaccines não é um array:', availableVaccines)
+        setVaccines([])
+      }
     } catch (error) {
       console.error('Erro ao carregar vacinas:', error)
       toast.error('Erro ao carregar vacinas')
+      setVaccines([])
     } finally {
       setLoading(false)
     }
