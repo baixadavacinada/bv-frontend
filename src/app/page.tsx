@@ -17,7 +17,7 @@ import {
 import { Button } from '@/components/ui/button'
 
 export default function Page() {
-  const DoctorIllustration = '/img-inicio.svg'
+  const DoctorIllustration = '/img-inicio-mulher-turbante.svg'
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -95,8 +95,8 @@ export default function Page() {
               <Image
                 src={DoctorIllustration}
                 alt="Ilustração de um profissional da saúde segurando uma seringa"
-                width={200}
-                height={200}
+                width={400}
+                height={400}
                 className="mb-4 lg:hidden"
                 priority
                 style={{ width: 'auto', height: 'auto' }}
@@ -164,14 +164,20 @@ export default function Page() {
             </CardFooter>
           </div>
 
-          <div className="hidden h-full items-center justify-center lg:flex">
+          <div className="hidden h-full w-full items-center justify-center lg:flex">
             <Image
               src={DoctorIllustration}
               alt="Ilustração de um profissional da saúde segurando uma seringa"
-              width={200}
-              height={200}
+              width={400}
+              height={400}
               priority
-              style={{ width: 'auto', height: 'auto' }}
+              style={{
+                width: '100%',
+                height: '100%',
+                maxWidth: '500px',
+                maxHeight: '500px',
+                objectFit: 'contain',
+              }}
             />
           </div>
         </div>
