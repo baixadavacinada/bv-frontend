@@ -132,7 +132,7 @@ export function UbsForm({ initialData, slug }: UbsFormProps) {
 
   const [step, setStep] = useState(1)
   const [vaccineInput, setVaccineInput] = useState('')
-  console.log('Initial Data:', initialData)
+
   const formData = initialData
     ? {
         nome: String(initialData.name || ''),

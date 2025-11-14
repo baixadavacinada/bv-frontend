@@ -42,14 +42,6 @@ export async function loginWithEmail(credentials: LoginCredentials): Promise<{
 
     const token = await userCredential.user.getIdToken()
 
-    const decodedToken = await userCredential.user.getIdTokenResult()
-    console.log('🔐 Firebase Login Successful:', {
-      email: userCredential.user.email,
-      role: decodedToken.claims.role || 'public',
-      claims: decodedToken.claims,
-      timestamp: new Date().toISOString(),
-    })
-
     if (typeof document !== 'undefined') {
       const isProduction = process.env.NODE_ENV === 'production'
       const secureFlag = isProduction ? 'secure;' : ''

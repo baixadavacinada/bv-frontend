@@ -12,6 +12,8 @@ import { TitleSection } from '@/components/sections/TitleSection'
 import SecondDoseModal from '@/components/common/SecondDoseModal'
 import Tag from '@/components/design/Tag'
 import { useAuth } from '@/hooks/use-firebase-auth'
+import { saveSecondDoseConfiguration } from '@/services/second-dose-service'
+import { toast } from 'sonner'
 import DataIcon from '@/assets/icons/profile.svg'
 
 const alertSchema = z.object({
@@ -120,16 +122,26 @@ const ROLE_CONFIGURATIONS: Record<string, RoleConfig> = {
   },
 }
 
-const vaccines = ['Influenza', 'Covid-19', 'Hepatite B', 'Sarampo']
-
-// seção de vacinas
-const VaccineSelectionSection = ({ onAddVaccine }: { onAddVaccine: () => void }) => (
+const VaccineSelectionSection = ({
+  onAddVaccine,
+  selectedVaccines,
+  onRemoveVaccine,
+}: {
+  onAddVaccine: () => void
+  selectedVaccines: string[]
+  onRemoveVaccine: (vaccine: string) => void
+}) => (
   <>
-    <div className="grid grid-cols-2 gap-4 py-6">
-      {vaccines.map((vaccine) => (
-        <Tag key={vaccine} label={vaccine} />
-      ))}
-    </div>
+    {selectedVaccines.length > 0 && (
+      <div className="mb-6 space-y-3">
+        <p className="text-sm font-medium text-gray-700">Vacinas selecionadas:</p>
+        <div className="flex flex-wrap gap-2">
+          {selectedVaccines.map((vaccine) => (
+            <Tag key={vaccine} label={vaccine} compact onRemove={() => onRemoveVaccine(vaccine)} />
+          ))}
+        </div>
+      </div>
+    )}
     <BvButton
       title="Adicionar vacina"
       rightIcon={<PlusIcon />}
@@ -139,17 +151,20 @@ const VaccineSelectionSection = ({ onAddVaccine }: { onAddVaccine: () => void })
   </>
 )
 
-// seção de notificações
 const NotificationSectionComponent = ({
   section,
   notifications,
   onToggle,
   onAddVaccine,
+  selectedVaccines,
+  onRemoveVaccine,
 }: {
   section: NotificationSection
   notifications: AlertSettingsFormData['notifications']
   onToggle: (key: keyof AlertSettingsFormData['notifications']) => void
   onAddVaccine?: () => void
+  selectedVaccines?: string[]
+  onRemoveVaccine?: (vaccine: string) => void
 }) => (
   <TitleSection icon={section.icon} title={section.title}>
     <div className="space-y-4">
@@ -164,8 +179,12 @@ const NotificationSectionComponent = ({
         />
       ))}
 
-      {section.hasVaccineSelection && onAddVaccine && (
-        <VaccineSelectionSection onAddVaccine={onAddVaccine} />
+      {section.hasVaccineSelection && onAddVaccine && selectedVaccines && onRemoveVaccine && (
+        <VaccineSelectionSection
+          onAddVaccine={onAddVaccine}
+          selectedVaccines={selectedVaccines}
+          onRemoveVaccine={onRemoveVaccine}
+        />
       )}
     </div>
   </TitleSection>
@@ -173,6 +192,8 @@ const NotificationSectionComponent = ({
 
 export default function NotificationsPage() {
   const [showSecondDoseModal, setShowSecondDoseModal] = useState(false)
+  const [selectedVaccines, setSelectedVaccines] = useState<string[]>([])
+  const [createdByEmail, setCreatedByEmail] = useState<string>('')
   const { user } = useAuth()
 
   const { watch, setValue } = useForm<AlertSettingsFormData>({
@@ -206,11 +227,21 @@ export default function NotificationsPage() {
     setShowSecondDoseModal(true)
   }
 
+  const handleRemoveVaccine = (vaccine: string) => {
+    setSelectedVaccines((prev) => prev.filter((v) => v !== vaccine))
+  }
+
   return (
     <RoleGuard requireAuth={true}>
       <div className="min-h-screen">
         <div className="mx-auto max-w-6xl pb-4">
           <BvTitleHeader title={roleConfig.title} className="mb-8" />
+
+          {createdByEmail && (
+            <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+              ✓ Vacinas selecionadas por: <strong>{createdByEmail}</strong>
+            </div>
+          )}
 
           <div className="space-y-8">
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -222,6 +253,8 @@ export default function NotificationsPage() {
                     notifications={notifications}
                     onToggle={toggleNotification}
                     onAddVaccine={section.hasVaccineSelection ? handleAddVaccine : undefined}
+                    selectedVaccines={selectedVaccines}
+                    onRemoveVaccine={handleRemoveVaccine}
                   />
                 ))}
               </div>
@@ -232,6 +265,24 @@ export default function NotificationsPage() {
         <SecondDoseModal
           isOpen={showSecondDoseModal}
           onClose={() => setShowSecondDoseModal(false)}
+          onSelectVaccines={async (vaccines, createdBy) => {
+            try {
+              setSelectedVaccines(vaccines)
+              if (createdBy) {
+                setCreatedByEmail(createdBy)
+                // Salvar configuração no backend
+                await saveSecondDoseConfiguration({
+                  selectedVaccines: vaccines,
+                  createdBy,
+                })
+                toast.success('Vacinas de segunda dose salvas com sucesso!')
+              }
+            } catch (error) {
+              console.error('Erro ao salvar configuração:', error)
+              toast.error('Erro ao salvar configuração de segunda dose')
+            }
+            setShowSecondDoseModal(false)
+          }}
         />
       </div>
     </RoleGuard>

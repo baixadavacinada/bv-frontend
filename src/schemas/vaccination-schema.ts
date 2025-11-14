@@ -76,11 +76,9 @@ export const vaccinationSchema = z
   )
   .refine(
     (data) => {
-      // Se selecionou "outra vacina" (customizada), vaccineName é obrigatório
       if (data.vaccineId === 'custom') {
         return data.vaccineName && data.vaccineName.trim().length >= 2
       }
-      // Se selecionou uma vacina do sistema, já vem preenchida
       return true
     },
     {

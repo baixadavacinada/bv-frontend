@@ -74,7 +74,6 @@ export function VaccineFormContent() {
     try {
       setLoading(true)
       const vaccine = await getVaccineById(vaccineId!)
-      console.log('Dados da vacina carregada:', vaccine)
       reset({
         name: vaccine.name,
         manufacturer: vaccine.manufacturer || '',
@@ -116,15 +115,12 @@ export function VaccineFormContent() {
         lote: data.batchNumber?.trim() || '',
       }
 
-      console.log('Dados do formulário sendo enviados:', JSON.stringify(vaccineData, null, 2))
-
       if (isEdit) {
         await updateVaccine(vaccineId!, vaccineData)
         toast.success(`Vacina "${data.name}" atualizada com sucesso!`, {
           description: 'Redirecionando para a lista de vacinas...',
         })
 
-        // Dispara evento para atualizar a listagem
         window.dispatchEvent(new CustomEvent('refreshVaccines'))
       } else {
         await createVaccine(vaccineData)

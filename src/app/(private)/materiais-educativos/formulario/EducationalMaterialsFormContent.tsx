@@ -122,10 +122,8 @@ export function EducationalMaterialsFormContent() {
       }
 
       if (isEdit) {
-        console.log('TODO: Atualizando conteúdo com ID:', contentId, 'com dados:', payload)
         toast.success('Conteúdo atualizado com sucesso!')
       } else {
-        console.log('TODO: Criando novo conteúdo com dados:', payload)
         toast.success('Conteúdo criado com sucesso!')
       }
 

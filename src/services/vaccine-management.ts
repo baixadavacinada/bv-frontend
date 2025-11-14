@@ -53,7 +53,6 @@ export function useVaccineManagement() {
     }
   }, [])
 
-  // Mescla vacinas da API com vacinas locais
   const mergeWithLocalVaccines = useCallback((apiVaccines: Vaccine[]): Vaccine[] => {
     const mergedVaccines = [...apiVaccines]
 
@@ -80,7 +79,6 @@ export function useVaccineManagement() {
         vaccine.description?.toLowerCase().includes(searchLower),
     )
   }, [])
-
 
   const listVaccines = useCallback(
     async (search?: string, page = 1, limit = 20): Promise<Vaccine[]> => {
@@ -161,11 +159,8 @@ export function useVaccineManagement() {
           batchNumber: vaccineData.lote,
         }
 
-        console.log('Enviando dados para API:', JSON.stringify(requestData, null, 2))
-
         const response = await apiClient.post<ApiVaccineData>('/api/admin/vaccines', requestData)
 
-        console.log('Resposta da API:', response)
         const newVaccine = convertApiToVaccine(response)
 
         if (newVaccine.id && localVaccines.has(newVaccine.id)) {
@@ -176,7 +171,6 @@ export function useVaccineManagement() {
       } catch (error) {
         console.error('Erro ao criar vacina:', error)
 
-        // Fallback: cria localmente
         const newVaccineId = `vaccine_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         const newVaccine: Vaccine = {
           id: newVaccineId,
@@ -234,7 +228,6 @@ export function useVaccineManagement() {
       } catch (error) {
         console.warn('Erro ao atualizar vacina na API, atualizando localmente:', error)
 
-        // Fallback: atualiza localmente
         const existingVaccine = await getVaccineById(id)
         const updatedVaccine: Vaccine = {
           ...existingVaccine,

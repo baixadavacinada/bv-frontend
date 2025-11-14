@@ -19,18 +19,13 @@ export class VaccinationService {
     return VaccinationService.instance
   }
 
-  /**
-   * Busca todas as vacinas ativas do banco (com cache)
-   */
   async getAvailableVaccines(): Promise<VaccineFromDB[]> {
     try {
-      // Tenta recuperar do cache primeiro
       const cachedVaccines = cacheService.getCache<VaccineFromDB[]>(VACCINES_CACHE_KEY)
-      if (cachedVaccines) {
+      if (cachedVaccines && Array.isArray(cachedVaccines) && cachedVaccines.length > 0) {
         return cachedVaccines
       }
 
-      // Se não estiver em cache, busca da API
       const response = await fetch(`${this.baseUrl}/api/public/vaccines`)
 
       if (!response.ok) {
@@ -39,14 +34,25 @@ export class VaccinationService {
 
       const data = await response.json()
 
-      const vaccines = Array.isArray(data)
-        ? data.map((vaccine) => ({
-            ...vaccine,
-            id: vaccine._id || vaccine.id,
-          }))
-        : []
+      let vaccines: VaccineFromDB[] = []
 
-      // Salva em cache
+      if (Array.isArray(data)) {
+        vaccines = data.map((vaccine: VaccineFromDB) => ({
+          ...vaccine,
+          id: vaccine._id || vaccine.id,
+        }))
+      } else if (data?.data && Array.isArray(data.data)) {
+        vaccines = data.data.map((vaccine: VaccineFromDB) => ({
+          ...vaccine,
+          id: vaccine._id || vaccine.id,
+        }))
+      } else if (data?.vaccines && Array.isArray(data.vaccines)) {
+        vaccines = data.vaccines.map((vaccine: VaccineFromDB) => ({
+          ...vaccine,
+          id: vaccine._id || vaccine.id,
+        }))
+      }
+
       if (vaccines.length > 0) {
         cacheService.setCache(VACCINES_CACHE_KEY, vaccines)
       }
@@ -58,9 +64,10 @@ export class VaccinationService {
     }
   }
 
-  /**
-   * Busca uma vacina específica pelo ID
-   */
+  clearVaccinesCache(): void {
+    cacheService.removeCache(VACCINES_CACHE_KEY)
+  }
+
   async getVaccineById(id: string): Promise<VaccineFromDB | null> {
     try {
       const response = await fetch(`${this.baseUrl}/api/admin/vaccines/${id}`)
@@ -78,18 +85,13 @@ export class VaccinationService {
     }
   }
 
-  /**
-   * Busca todas as unidades de saúde (UBS) ativas do banco (com cache de 1 semana)
-   */
   async getAvailableHealthUnits(): Promise<HealthUnitFromDB[]> {
     try {
-      // Tenta recuperar do cache primeiro
       const cachedHealthUnits = cacheService.getCache<HealthUnitFromDB[]>(HEALTH_UNITS_CACHE_KEY)
       if (cachedHealthUnits) {
         return cachedHealthUnits
       }
 
-      // Se não estiver em cache, busca da API
       const url = `${this.baseUrl}/api/public/health-units`
       const response = await fetch(url)
 
@@ -106,7 +108,6 @@ export class VaccinationService {
           }))
         : []
 
-      // Salva em cache (expira em 1 semana)
       if (healthUnits.length > 0) {
         cacheService.setCache(HEALTH_UNITS_CACHE_KEY, healthUnits)
       }
@@ -138,12 +139,8 @@ export class VaccinationService {
     }
   }
 
-  /**
-   * Salva o registro de vacinação no backend vinculado ao perfil do usuário
-   */
   async saveVaccinationRecord(data: VaccinationFormData): Promise<VaccinationFormData> {
     try {
-      // Primeiro salva localmente como backup
       const existingRecords = this.getLocalVaccinationRecords()
       const newRecord = {
         id: Date.now().toString(),
@@ -154,7 +151,6 @@ export class VaccinationService {
       const updatedRecords = [...existingRecords, newRecord]
       localStorage.setItem('vaccination_records', JSON.stringify(updatedRecords))
 
-      // Depois tenta salvar no backend usando apiClient (que adiciona autenticação automaticamente)
       try {
         const vaccineData = {
           vaccineId: data.vaccineId || Date.now().toString(),
@@ -168,7 +164,6 @@ export class VaccinationService {
           state: data.state || data.customState,
         }
 
-        // Usar apiClient que automaticamente adiciona o header Authorization com o token Firebase
         const result = await apiClient.post<VaccinationFormData>(
           '/api/public/user/vaccines',
           vaccineData,
@@ -176,7 +171,6 @@ export class VaccinationService {
         return result || data
       } catch (backendError) {
         console.warn('Erro ao comunicar com backend:', backendError)
-        // Falha silenciosa - dados já foram salvos localmente
         return data
       }
     } catch (error) {

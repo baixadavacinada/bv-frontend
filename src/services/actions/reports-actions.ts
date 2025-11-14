@@ -21,8 +21,6 @@ export async function generateFeedbackReport(params: FeedbackReportRequest) {
     const endpoint = '/api/admin/reports/feedbacks'
     const url = `${baseUrl}${endpoint}`
 
-    console.log('Gerando relatório de feedbacks:', { url, params })
-
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -68,8 +66,6 @@ export async function generateUserReport(params: UserReportRequest) {
 
     const endpoint = '/api/admin/reports/users'
     const url = `${baseUrl}${endpoint}`
-
-    console.log('Gerando relatório de usuários:', { url, params })
 
     const response = await fetch(url, {
       method: 'POST',

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BvCardPrimary } from '@/components/design/BvCardPrimary'
 import { useAppTranslations } from '@/hooks/use-translations'
@@ -27,6 +28,7 @@ export function MainActionsSection() {
   const router = useRouter()
   const { cards } = useAppTranslations()
   const { getAllowedActions } = usePermissions()
+  const [loadingActionId, setLoadingActionId] = useState<ActionType | null>(null)
 
   useAccessibilityValidation({ enabled: true })
 
@@ -36,7 +38,10 @@ export function MainActionsSection() {
       title: cards('ubs.title'),
       description: cards('ubs.description'),
       icon: HospitalIcon,
-      action: () => router.push('/ubs'),
+      action: () => {
+        setLoadingActionId('ubs')
+        router.push('/ubs')
+      },
       variant: 'stacked',
     },
     evaluation: {
@@ -44,7 +49,10 @@ export function MainActionsSection() {
       title: cards('evaluation.title'),
       description: cards('evaluation.description'),
       icon: EvaluationIcon,
-      action: () => router.push('/ubs/avaliar'),
+      action: () => {
+        setLoadingActionId('evaluation')
+        router.push('/ubs/avaliar')
+      },
       variant: 'stacked',
     },
     cartilha: {
@@ -52,7 +60,10 @@ export function MainActionsSection() {
       title: cards('cartilha.title'),
       description: cards('cartilha.description'),
       icon: VaccineIcon,
-      action: () => router.push('/cartilha-vacinas'),
+      action: () => {
+        setLoadingActionId('cartilha')
+        router.push('/cartilha-vacinas')
+      },
       variant: 'stacked',
     },
     vaccination: {
@@ -60,7 +71,10 @@ export function MainActionsSection() {
       title: cards('vaccination.title'),
       description: cards('vaccination.description'),
       icon: RegisterIcon,
-      action: () => router.push('/vacinacao'),
+      action: () => {
+        setLoadingActionId('vaccination')
+        router.push('/vacinacao')
+      },
       variant: 'stacked',
     },
     settings: {
@@ -68,7 +82,10 @@ export function MainActionsSection() {
       title: cards('settings.title'),
       description: cards('settings.description'),
       icon: SettingsIcon,
-      action: () => router.push('/configuracoes'),
+      action: () => {
+        setLoadingActionId('settings')
+        router.push('/configuracoes')
+      },
       variant: 'image-first',
       isFullWidth: true,
     },
@@ -77,7 +94,10 @@ export function MainActionsSection() {
       title: cards('notifications.title'),
       description: cards('notifications.description'),
       icon: NotificationsIcon,
-      action: () => router.push('/notificacoes'),
+      action: () => {
+        setLoadingActionId('notifications')
+        router.push('/notificacoes')
+      },
       variant: 'stacked',
     },
     'ubs-management': {
@@ -85,7 +105,10 @@ export function MainActionsSection() {
       title: cards('ubsManagement.title'),
       description: cards('ubsManagement.description'),
       icon: HospitalIcon,
-      action: () => router.push('/gestao-ubs'),
+      action: () => {
+        setLoadingActionId('ubs-management')
+        router.push('/gestao-ubs')
+      },
       variant: 'stacked',
     },
     'user-management': {
@@ -93,7 +116,10 @@ export function MainActionsSection() {
       title: cards('userManagement.title'),
       description: cards('userManagement.description'),
       icon: RegisterIcon,
-      action: () => router.push('/gestao-usuarios'),
+      action: () => {
+        setLoadingActionId('user-management')
+        router.push('/gestao-usuarios')
+      },
       variant: 'stacked',
     },
     'vaccine-management': {
@@ -101,7 +127,10 @@ export function MainActionsSection() {
       title: cards('vaccineManagement.title'),
       description: cards('vaccineManagement.description'),
       icon: VaccineIcon,
-      action: () => router.push('/gestao-vacinas'),
+      action: () => {
+        setLoadingActionId('vaccine-management')
+        router.push('/gestao-vacinas')
+      },
       variant: 'stacked',
     },
   }
@@ -130,6 +159,7 @@ export function MainActionsSection() {
               description={action.description}
               onClick={action.action}
               variant={action.variant}
+              loading={loadingActionId === action.id}
             />
           ))}
 
@@ -141,6 +171,7 @@ export function MainActionsSection() {
                 title={action.title}
                 description={action.description}
                 onClick={action.action}
+                loading={loadingActionId === action.id}
               />
             </div>
           ))}
@@ -156,6 +187,7 @@ export function MainActionsSection() {
             description={action.description}
             onClick={action.action}
             variant={action.variant}
+            loading={loadingActionId === action.id}
           />
         </div>
       ))}

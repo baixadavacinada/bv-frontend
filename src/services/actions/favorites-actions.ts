@@ -27,7 +27,6 @@ export async function toggleFavoriteHealthUnit(
       },
     )
 
-    console.log('Health unit favorite toggled:', response)
     return response || []
   } catch (error) {
     console.error('Error toggling health unit favorite:', error)
@@ -47,7 +46,6 @@ export async function toggleFavoriteMaterial(materialId: string): Promise<Favori
       },
     )
 
-    console.log('Material favorite toggled:', response)
     return response || []
   } catch (error) {
     console.error('Error toggling material favorite:', error)

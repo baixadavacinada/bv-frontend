@@ -14,22 +14,6 @@ export interface UseGeocodingResult {
   geocodeAddress: (address: string) => Promise<GeocodeResult | null>
 }
 
-/**
- * Hook para geocodificação de endereços
- * Usa Nominatim (OpenStreetMap) como API gratuita
- *
- * @example
- * ```tsx
- * const { geocodeAddress, isLoading, error } = useGeocoding()
- *
- * const handleGeocode = async () => {
- *   const coords = await geocodeAddress('Rua das Flores, 123, Rio de Janeiro, RJ')
- *   if (coords) {
- *     console.log(coords.latitude, coords.longitude)
- *   }
- * }
- * ```
- */
 export function useGeocoding(): UseGeocodingResult {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
