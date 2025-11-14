@@ -116,7 +116,7 @@ export interface RoleGuardProps {
 // Mapeamento de roles para display
 export const ROLE_DISPLAY_NAMES: Record<UserRole, string> = {
   admin: 'Administrador',
-  agent: 'Agente de Saúde',
+  agent: 'Profissional de Saúde',
   public: 'Usuário Público',
 }
 

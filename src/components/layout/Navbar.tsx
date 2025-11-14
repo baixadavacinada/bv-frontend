@@ -62,10 +62,10 @@ export function Navbar() {
           router.push('/inicio')
         }}
         className="flex cursor-pointer items-center gap-4 rounded px-2 py-1 transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
-        aria-label="Ir para a página inicial - Baixada Vacinada"
+        aria-label="Ir para a página inicial - Japeri Vacinada"
       >
         <Image
-          src="/logo.png"
+          src="/criola-logo-branco.png"
           alt="Logo Criola"
           width={40}
           height={40}
@@ -73,7 +73,7 @@ export function Navbar() {
           style={{ width: 'auto', height: 'auto' }}
           priority
         />
-        <div className="hidden text-lg font-semibold md:block">Baixada Vacinada</div>
+        <div className="hidden text-lg font-semibold md:block">Japeri Vacinada</div>
       </button>
 
       <div className="flex items-center gap-1" role="group" aria-label="Ações rápidas">

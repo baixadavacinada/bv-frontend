@@ -9,7 +9,7 @@ const TechStack = () => {
 
       <p style={{ fontSize: '1.2rem', lineHeight: '1.6', marginBottom: '2rem', color: '#374151' }}>
         Conheça as tecnologias cuidadosamente selecionadas para construir uma plataforma
-        <strong> robusta, performática e inclusiva</strong> para a Baixada Vacinada.
+        <strong> robusta, performática e inclusiva</strong> para a Japeri Vacinada.
       </p>
 
       <h2 style={{ color: '#1f2937', marginBottom: '1rem' }}>⚛️ Frontend & Interface</h2>

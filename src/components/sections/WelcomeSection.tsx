@@ -3,7 +3,7 @@
 import React, { JSX } from 'react'
 import Image from 'next/image'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
-import AgenteIcon from '@/assets/icons/stethoscope.svg'
+import ProfissionalIcon from '@/assets/icons/stethoscope.svg'
 import AdminIcon from '@/assets/icons/admin.svg'
 import {
   AccessibilityLoadingIndicator,
@@ -14,7 +14,7 @@ import { useAuth } from '@/hooks/use-firebase-auth'
 
 const ROLE_DISPLAY_NAMES: Record<string, string> = {
   public: '',
-  agent: 'Agente de saúde',
+  agent: 'Profissional de saúde',
   admin: 'Administrador',
 }
 
@@ -22,8 +22,8 @@ const ROLE_ICONS: Record<string, JSX.Element> = {
   public: <></>,
   agent: (
     <Image
-      src={AgenteIcon}
-      alt="Ícone de Agente de Saúde"
+      src={ProfissionalIcon}
+      alt="Ícone de Profissional de Saúde"
       className="inline h-5 w-5"
       width={20}
       height={20}

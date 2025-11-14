@@ -47,7 +47,7 @@ export function AppLayout({ children, className }: AppLayoutProps) {
           aria-label={accessibility('mainContent')}
           tabIndex={-1}
         >
-          <h1 className="sr-only">{accessibility('mainContent')} - Baixada Vacinada</h1>
+          <h1 className="sr-only">{accessibility('mainContent')} - Japeri Vacinada</h1>
           <div className="w-full max-w-md">{children}</div>
         </main>
       ) : (
@@ -70,7 +70,7 @@ export function AppLayout({ children, className }: AppLayoutProps) {
             aria-label={accessibility('mainContent')}
             tabIndex={-1}
           >
-            <h1 className="sr-only">{accessibility('mainContent')} - Baixada Vacinada</h1>
+            <h1 className="sr-only">{accessibility('mainContent')} - Japeri Vacinada</h1>
 
             <div className="mx-auto max-w-7xl pb-10">{children}</div>
           </main>

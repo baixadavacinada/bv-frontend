@@ -38,7 +38,7 @@ const Welcome = () => {
           <strong>População geral</strong> - Acesso às informações sobre vacinas e UBS
         </li>
         <li>
-          <strong>Agentes de saúde</strong> - Ferramentas para gestão e atendimento
+          <strong>Profissionais de saúde</strong> - Ferramentas para gestão e atendimento
         </li>
         <li>
           <strong>Administradores</strong> - Painel de controle e métricas

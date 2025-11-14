@@ -46,7 +46,7 @@ export function BvShareMenu({
   const isMobile = useIsMobile()
 
   const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://baixadavacinada.com'}/ubs/${ubsSlug}`
-  const shareText = `Conheça a ${ubsName} na Baixada Vacinada`
+  const shareText = `Conheça a ${ubsName} na Japeri Vacinada`
 
   const shareOptions = [
     {

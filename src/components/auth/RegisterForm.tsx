@@ -232,7 +232,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
               <strong>Lei Geral de Proteção de Dados (LGPD) - Lei nº 13.709/2018</strong>
             </p>
             <p className="mb-2">
-              Ao criar sua conta na Baixada Vacinada, você concorda que seus dados pessoais serão
+              Ao criar sua conta na Japeri Vacinada, você concorda que seus dados pessoais serão
               coletados, processados e armazenados de forma segura, conforme estabelecido pela LGPD.
             </p>
             <p className="mb-2">

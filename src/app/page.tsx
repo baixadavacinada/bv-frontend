@@ -65,7 +65,7 @@ export default function Page() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center p-4 pb-20">
       <Card className="w-full max-w-sm rounded-lg border-0 bg-transparent shadow-none sm:max-w-md lg:max-w-4xl lg:bg-transparent lg:shadow-none">
         <div className="lg:grid lg:grid-cols-2 lg:items-center lg:gap-8">
           <div className="p-2 sm:p-6 lg:p-0">
@@ -83,10 +83,10 @@ export default function Page() {
                   }}
                 />
                 <CardTitle className="text-3xl font-bold text-slate-900 md:text-4xl dark:text-slate-100">
-                  Baixada Vacinada
+                  Japeri Vacinada
                 </CardTitle>
                 <CardDescription className="text-lg font-semibold text-slate-900 lg:text-xl">
-                  Bem-vindo(a) à nossa plataforma de vacinação!
+                  Bem-vindo(a) à nossa plataforma!
                 </CardDescription>
               </div>
             </CardHeader>
@@ -160,6 +160,17 @@ export default function Page() {
                   disabled={isLoading}
                   title="Outras formas"
                 />
+              </div>
+
+              <div className="mt-4 flex items-center justify-center gap-2 text-center text-xs text-gray-500">
+                {/* <Image
+                  src="/logo-prefeitura-japeri.png"
+                  alt="Logo Prefeitura Municipal de Japeri"
+                  width={16}
+                  height={16}
+                  style={{ width: 'auto', height: 'auto' }}
+                /> */}
+                <span>Realizado em parceria com a Prefeitura Municipal de Japeri</span>
               </div>
             </CardFooter>
           </div>

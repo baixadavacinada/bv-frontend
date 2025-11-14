@@ -64,7 +64,7 @@ const CardFooter: React.FC<{ id?: string; title: string; link?: string }> = ({
 
     if (navigator.share) {
       navigator.share({
-        title: 'Baixada Vacinada',
+        title: 'Japeri Vacinada',
         text: shareText,
         url: shareUrl,
       })

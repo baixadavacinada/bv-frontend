@@ -59,7 +59,7 @@ export function FeedbackReportsSection() {
         <p className="text-sm text-blue-900">
           💡 <strong>Dica:</strong> Clique no botão abaixo para gerar um arquivo Excel com todos os
           feedbacks das unidades de saúde. O arquivo será automaticamente baixado no seu computador
-          e também salvo no Google Drive da Baixada Vacinada.
+          e também salvo no Google Drive da Japeri Vacinada.
         </p>
       </div>
 
@@ -92,8 +92,8 @@ export function FeedbackReportsSection() {
 
       <div className="mt-4 border-t pt-4">
         <p className="text-xs text-gray-500">
-          ℹ️ Os relatórios são salvos automaticamente no Google Drive da Baixada Vacinada para
-          backup e auditoria.
+          ℹ️ Os relatórios são salvos automaticamente no Google Drive da Japeri Vacinada para backup
+          e auditoria.
         </p>
       </div>
     </section>

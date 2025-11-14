@@ -5,6 +5,7 @@ import { BvButton } from '../design/BvButton'
 import { useRouter } from 'next/navigation'
 import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
 import { useAppTranslations } from '@/hooks/use-translations'
+import Image from 'next/image'
 import {
   AccessibilityLoadingIndicator,
   useSectionAccessibilityIds,
@@ -95,6 +96,23 @@ export function Sidebar() {
             </div>
           </footer>
         )}
+
+        {/* Partnership Footer */}
+        <footer className="border-t border-gray-200 px-4 py-3 text-center">
+          <div className="flex flex-col items-center gap-2">
+            <Image
+              src="/logo-prefeitura-japeri-branco.png"
+              alt="Prefeitura Municipal de Japeri"
+              width={40}
+              height={40}
+              className="object-contain"
+            />
+            <p className="text-xs text-gray-600">
+              Realizado em parceria com a<br />
+              Prefeitura Municipal de Japeri
+            </p>
+          </div>
+        </footer>
 
         <AccessibilityLoadingIndicator
           isValidating={isValidating}
