@@ -1,11 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { getVaccines } from '@/services/actions/ubs-actions'
+import { ApiVaccineData } from '@/types/vaccines'
 
 /** * Hook customizado para buscar e gerenciar a lista de vacinas.
  */
 export const useVaccinesList = () => {
-  const [data, setData] = useState<string[]>([])
+  const [data, setData] = useState<ApiVaccineData[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
@@ -15,7 +16,7 @@ export const useVaccinesList = () => {
         setIsLoading(true)
         setError(null)
         const vaccinesData = await getVaccines()
-        setData(vaccinesData as string[])
+        setData(vaccinesData as ApiVaccineData[])
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err)
