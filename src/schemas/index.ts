@@ -159,12 +159,12 @@ export const commonSchemas = {
 
 export const feedbackSchema = z.object({
   healthUnitId: z.string().min(1, 'ID da UBS é obrigatório'),
-  rating: z.number().min(1, 'Selecione pelo menos 1 estrela').max(5, 'Máximo 5 estrelas'),
-  vaccineSuccess: z.string().optional(),
-  waitTime: z.string().optional(),
-  respectfulService: z.string().optional(),
-  cleanLocation: z.string().optional(),
-  recommendation: z.string().optional(),
+  vaccineSuccessRating: z.number().min(1, 'Campo obrigatório').max(5),
+  waitTimeRating: z.number().min(1, 'Campo obrigatório').max(5),
+  respectfulServiceRating: z.number().min(1, 'Campo obrigatório').max(5),
+  cleanLocationRating: z.number().min(1, 'Campo obrigatório').max(5),
+  rating: z.number().min(1, 'Campo obrigatório').max(5),
+  npsScore: z.number().min(0, 'Campo obrigatório').max(10),
 })
 
 export type FeedbackFormData = z.infer<typeof feedbackSchema>

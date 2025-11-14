@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { Loader2, Send, Star } from 'lucide-react'
+import { Loader2, Send } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -16,20 +16,38 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import { BvTitleHeader } from '@/components'
 import { toast } from 'sonner'
 import { submitSurvey, listHealthUnits } from '@/services/actions/ubs-actions'
 import { toSlug } from '@/utils/slug'
+import { FaceRating } from '@/components/design/FaceRating'
+import { NPSScale } from '@/components/design/NPSScale'
+import { StarRating } from '@/components/design/StarRating'
 
-const formSchema = z.object({
-  vaccineSuccess: z.string().min(1, 'Campo obrigatório'),
-  waitTime: z.string().min(1, 'Campo obrigatório'),
-  respectfulService: z.string().min(1, 'Campo obrigatório'),
-  cleanLocation: z.string().min(1, 'Campo obrigatório'),
-  recommendation: z.string().min(1, 'Campo obrigatório'),
-  rating: z.number().min(1, 'Selecione pelo menos 1 estrela').max(5),
-})
+const formSchema = z
+  .object({
+    vaccineSuccessRating: z.number().int().min(1).max(5).optional(),
+    waitTimeRating: z.number().int().min(1).max(5).optional(),
+    respectfulServiceRating: z.number().int().min(1).max(5).optional(),
+    cleanLocationRating: z.number().int().min(1).max(5).optional(),
+    rating: z.number().int().min(1).max(5).optional(),
+    npsScore: z.number().int().min(0).max(10).optional(),
+  })
+  .refine(
+    (data) => {
+      return (
+        data.vaccineSuccessRating !== undefined &&
+        data.waitTimeRating !== undefined &&
+        data.respectfulServiceRating !== undefined &&
+        data.cleanLocationRating !== undefined &&
+        data.rating !== undefined &&
+        data.npsScore !== undefined
+      )
+    },
+    {
+      message: 'Por favor, complete todas as avaliações',
+    },
+  )
 
 interface HealthUnit {
   _id: string
@@ -80,13 +98,14 @@ export default function AvaliarUbsPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      vaccineSuccess: '',
-      waitTime: '',
-      respectfulService: '',
-      cleanLocation: '',
-      recommendation: '',
-      rating: 4,
+      vaccineSuccessRating: undefined,
+      waitTimeRating: undefined,
+      respectfulServiceRating: undefined,
+      cleanLocationRating: undefined,
+      npsScore: undefined,
+      rating: undefined,
     },
+    mode: 'onBlur',
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -98,7 +117,11 @@ export default function AvaliarUbsPage() {
     setIsSubmitting(true)
     const surveyData = {
       healthUnitId: ubs._id,
-      comment: `Vacina obtida: ${values.vaccineSuccess} | Tempo de espera: ${values.waitTime} | Atendimento respeitoso: ${values.respectfulService} | Local limpo: ${values.cleanLocation} | Recomendação: ${values.recommendation}`,
+      vaccineSuccessRating: values.vaccineSuccessRating,
+      waitTimeRating: values.waitTimeRating,
+      respectfulServiceRating: values.respectfulServiceRating,
+      cleanLocationRating: values.cleanLocationRating,
+      npsScore: values.npsScore,
       rating: values.rating,
       isAnonymous: true,
     }
@@ -195,137 +218,121 @@ export default function AvaliarUbsPage() {
       {/* <h2 className="mb-6 text-xl font-bold">UBS {name.replace(/-/g, ' ').replace(/ubs/g, '')}</h2> */}
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <div className="grid grid-cols-1 gap-x-12 gap-y-6 md:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="vaccineSuccess"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base font-normal text-black">
-                    Você conseguiu tomar a vacina no dia que procurou a Unidade de Saúde?
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Sim, consegui tomar a vacina"
-                      className="h-12 border-none bg-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="waitTime"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base font-normal text-black">
-                    Quanto tempo você esperou para ser atendido na Unidade de Saúde?
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ex: 30 minutos"
-                      className="h-12 border-none bg-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="respectfulService"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base font-normal text-black">
-                    O atendimento foi respeitoso e acolhedor?
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Sim, os profissionais foram muito atencioso"
-                      className="h-12 border-none bg-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="cleanLocation"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base font-normal text-black">
-                    O local estava limpo e organizado?
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Sim, o local estava bem limpo e organizado"
-                      className="h-12 border-none bg-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="recommendation"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base font-normal text-black">
-                    Você recomenda essa Unidade Básica de Saúde para amigos ou parentes?
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Sim, recomendo"
-                      className="h-12 border-none bg-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="rating"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base font-normal text-black">
-                    Qual sua avaliação geral da UBS?
-                  </FormLabel>
-                  <div className="pt-2">
-                    <p className="mb-2 text-sm">Escolha de 1 a 5 estrelas para classificar</p>
-                    <div className="flex justify-center gap-1 md:justify-start">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => field.onChange(star)}
-                          className="transition-transform hover:scale-110 focus:outline-none"
-                        >
-                          <Star
-                            className={`h-8 w-8 ${
-                              star <= field.value
-                                ? 'fill-yellow-400 text-yellow-400'
-                                : 'fill-gray-400 text-gray-500'
-                            }`}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+          <FormField
+            control={form.control}
+            name="vaccineSuccessRating"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="mb-2 block text-lg font-medium text-gray-900">
+                  Você conseguiu fazer o que veio fazer?
+                </FormLabel>
+                <p className="mb-4 text-sm text-gray-600">
+                  Tomar vacina, fazer consulta, exame ou ser atendido
+                </p>
+                <FormControl>
+                  <FaceRating value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="waitTimeRating"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="mb-2 block text-lg font-medium text-gray-900">
+                  Ficou muito tempo esperando?
+                </FormLabel>
+                <p className="mb-4 text-sm text-gray-600">
+                  Quanto tempo você esperou até ser atendido
+                </p>
+                <FormControl>
+                  <FaceRating value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="respectfulServiceRating"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="mb-2 block text-lg font-medium text-gray-900">
+                  Foi bem tratado pelos profissionais?
+                </FormLabel>
+                <p className="mb-4 text-sm text-gray-600">
+                  Os profissionais foram atenciosos e respeitosos
+                </p>
+                <FormControl>
+                  <FaceRating value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="cleanLocationRating"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="mb-2 block text-lg font-medium text-gray-900">
+                  O local foi limpo e organizado?
+                </FormLabel>
+                <p className="mb-4 text-sm text-gray-600">
+                  Sala de espera, consultórios e banheiros limpos
+                </p>
+                <FormControl>
+                  <FaceRating value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="rating"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="mb-2 block text-lg font-medium text-gray-900">
+                  Qual sua avaliação geral da UBS?
+                </FormLabel>
+                <p className="mb-4 text-sm text-gray-600">
+                  Escolha de 1 a 5 estrelas para classificar
+                </p>
+                <FormControl>
+                  <StarRating value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="npsScore"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="mb-2 block text-lg font-medium text-gray-900">
+                  Você recomenda essa unidade para amigos ou parentes?
+                </FormLabel>
+                <p className="mb-4 text-sm text-gray-600">
+                  Clique no número que melhor representa sua avaliação
+                </p>
+                <FormControl>
+                  <NPSScale value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <div className="flex flex-col items-center justify-between space-x-4 md:flex-row">
             <Button
               type="button"
@@ -333,7 +340,7 @@ export default function AvaliarUbsPage() {
               className="my-5 h-12 border-none bg-white px-12 text-lg text-indigo-900 hover:bg-gray-100"
               onClick={() => form.reset()}
             >
-              Apagar
+              Limpar formulário
             </Button>
 
             <Button

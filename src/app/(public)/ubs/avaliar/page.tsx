@@ -8,6 +8,7 @@ import { FeedbackReportsSection } from '@/components/admin/FeedbackReportsSectio
 import { toast } from 'sonner'
 import { listHealthUnits } from '@/services/actions/ubs-actions'
 import { useAuth } from '@/hooks/use-firebase-auth'
+import { toSlug } from '@/utils/slug'
 
 interface HealthUnit {
   _id: string
@@ -53,18 +54,6 @@ export default function AvaliarUbsPage() {
 
     loadHealthUnits()
   }, [])
-
-  // Converter nome para slug (mesma lógica do backend)
-  const toSlug = (text: string): string => {
-    return text
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim()
-  }
 
   const selectedUbsData = ubsList.find((u) => u._id === selectedUbs)
 

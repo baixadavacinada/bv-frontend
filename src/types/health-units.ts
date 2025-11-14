@@ -61,7 +61,11 @@ export type CreateHealthUnits = {
 
 export type Survey = {
   healthUnitId: string
-  comment: string
+  vaccineSuccessRating: number
+  waitTimeRating: number
+  respectfulServiceRating: number
+  cleanLocationRating: number
   rating: number
+  npsScore: number
   isAnonymous: boolean
 }

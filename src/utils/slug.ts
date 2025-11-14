@@ -1,15 +1,18 @@
 /**
  * Convert a string to a URL-friendly slug format
  * Example: "UBS Guandu" -> "ubs-guandu"
+ * Example: "UBS São João" -> "ubs-sao-joao"
  */
 export function toSlug(text: string): string {
   return text
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-')           // Replace spaces with dashes
-    .replace(/[^\w-]/g, '')         // Remove special characters
-    .replace(/-+/g, '-')            // Replace multiple dashes with single dash
-    .replace(/^-+|-+$/g, '')        // Remove leading/trailing dashes
+    .normalize('NFD') // Normalize unicode characters
+    .replace(/[\u0300-\u036f]/g, '') // Remove diacritical marks (accents)
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with dashes
+    .replace(/-+/g, '-') // Replace multiple dashes with single dash
+    .replace(/^-+|-+$/g, '') // Remove leading/trailing dashes
 }
 
 /**
