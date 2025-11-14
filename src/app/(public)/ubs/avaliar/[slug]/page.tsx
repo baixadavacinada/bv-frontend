@@ -214,7 +214,7 @@ export default function AvaliarUbsPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-normal text-black">
-                    Você conseguiu tomar a vacina no dia que procurou o posto de saúde?
+                    Você conseguiu tomar a vacina no dia que procurou a Unidade de Saúde?
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -233,7 +233,7 @@ export default function AvaliarUbsPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-normal text-black">
-                    Quanto tempo você esperou para ser atendido?
+                    Quanto tempo você esperou para ser atendido na Unidade de Saúde?
                   </FormLabel>
                   <FormControl>
                     <Input
