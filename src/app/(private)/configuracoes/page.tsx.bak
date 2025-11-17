@@ -34,7 +34,6 @@ export default function SettingsScreen() {
       phone: '',
       email: '',
       cpf: '',
-      acceptWhatsAppNotifications: false,
       notifications: {
         secondDose: false,
         appointment: false,
@@ -60,28 +59,6 @@ export default function SettingsScreen() {
     cpf: !watchedValues.cpf || watchedValues.cpf.trim() === '',
   }
 
-  const formatPhoneNumber = (value: string) => {
-    const cleaned = value.replace(/\D/g, '')
-
-    // Formata apenas dígitos
-    if (cleaned.length <= 11) {
-      if (cleaned.length <= 2) return cleaned
-      if (cleaned.length <= 7) return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`
-      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`
-    }
-
-    // Se tiver código de país (55), retorna com +55
-    if (cleaned.length >= 12) {
-      const countryCode = cleaned.slice(0, 2)
-      const areaCode = cleaned.slice(2, 4)
-      const firstPart = cleaned.slice(4, 9)
-      const secondPart = cleaned.slice(9, 13)
-      return `+${countryCode} (${areaCode}) ${firstPart}-${secondPart}`
-    }
-
-    return value
-  }
-
   const onSave = async (data: typeof watchedValues) => {
     if (!firebaseAuth.currentUser) {
       toast.error('Usuário não autenticado')
@@ -97,7 +74,6 @@ export default function SettingsScreen() {
         name: data.name,
         phone: data.phone,
         cpf: data.cpf,
-        acceptWhatsAppNotifications: data.acceptWhatsAppNotifications,
         notifications: data.notifications,
       })
 
@@ -131,58 +107,25 @@ export default function SettingsScreen() {
                 {/* Dados Pessoais - Exibe para qualquer usuário logado */}
                 <TitleSection icon={DataIcon} title="Dados pessoais">
                   <div className="space-y-4">
-                    <BvFormInput
-                      label="Nome:"
-                      {...register('name')}
-                      placeholder="Ex: João da Silva"
-                      className={
-                        emptyFields.name
-                          ? 'border-yellow-300 bg-yellow-50 placeholder:text-gray-400'
-                          : 'placeholder:text-gray-400'
-                      }
-                      error={errors.name?.message}
-                    />
-                    <BvFormInput
-                      label="Telefone/WhatsApp (opcional):"
-                      type="tel"
-                      {...register('phone')}
-                      placeholder="(XX) 99999-9999 ou +55 (XX) 99999-9999"
-                      className={
-                        emptyFields.phone
-                          ? 'border-yellow-300 bg-yellow-50 placeholder:text-gray-400'
-                          : 'placeholder:text-gray-400'
-                      }
-                      onChange={(e) => {
-                        e.target.value = formatPhoneNumber(e.target.value)
-                      }}
-                      error={errors.phone?.message}
-                    />
-                    <p className="mt-1 text-sm text-gray-500">
-                      Para contato e notificações por WhatsApp
-                    </p>
-
-                    <div className="mt-3 rounded-lg border border-green-200 bg-green-50 p-4">
-                      <label className="flex cursor-pointer items-center gap-3">
-                        <input
-                          type="checkbox"
-                          {...register('acceptWhatsAppNotifications')}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setValue('notifications.secondDose', true)
-                              setValue('notifications.newVaccines', true)
-                            }
-                          }}
-                          className="h-5 w-5 cursor-pointer rounded border-green-300 text-green-600"
-                        />
-                        <div>
-                          <span className="font-medium text-green-900">
-                            Receber notificações por WhatsApp
-                          </span>
-                          <p className="mt-1 text-xs text-green-700">
-                            Atualizações sobre vacinação disponível e lembretes importantes
-                          </p>
-                        </div>
-                      </label>
+                    <div className={emptyFields.name ? 'border-l-4 border-yellow-500 pl-3' : ''}>
+                      <BvFormInput
+                        label="Nome:"
+                        {...register('name')}
+                        placeholder="Ex: João da Silva"
+                        className="placeholder:text-gray-400"
+                        error={errors.name?.message}
+                      />
+                    </div>
+                    <div className={emptyFields.phone ? 'border-l-4 border-yellow-500 pl-3' : ''}>
+                      <BvFormInput
+                        label="Telefone:"
+                        mask="(00) 00000-0000"
+                        {...register('phone')}
+                        value={watchedValues.phone}
+                        placeholder="Ex: (21) 98765-4321"
+                        className="placeholder:text-gray-400"
+                        error={errors.phone?.message}
+                      />
                     </div>
                     <BvFormInput
                       label="E-mail:"
@@ -192,21 +135,20 @@ export default function SettingsScreen() {
                       className="placeholder:text-gray-400"
                       error={errors.email?.message}
                     />
-                    <BvFormInput
-                      label="CPF:"
-                      mask="000.000.000-00"
-                      {...register('cpf')}
-                      value={watchedValues.cpf}
-                      placeholder="Ex: 123.456.789-00"
-                      className={
-                        emptyFields.cpf
-                          ? 'border-yellow-300 bg-yellow-50 placeholder:text-gray-400'
-                          : 'placeholder:text-gray-400'
-                      }
-                      error={errors.cpf?.message}
-                    />
+                    <div className={emptyFields.cpf ? 'border-l-4 border-yellow-500 pl-3' : ''}>
+                      <BvFormInput
+                        label="CPF:"
+                        mask="000.000.000-00"
+                        {...register('cpf')}
+                        value={watchedValues.cpf}
+                        placeholder="Ex: 123.456.789-00"
+                        className="placeholder:text-gray-400"
+                        error={errors.cpf?.message}
+                      />
+                    </div>
                   </div>
                 </TitleSection>
+
                 {/* Notificações */}
                 <TitleSection icon={DataIcon} title="Notificações">
                   <div className="space-y-2">

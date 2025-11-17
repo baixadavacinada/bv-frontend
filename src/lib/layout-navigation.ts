@@ -82,6 +82,13 @@ export const sidebarNavigation: NavigationItem[] = [
     href: '/gestao-vacinas',
     allowedRoles: ['admin', 'agent'],
   },
+  {
+    id: 'configuracoes',
+    icon: CiSettings,
+    label: 'Configurações',
+    href: '/configuracoes',
+    allowedRoles: ['public', 'agent', 'admin'],
+  },
 ]
 
 // Ações do navbar (ícones do canto direito)
@@ -90,7 +97,7 @@ export const navbarActions: NavigationItem[] = [
     id: 'configuracao',
     icon: CiSettings,
     href: '/configuracoes',
-    allowedRoles: ['agent', 'admin'],
+    allowedRoles: ['public', 'agent', 'admin'],
   },
 ]
 

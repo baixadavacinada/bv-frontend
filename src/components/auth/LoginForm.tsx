@@ -68,14 +68,16 @@ export function LoginForm({ onSuccess, redirectTo = '/inicio' }: LoginFormProps)
     setError('')
 
     try {
-      await loginWithGoogle()
+      const result = await loginWithGoogle()
 
-      if (onSuccess) {
-        onSuccess()
-      } else {
-        router.push(redirectTo)
-        router.refresh()
-      }
+      // Redirecionar para registro pré-preenchido com dados do Google
+      const params = new URLSearchParams({
+        email: result.user.email || '',
+        displayName: result.user.displayName || '',
+        fromGoogle: 'true',
+      })
+
+      router.push(`/registro-usuario?${params.toString()}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao fazer login com Google')
     } finally {

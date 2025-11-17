@@ -86,8 +86,7 @@ export function MainActionsSection() {
         setLoadingActionId('settings')
         router.push('/configuracoes')
       },
-      variant: 'image-first',
-      isFullWidth: true,
+      variant: 'stacked',
     },
     notifications: {
       id: 'notifications',

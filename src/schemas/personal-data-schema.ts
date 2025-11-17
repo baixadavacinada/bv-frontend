@@ -9,6 +9,7 @@ const createPersonalDataSchema = (isResident: boolean) => {
     phone: isResident ? z.string().optional().or(z.literal('')) : commonSchemas.phone,
     email: isResident ? z.string().optional().or(z.literal('')) : commonSchemas.email,
     cpf: isResident ? z.string().optional().or(z.literal('')) : commonSchemas.cpf,
+    acceptWhatsAppNotifications: z.boolean().optional(),
     notifications: z.object({
       secondDose: z.boolean(),
       appointment: z.boolean(),

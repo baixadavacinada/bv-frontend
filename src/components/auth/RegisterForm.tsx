@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import React, { useState, useMemo, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { BvButton, BvFormInput } from '@/components'
 import { registerUser, logout } from '@/lib/auth-service'
 import { useForm, useWatch } from 'react-hook-form'
@@ -9,6 +9,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { commonSchemas } from '@/schemas'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
+import { Check } from 'lucide-react'
+
+const phoneRegex = /^(\+55)?(\d{2})?9?\d{8,9}$/
 
 const registerSchema = z
   .object({
@@ -16,6 +19,14 @@ const registerSchema = z
     email: commonSchemas.email,
     password: commonSchemas.strongPassword,
     confirmPassword: z.string(),
+    phone: z
+      .string()
+      .optional()
+      .refine(
+        (val) => !val || phoneRegex.test(val.replace(/\D/g, '')),
+        'Número de telefone inválido. Use formato: (XX) 99999-9999 ou +55 (XX) 99999-9999',
+      ),
+    acceptWhatsAppNotifications: z.boolean().default(false),
     acceptTerms: z.boolean().refine((val) => val === true, {
       message: 'Você deve aceitar os termos e condições de privacidade',
     }),
@@ -70,17 +81,39 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   useAccessibilityValidation({ enabled: true })
 
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [isFromGoogle, setIsFromGoogle] = useState(false)
+
+  // Get initial values from Google auth
+  const googleEmail = searchParams.get('email')
+  const googleDisplayName = searchParams.get('displayName')
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     control,
+    setValue,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: googleEmail || '',
+      displayName: googleDisplayName || '',
+    },
   })
+
+  // Set initial values when component mounts
+  useEffect(() => {
+    if (googleEmail) {
+      setValue('email', googleEmail)
+      setIsFromGoogle(true)
+    }
+    if (googleDisplayName) {
+      setValue('displayName', googleDisplayName)
+    }
+  }, [googleEmail, googleDisplayName, setValue])
 
   // Watch the password field to show requirements in real-time
   const password = useWatch({
@@ -97,7 +130,17 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     }))
   }, [password])
 
-  const allRequirementsMet = passwordStatus.every((req) => req.met)
+  const allRequirementsMet = passwordStatus.every((req) => req.met) && password.length > 0
+
+  const formatPhoneNumber = (value: string) => {
+    const numbers = value.replace(/\D/g, '')
+    if (numbers.length <= 2) return numbers
+    if (numbers.length <= 6) return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`
+    if (numbers.length <= 11) {
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7)}`
+    }
+    return `+${numbers.slice(0, 2)} (${numbers.slice(2, 4)}) ${numbers.slice(4, 9)}-${numbers.slice(9, 13)}`
+  }
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true)
@@ -109,6 +152,8 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         password: data.password,
         displayName: data.displayName,
       })
+
+      // Note: Phone and WhatsApp notification settings are saved via the settings page after user creation
 
       await logout()
 
@@ -137,6 +182,17 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         </div>
       )}
 
+      {isFromGoogle && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <div className="flex items-start gap-2">
+            <Check className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
+            <p className="text-sm text-blue-900">
+              Bem-vindo(a)! Seus dados do Google foram pré-preenchidos. Complete seu perfil abaixo.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-4">
         <BvFormInput
           label="Nome completo"
@@ -154,7 +210,48 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           error={errors.email?.message}
           placeholder="Digite seu email"
           required
+          disabled={isFromGoogle}
+          className={isFromGoogle ? 'bg-gray-100' : ''}
         />
+
+        {/* Telefone com validação de formato */}
+        <div>
+          <BvFormInput
+            label="Número de telefone"
+            type="tel"
+            {...register('phone')}
+            error={errors.phone?.message}
+            placeholder="(XX) 99999-9999"
+            required
+            onChange={(e) => {
+              const formatted = formatPhoneNumber(e.target.value)
+              e.target.value = formatted
+            }}
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Formato: (XX) 99999-9999 ou +55 (XX) 99999-9999
+          </p>
+        </div>
+
+        {/* Toggle para notificações por WhatsApp */}
+        <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+          <label className="flex cursor-pointer items-center gap-3">
+            <input
+              type="checkbox"
+              {...register('acceptWhatsAppNotifications')}
+              className="h-5 w-5 rounded border-green-300 text-green-600 focus:ring-green-500"
+              aria-describedby="whatsapp-desc"
+            />
+            <div>
+              <span className="text-sm font-medium text-green-900">
+                Receber notificações sobre vacinação por WhatsApp
+              </span>
+              <p id="whatsapp-desc" className="mt-0.5 text-xs text-green-700">
+                Você receberá atualizações sobre vacinas disponíveis e lembretes de vacinação
+              </p>
+            </div>
+          </label>
+        </div>
 
         <div>
           <BvFormInput
