@@ -26,7 +26,7 @@ const registerSchema = z
         (val) => !val || phoneRegex.test(val.replace(/\D/g, '')),
         'Número de telefone inválido. Use formato: (XX) 99999-9999 ou +55 (XX) 99999-9999',
       ),
-    acceptWhatsAppNotifications: z.boolean().default(false),
+    acceptWhatsAppNotifications: z.boolean().optional(),
     acceptTerms: z.boolean().refine((val) => val === true, {
       message: 'Você deve aceitar os termos e condições de privacidade',
     }),

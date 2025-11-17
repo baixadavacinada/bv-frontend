@@ -147,7 +147,7 @@ export async function shareToInstagramStory(data: StoryData) {
           message: 'Story baixado! Abra o Instagram e publique a imagem.',
           imageUrl,
         }
-      } catch (error) {
+      } catch {
         // Fallback: fazer download da imagem
         const link = document.createElement('a')
         link.href = imageUrl

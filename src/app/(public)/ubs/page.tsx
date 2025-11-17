@@ -23,7 +23,7 @@ type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onDelete'> & {
 export default function UbsScreen() {
   const [ubsList, setUbsList] = useState<UbsListData[]>([])
   const { data, isLoading, error } = useHealthUnits()
-  const { userCoords, showLocationModal } = useLocationContext()
+  const { userCoords } = useLocationContext()
   const { isFavorite, toggleFavorite } = useFavorites()
   const [filters, setFilters] = useState({
     name: '',

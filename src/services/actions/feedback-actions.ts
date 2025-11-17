@@ -17,11 +17,11 @@ export async function submitFeedback(data: FeedbackFormData) {
     const payload = {
       healthUnitId: data.healthUnitId,
       rating: data.rating,
-      vaccineSuccess: data.vaccineSuccess,
-      waitTime: data.waitTime,
-      respectfulService: data.respectfulService,
-      cleanLocation: data.cleanLocation,
-      recommendation: data.recommendation,
+      vaccineSuccessRating: data.vaccineSuccessRating,
+      waitTimeRating: data.waitTimeRating,
+      respectfulServiceRating: data.respectfulServiceRating,
+      cleanLocationRating: data.cleanLocationRating,
+      npsScore: data.npsScore,
     }
 
     const response = await fetch(`${API_BASE_URL}/api/public/feedback`, {

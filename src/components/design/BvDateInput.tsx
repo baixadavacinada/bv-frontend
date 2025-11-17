@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
-import { convertDDMMYYYYtoISO, convertISOtoDDMMYYYY, parseDate } from '@/utils/date-utils'
+import { convertDDMMYYYYtoISO } from '@/utils/date-utils'
 
 interface BvDateInputProps {
   label?: string

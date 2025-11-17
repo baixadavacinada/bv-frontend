@@ -27,16 +27,7 @@ interface BvButtonProps extends Omit<ButtonProps, 'aria-label'> {
  */
 export const BvButton = forwardRef<HTMLButtonElement, BvButtonProps>(
   (
-    {
-      title,
-      leftIcon,
-      rightIcon,
-      isLoading = false,
-      'aria-label': ariaLabel,
-      disabled,
-      size,
-      ...props
-    },
+    { title, leftIcon, rightIcon, isLoading = false, 'aria-label': ariaLabel, disabled, ...props },
 
     ref,
   ) => {

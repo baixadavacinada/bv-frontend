@@ -25,14 +25,14 @@ export const FaceRating = forwardRef<HTMLDivElement, FaceRatingProps>(
     return (
       <div ref={ref} className="w-full">
         {label && <p className="mb-3 text-sm font-medium text-gray-700">{label}</p>}
-        <div className="flex justify-around gap-3">
+        <div className="flex justify-start gap-1 sm:gap-2 md:gap-8">
           {FACES.map((face) => (
             <button
               key={face.value}
               type="button"
               onClick={() => !disabled && onChange(face.value)}
               disabled={disabled}
-              className={`flex h-16 w-16 flex-col items-center justify-center gap-2 rounded-lg transition-all duration-200 ${
+              className={`flex h-12 w-12 flex-col items-center justify-center rounded-lg text-lg transition-all duration-200 sm:h-14 sm:w-14 sm:text-xl md:h-16 md:w-16 md:text-2xl ${
                 value === face.value
                   ? 'scale-105 bg-blue-100 ring-2 ring-blue-500'
                   : 'scale-100 bg-gray-100 hover:bg-gray-200'
@@ -40,7 +40,7 @@ export const FaceRating = forwardRef<HTMLDivElement, FaceRatingProps>(
               aria-label={face.label}
               aria-pressed={value === face.value}
             >
-              <span className="text-2xl">{face.emoji}</span>
+              <span>{face.emoji}</span>
             </button>
           ))}
         </div>

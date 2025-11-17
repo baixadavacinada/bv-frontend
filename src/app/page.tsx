@@ -14,7 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 
 export default function Page() {
   const DoctorIllustration = '/img-inicio-mulher-turbante.svg'

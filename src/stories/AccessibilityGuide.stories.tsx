@@ -274,17 +274,18 @@ const FocusTrapExample = () => {
 
   useEffect(() => {
     if (isModalOpen && modalRef.current) {
-      const cleanup = trapFocus(modalRef.current, {
+      const currentModal = modalRef.current
+      const cleanup = trapFocus(currentModal, {
         escapeDeactivates: true,
         restoreFocus: document.activeElement as HTMLElement,
       })
 
       const handleEscape = () => setIsModalOpen(false)
-      modalRef.current.addEventListener('focustrap:escape', handleEscape)
+      currentModal.addEventListener('focustrap:escape', handleEscape)
 
       return () => {
         cleanup()
-        modalRef.current?.removeEventListener('focustrap:escape', handleEscape)
+        currentModal.removeEventListener('focustrap:escape', handleEscape)
       }
     }
   }, [isModalOpen, trapFocus])

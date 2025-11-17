@@ -112,7 +112,7 @@ export function EducationalMaterialsFormContent() {
     }
 
     try {
-      const payload = {
+      const _payload = {
         title: data.title,
         author: data.author,
         description: data.description,

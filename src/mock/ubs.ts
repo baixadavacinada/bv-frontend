@@ -1,5 +1,3 @@
-import { S } from 'vitest/dist/chunks/config.d.D2ROskhv.js'
-
 export interface UbsData {
   id: number
   name: string

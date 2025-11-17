@@ -49,27 +49,25 @@ export function BvHoursModal({
   isOpen,
   setIsOpen,
   currentHours,
-  currentWaitTime,
+  currentWaitTime: _currentWaitTime,
   onSave,
 }: HoursModalProps) {
   useAccessibilityValidation({ enabled: true })
   const [hours, setHours] = useState(currentHours)
-  const [waitTime, setWaitTime] = useState(currentWaitTime)
   const [checkedDays, setCheckedDays] = useState<{ [key: string]: boolean }>({})
   const [waitInput, setWaitInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   useEffect(() => {
     if (isOpen) {
       setHours(currentHours)
-      setWaitTime(currentWaitTime)
-      setWaitInput(formatWaitTimeForInput(currentWaitTime))
+      setWaitInput(formatWaitTimeForInput(_currentWaitTime))
       const initialChecks: { [key: string]: boolean } = {}
       ;(Object.keys(currentHours) as Array<keyof OpeningHours>).forEach((day) => {
         initialChecks[day] = currentHours[day] !== 'Fechado'
       })
       setCheckedDays(initialChecks)
     }
-  }, [isOpen, currentHours, currentWaitTime])
+  }, [isOpen, currentHours, _currentWaitTime])
   const handleTimeChange = (day: keyof OpeningHours, part: 'start' | 'end', value: string) => {
     const currentDayHours = hours[day] === 'Fechado' ? '00:00 - 00:00' : hours[day]
     const [start, end] = currentDayHours.split(' - ')
@@ -124,7 +122,7 @@ export function BvHoursModal({
       // toast.success('Sucesso!', {
       //   description: 'Alterações salvas com sucesso!',
       // })
-    } catch (error) {
+    } catch {
       toast.error('Atenção!', {
         description: 'Não foi possível salvar as alterações. Verifique sua rede e tente novamente.',
       })

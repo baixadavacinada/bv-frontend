@@ -37,7 +37,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
 
   const { data, isLoading, error } = useHealthUnits()
   const [showSecondDoseModal, setShowSecondDoseModal] = React.useState(false)
-  const [selectedVaccines, setSelectedVaccines] = React.useState<string[]>([])
+  const [_selectedVaccines, _setSelectedVaccines] = React.useState<string[]>([])
 
   const ubsDataFromApi = React.useMemo(() => {
     if (!data) return undefined
@@ -60,7 +60,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
       try {
         const config = await getSecondDoseConfiguration?.()
         if (config && config.selectedVaccines) {
-          setSelectedVaccines(config.selectedVaccines)
+          _setSelectedVaccines(config.selectedVaccines)
         }
       } catch (error) {
         console.error('Erro ao carregar vacinas selecionadas:', error)
@@ -297,7 +297,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         onClose={() => setShowSecondDoseModal(false)}
         onSelectVaccines={async (vaccines, createdBy) => {
           try {
-            setSelectedVaccines(vaccines)
+            _setSelectedVaccines(vaccines)
             if (createdBy) {
               await saveSecondDoseConfiguration({
                 selectedVaccines: vaccines,

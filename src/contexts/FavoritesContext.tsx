@@ -14,7 +14,6 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
-  const [isLoaded, setIsLoaded] = useState(false)
 
   // Carregar favoritos do localStorage
   useEffect(() => {
@@ -27,7 +26,6 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
         console.error('Erro ao carregar favoritos:', e)
       }
     }
-    setIsLoaded(true)
   }, [])
 
   const toggleFavorite = async (ubsId: string) => {
