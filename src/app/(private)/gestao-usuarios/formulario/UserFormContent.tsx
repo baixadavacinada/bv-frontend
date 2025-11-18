@@ -245,7 +245,6 @@ export function UserFormContent() {
                 onValueChange={(value) => setValue('role', value as UserRole)}
                 error={errors.role?.message}
                 fullWidth
-                showSelectedBadges={false}
               />
 
               {/* Telefone */}

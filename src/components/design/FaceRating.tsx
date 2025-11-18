@@ -25,7 +25,7 @@ export const FaceRating = forwardRef<HTMLDivElement, FaceRatingProps>(
     return (
       <div ref={ref} className="w-full">
         {label && <p className="mb-3 text-sm font-medium text-gray-700">{label}</p>}
-        <div className="flex justify-start gap-1 sm:gap-2 md:gap-8">
+        <div className="flex justify-start gap-2 md:gap-8">
           {FACES.map((face) => (
             <button
               key={face.value}

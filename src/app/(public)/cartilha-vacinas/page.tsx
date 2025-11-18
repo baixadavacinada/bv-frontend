@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import VaccineBookletContent from './booklet'
 import VaccineRegistrationContent from './vaccine-registration'
 import VaccineCalendarContent from './calendar'
+import { BvTitleHeader } from '@/components'
 
 type TabType = 'cartilha' | 'minhas-vacinas' | 'calendario'
 
@@ -23,6 +24,7 @@ function VaccineBookletScreenContent() {
 
   return (
     <div>
+      <BvTitleHeader title="Cartilha de Vacinas" className="mb-6" />
       {/* Abas de navegação */}
       <div className="mb-6 flex gap-2 border-b border-gray-200">
         <button

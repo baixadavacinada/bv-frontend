@@ -193,7 +193,7 @@ export function VaccineFormContent() {
                 error={errors.doses?.message}
                 fullWidth
                 multiple={true}
-                showSelectedBadges={true}
+                showSelectedBadges
               />
 
               {/* Faixa etária recomendada */}
@@ -205,7 +205,6 @@ export function VaccineFormContent() {
                 onValueChange={(value) => setValue('ageGroup', value as string)}
                 error={errors.ageGroup?.message}
                 fullWidth
-                showSelectedBadges={false}
               />
 
               {/* Fabricante */}

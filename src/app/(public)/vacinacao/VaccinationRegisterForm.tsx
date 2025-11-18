@@ -19,8 +19,10 @@ import {
 } from '@/schemas/vaccination-schema'
 import { brazilianCitiesByState } from '@/data/brazilian-cities'
 import { vaccinationService } from '@/services/vaccination-service'
+import { toSlug } from '@/utils/slug'
 import { FaSyringe, FaMapMarkerAlt, FaCalendarAlt, FaUser } from 'react-icons/fa'
 import { MdLocationOn } from 'react-icons/md'
+import { Textarea } from '@/components/ui/textarea'
 
 export default function VaccinationRegisterForm() {
   const router = useRouter()
@@ -139,11 +141,29 @@ export default function VaccinationRegisterForm() {
       await vaccinationService.saveVaccinationRecord(data)
 
       toast.success('Registro de vacinação salvo com sucesso!')
+
+      // Verificar se foi em uma UBS cadastrada para redirecionar para avaliação
+      if (data.healthUnitId) {
+        const healthUnit = healthUnits.find(
+          (h) => h.id === data.healthUnitId || h._id === data.healthUnitId,
+        )
+
+        if (healthUnit) {
+          reset()
+          setSelectedVaccine(null)
+          setShowCustomLocation(false)
+
+          // Criar slug da UBS e redirecionar para página de avaliação
+          const ubsSlug = toSlug(healthUnit.name)
+
+          router.push(`/vacinacao/avaliar/${ubsSlug}`)
+          return
+        }
+      }
+
       reset()
       setSelectedVaccine(null)
       setShowCustomLocation(false)
-
-      // Redirecionar para a aba de minhas vacinas na cartilha
       router.push('/cartilha-vacinas?tab=minhas-vacinas')
     } catch (error) {
       console.error('Erro ao salvar registro:', error)
@@ -214,15 +234,13 @@ export default function VaccinationRegisterForm() {
   })
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="">
+      <BvTitleHeader title="Registro de Vacinação" className="mb-12" />
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 text-center">
-          <BvTitleHeader title="Registro de Vacinação" className="mb-4" />
-          <p className="mb-6 text-center text-gray-600">
-            Registre suas vacinas na carteira de vacinação digital
-          </p>
+          <p className="mb-6 text-base">Registre suas vacinas na carteira de vacinação digital</p>
           <div className="mx-auto max-w-2xl">
-            <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
+            <div className="flex items-center justify-center gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <FaSyringe className="text-blue-600" />
                 <span>Mantenha seu registro atualizado</span>
@@ -235,7 +253,7 @@ export default function VaccinationRegisterForm() {
           </div>
         </div>
 
-        <div className="rounded-xl bg-white p-8 shadow-lg">
+        <div className="rounded-xl bg-white/50 p-8 shadow-lg">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             {/* Alerta de erros de validação */}
             {renderErrorAlert()}
@@ -396,7 +414,7 @@ export default function VaccinationRegisterForm() {
                     }}
                     className={`flex-1 rounded-lg border-2 p-4 text-left transition-colors ${
                       showCustomLocation
-                        ? 'text-primary border-primary bg-primary'
+                        ? 'text-primary border-primary bg-primary/10'
                         : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
                     }`}
                   >
@@ -482,7 +500,7 @@ export default function VaccinationRegisterForm() {
               </div>
 
               <div>
-                <textarea
+                <Textarea
                   title="Observações"
                   {...register('notes')}
                   rows={3}
@@ -515,7 +533,7 @@ export default function VaccinationRegisterForm() {
                   <label className="mb-2 block text-sm font-medium text-gray-700">
                     Descrição da Reação
                   </label>
-                  <textarea
+                  <Textarea
                     {...register('reactionDescription')}
                     rows={3}
                     className="block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none"
@@ -531,26 +549,27 @@ export default function VaccinationRegisterForm() {
             </div>
 
             {/* Botões */}
-            <div className="flex gap-4 pt-6">
+            <div className="block gap-4 pt-6 md:flex">
               <BvButton
                 type="submit"
                 disabled={isSubmitting || loading}
                 isLoading={isSubmitting || loading}
                 title={isSubmitting || loading ? 'Salvando...' : 'Salvar Registro'}
-                className="flex-1"
+                className="mb-4 w-full flex-1 md:mr-4 md:mb-0"
               />
 
-              <button
+              <BvButton
                 type="button"
                 onClick={() => {
                   reset()
                   setSelectedVaccine(null)
                   setShowCustomLocation(false)
                 }}
-                className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-              >
-                Limpar Formulário
-              </button>
+                variant="outline"
+                className="w-full flex-1"
+                disabled={isSubmitting || loading}
+                title="Limpar Formulário"
+              />
             </div>
           </form>
         </div>
