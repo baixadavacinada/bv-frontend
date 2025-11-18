@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { AlertCircle, ChevronDown } from 'lucide-react'
-import { BvTitleHeader } from '@/components'
+import { BvButton, BvTitleHeader } from '@/components'
 import { FeedbackReportsSection } from '@/components/admin/FeedbackReportsSection'
 import { toast } from 'sonner'
 import { listHealthUnits } from '@/services/actions/ubs-actions'
 import { useAuth } from '@/hooks/use-firebase-auth'
 import { toSlug } from '@/utils/slug'
+import BvSelect from '@/components/design/BvSelect'
 
 interface HealthUnit {
   _id: string
@@ -71,7 +72,7 @@ export default function AvaliarUbsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 rounded-lg p-6">
+    <div className="mx-auto max-w-6xl space-y-4 pb-4 lg:mx-0 lg:ml-0 lg:max-w-2xl">
       <BvTitleHeader title="Avaliar Unidade de Saúde" className="mb-8" />
 
       {/* Instruções */}
@@ -109,25 +110,18 @@ export default function AvaliarUbsPage() {
       {!loading && !error && (
         <div className="space-y-4">
           <div>
-            <label htmlFor="ubs-select" className="mb-2 block text-sm font-medium text-gray-700">
-              Unidade de Saúde *
-            </label>
-            <div className="relative">
-              <select
-                id="ubs-select"
-                value={selectedUbs}
-                onChange={(e) => setSelectedUbs(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-gray-900 shadow-sm transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-              >
-                <option value="">-- Selecione uma unidade --</option>
-                {ubsList.map((ubs) => (
-                  <option key={ubs._id} value={ubs._id}>
-                    {ubs.name} ({ubs.neighborhood}, {ubs.city})
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute top-3.5 right-3 h-5 w-5 text-gray-400" />
-            </div>
+            <BvSelect
+              id="ubs-select"
+              title="Unidade de Saúde"
+              options={ubsList.map((ubs) => ({
+                label: `${ubs.name} (${ubs.neighborhood}, ${ubs.city})`,
+                value: ubs._id,
+              }))}
+              value={selectedUbs}
+              onValueChange={(value) => setSelectedUbs(value as string)}
+              placeholder="-- Selecione uma unidade --"
+              fullWidth
+            />
           </div>
 
           {/* Informações da UBS selecionada */}
@@ -142,20 +136,20 @@ export default function AvaliarUbsPage() {
           )}
 
           {/* Botões */}
-          <div className="flex gap-3 pt-4">
-            <button
+          <div className="flex w-full gap-3 pt-4">
+            <BvButton
               onClick={() => router.back()}
-              className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50"
-            >
-              Voltar
-            </button>
-            <button
+              title="Voltar"
+              className="flex-1"
+              variant="outline"
+            />
+
+            <BvButton
               onClick={handleSubmit}
               disabled={!selectedUbs}
-              className="flex-1 rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Prosseguir para Avaliação
-            </button>
+              title="Prosseguir para Avaliação"
+              className="flex-1"
+            />
           </div>
         </div>
       )}

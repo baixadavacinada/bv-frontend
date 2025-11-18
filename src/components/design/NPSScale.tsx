@@ -36,20 +36,8 @@ export const NPSScale = forwardRef<HTMLDivElement, NPSScaleProps>(
       <div ref={ref} className="w-full">
         {label && <p className="mb-4 text-sm font-medium text-gray-700">{label}</p>}
 
-        {/* Score Display */}
-        {value !== null && value !== undefined && value > 0 && (
-          <div className="mb-4 flex items-center gap-3 rounded-lg bg-gray-50 p-3">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-gray-900">{value}</div>
-            </div>
-            <div className={`text-sm font-semibold ${getNPSColor(value).split(' ')[1]}`}>
-              {getNPSLabel(value)}
-            </div>
-          </div>
-        )}
-
         {/* NPS Scale Grid */}
-        <div className="grid grid-cols-11 gap-0.5 md:gap-2">
+        <div className="grid grid-cols-11 gap-1 md:gap-2">
           {NPS_OPTIONS.map((num) => (
             <button
               key={num}
@@ -68,6 +56,18 @@ export const NPSScale = forwardRef<HTMLDivElement, NPSScaleProps>(
             </button>
           ))}
         </div>
+
+        {/* Score Display */}
+        {value !== null && value !== undefined && value > 0 && (
+          <div className="mt-4 flex items-center gap-3 rounded-lg bg-gray-50 p-3">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-gray-900">{value}</div>
+            </div>
+            <div className={`text-sm font-semibold ${getNPSColor(value).split(' ')[1]}`}>
+              {getNPSLabel(value)}
+            </div>
+          </div>
+        )}
       </div>
     )
   },

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-firebase-auth'
 import { useRouter } from 'next/navigation'
-import { BvButton, BvTitleHeader } from '@/components'
+import { BvButton } from '@/components'
 import { BvFormInput } from '@/components/design/BvFormInput'
 import { BvDateInput } from '@/components/design/BvDateInput'
 import BvSelect from '@/components/design/BvSelect'
@@ -305,7 +305,6 @@ export default function VaccineRegistrationContent({
   return (
     <div aria-label="Cadastro de vacinas na cartilha">
       <div className="mb-8">
-        <BvTitleHeader title="Minhas Vacinas" className="mb-2" />
         <p className="text-gray-600">Registre e acompanhe as vacinas que você recebeu</p>
       </div>
 

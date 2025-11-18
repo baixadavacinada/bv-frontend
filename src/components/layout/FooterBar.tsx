@@ -40,8 +40,7 @@ export function FooterBar() {
               <div
                 className={clsx(
                   'flex size-10 items-center justify-center',
-                  (action.id === 'gestao-vacinas' || action.id === 'carteira-vacinacao') &&
-                    'bg-primary rounded-full',
+                  action.id === 'registro-vacinacao' && 'bg-primary rounded-full text-white',
                 )}
               >
                 <action.icon
