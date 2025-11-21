@@ -63,7 +63,7 @@ export function AppLayout({ children, className }: AppLayoutProps) {
               'min-h-[calc(100vh-64px)] flex-1',
               'lg:ml-64',
               'overflow-x-hidden',
-              'w-full px-10 py-8 lg:px-8',
+              'w-full px-6 py-8 lg:px-8',
               className,
             )}
             role="main"

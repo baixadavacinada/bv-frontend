@@ -22,14 +22,20 @@ export function BvTitleHeader({ title, className }: PageHeaderProps) {
   }
 
   return (
-    <div className={cn('flex items-center gap-4', className)}>
+    <div className={cn('flex items-center gap-3 md:gap-4', className)}>
       <BvButton
         variant="ghost"
         onClick={handleBack}
-        leftIcon={<ArrowLeft className="text-primary size-10" />}
-        title={title}
-        className="hover:bg-accent focus:ring-ring rounded-md p-4 px-0 py-0 text-2xl font-bold text-wrap focus:ring-2 focus:ring-offset-2 focus:outline-none"
+        leftIcon={<ArrowLeft className="text-primary size-10 md:size-12" />}
+        aria-label="Voltar para página anterior"
+        className="hover:bg-accent focus:ring-ring mt-1 flex-shrink-0 rounded-md p-2 focus:ring-2 focus:ring-offset-2 focus:outline-none md:p-3"
       />
+
+      <div className="flex-1">
+        <h1 className="text-xl leading-tight font-bold break-words text-gray-900 md:text-2xl">
+          {title}
+        </h1>
+      </div>
 
       <AccessibilityLoadingIndicator isValidating={isValidating} />
     </div>

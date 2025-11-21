@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight, Syringe } from 'lucide-react'
-import { BvTitleHeader } from '@/components'
 import { ageGroups } from '@/data/vaccine-booklet'
 import { cn } from '@/lib/utils'
 
@@ -93,7 +92,6 @@ export default function VaccineBookletScreen() {
   return (
     <div aria-label="Cartilha de Vacinas">
       <div className="mb-8">
-        <BvTitleHeader title="Cartilha de Vacinas" className="mb-2" />
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-600 md:text-base">
             Passe para o lado para ver todas as idades disponíveis.

@@ -70,7 +70,7 @@ const BvSelect = ({
   groups,
   multiple = false,
   maxSelectedItems,
-  showSelectedBadges = true,
+  showSelectedBadges = false,
   id,
   ...props
 }: IBvSelect) => {
