@@ -42,13 +42,14 @@ export const ageGroups: AgeGroup[] = [
           {
             id: 'bcg',
             name: 'BCG',
-            description: 'Previne tuberculose',
+            description:
+              'Doenças evitadas: formas graves e disseminadas da tuberculose e efeito protetor contra a hanseníase',
             dose: 'Dose: única',
           },
           {
             id: 'hepb-1',
             name: 'Hepatite B',
-            description: 'Previne hepatite B',
+            description: 'Doenças evitadas: hepatite B e hepatite D',
             dose: 'Dose: 1ª dose',
           },
         ],
@@ -57,28 +58,42 @@ export const ageGroups: AgeGroup[] = [
         period: '2 meses',
         vaccines: [
           {
-            id: 'rotavirus-1',
-            name: 'Rotavírus',
-            description: 'Previne diarréia por rotavírus',
+            id: 'pentavalente-1',
+            name: 'Vacina penta (DTP+Hib+HB)',
+            description:
+              'Doenças evitadas: difteria, tétano, coqueluche, infecções causadas por Haemophilus influenzae B e hepatite B',
             dose: 'Dose: 1ª dose',
           },
           {
             id: 'polio-1',
-            name: 'Poliomielite',
-            description: 'Previne poliomielite',
-            dose: 'Dose: 1ª dose',
-          },
-          {
-            id: 'pentavalente-1',
-            name: 'Pentavalente',
-            description:
-              'Previne difteria, tétano, coqueluche, hepatite B e Haemophilus influenzae',
+            name: 'Vacina poliomielite inativada VIP',
+            description: 'Doenças evitadas: poliomielite (paralisia infantil)',
             dose: 'Dose: 1ª dose',
           },
           {
             id: 'pneumococo-1',
-            name: 'Pneumocócica',
-            description: 'Previne pneumonia e meningite pneumocócica',
+            name: 'Vacina pneumocócica 10-valente',
+            description:
+              'Doenças evitadas: doenças pneumocócicas invasivas (pelos sorogrupos contidos na vacina)',
+            dose: 'Dose: 1ª dose',
+          },
+          {
+            id: 'rotavirus-1',
+            name: 'Vacina rotavírus humano',
+            description:
+              'Doenças evitadas: gastroenterite viral (diarreia e vômitos). Atenção aos prazos: 1ª dose entre 1 mês e 15 dias e 11 meses e 29 dias. 2ª dose entre 3 meses e 15 dias e 23 meses e 29 dias. Se a 1ª dose não for feita no período indicado, a criança perde a oportunidade da 2ª dose',
+            dose: 'Dose: 1ª dose',
+          },
+        ],
+      },
+      {
+        period: '3 meses',
+        vaccines: [
+          {
+            id: 'meningococica-c-1',
+            name: 'Vacina meningocócica C',
+            description:
+              'Doenças evitadas: doenças meningocócicas (meningite, encefalite, meningoencefalite) pelo meningococo tipo C',
             dose: 'Dose: 1ª dose',
           },
         ],
@@ -87,28 +102,42 @@ export const ageGroups: AgeGroup[] = [
         period: '4 meses',
         vaccines: [
           {
-            id: 'rotavirus-2',
-            name: 'Rotavírus',
-            description: 'Previne diarréia por rotavírus',
+            id: 'pentavalente-2',
+            name: 'Vacina penta (DTP+Hib+HB)',
+            description:
+              'Doenças evitadas: difteria, tétano, coqueluche, infecções causadas por Haemophilus influenzae B e hepatite B',
             dose: 'Dose: 2ª dose',
           },
           {
             id: 'polio-2',
-            name: 'Poliomielite',
-            description: 'Previne poliomielite',
-            dose: 'Dose: 2ª dose',
-          },
-          {
-            id: 'pentavalente-2',
-            name: 'Pentavalente',
-            description:
-              'Previne difteria, tétano, coqueluche, hepatite B e Haemophilus influenzae',
+            name: 'Vacina poliomielite inativada VIP',
+            description: 'Doenças evitadas: poliomielite (paralisia infantil)',
             dose: 'Dose: 2ª dose',
           },
           {
             id: 'pneumococo-2',
-            name: 'Pneumocócica',
-            description: 'Previne pneumonia e meningite pneumocócica',
+            name: 'Vacina pneumocócica 10-valente',
+            description:
+              'Doenças evitadas: doenças pneumocócicas invasivas (pelos sorogrupos contidos na vacina)',
+            dose: 'Dose: 2ª dose',
+          },
+          {
+            id: 'rotavirus-2',
+            name: 'Vacina rotavírus humano',
+            description:
+              'Doenças evitadas: gastroenterite viral (diarreia e vômitos). Atenção aos prazos: 1ª dose entre 1 mês e 15 dias e 11 meses e 29 dias. 2ª dose entre 3 meses e 15 dias e 23 meses e 29 dias. Se a 1ª dose não for feita no período indicado, a criança perde a oportunidade da 2ª dose',
+            dose: 'Dose: 2ª dose',
+          },
+        ],
+      },
+      {
+        period: '5 meses',
+        vaccines: [
+          {
+            id: 'meningococica-c-2',
+            name: 'Vacina meningocócica C',
+            description:
+              'Doenças evitadas: doenças meningocócicas (meningite, encefalite, meningoencefalite) pelo meningococo tipo C',
             dose: 'Dose: 2ª dose',
           },
         ],
@@ -127,28 +156,58 @@ export const ageGroups: AgeGroup[] = [
         period: '6 meses',
         vaccines: [
           {
-            id: 'polio-3',
-            name: 'Poliomielite',
-            description: 'Previne poliomielite',
+            id: 'pentavalente-3',
+            name: 'Vacina penta (DTP+Hib+HB)',
+            description:
+              'Doenças evitadas: difteria, tétano, coqueluche, infecções causadas por Haemophilus influenzae B e hepatite B',
             dose: 'Dose: 3ª dose',
           },
           {
-            id: 'pentavalente-3',
-            name: 'Pentavalente',
-            description:
-              'Previne difteria, tétano, coqueluche, hepatite B e Haemophilus influenzae',
+            id: 'polio-3',
+            name: 'Vacina poliomielite inativada VIP',
+            description: 'Doenças evitadas: poliomielite (paralisia infantil)',
             dose: 'Dose: 3ª dose',
           },
           {
             id: 'pneumococo-3',
-            name: 'Pneumocócica',
-            description: 'Previne pneumonia e meningite pneumocócica',
+            name: 'Vacina pneumocócica 10-valente',
+            description:
+              'Doenças evitadas: doenças pneumocócicas invasivas (pelos sorogrupos contidos na vacina)',
             dose: 'Dose: 3ª dose',
           },
           {
-            id: 'hepb-2',
-            name: 'Hepatite B',
-            description: 'Previne hepatite B',
+            id: 'influenza-1',
+            name: 'Vacina influenza trivalente',
+            description: 'Doenças evitadas: gripe (influenza)',
+            dose: 'Dose: 1ª dose',
+          },
+          {
+            id: 'covid-1',
+            name: 'Vacina covid-19',
+            description:
+              'Doenças evitadas: COVID-19. Esquemas: Spikevax (6 e 7 meses) ou Comirnaty (6, 7 e 9 meses)',
+            dose: 'Dose: 1ª dose',
+          },
+        ],
+      },
+      {
+        period: '6 a 8 meses',
+        vaccines: [
+          {
+            id: 'febre-amarela-exc',
+            name: 'Vacina febre amarela',
+            description: 'Doenças evitadas: febre amarela',
+            dose: 'Dose: 1 dose (apenas em casos excepcionais)',
+          },
+        ],
+      },
+      {
+        period: '7 meses',
+        vaccines: [
+          {
+            id: 'covid-2',
+            name: 'Vacina covid-19',
+            description: 'Doenças evitadas: COVID-19',
             dose: 'Dose: 2ª dose',
           },
         ],
@@ -157,9 +216,15 @@ export const ageGroups: AgeGroup[] = [
         period: '9 meses',
         vaccines: [
           {
-            id: 'febre-amarela',
-            name: 'Febre Amarela',
-            description: 'Previne febre amarela',
+            id: 'covid-3',
+            name: 'Vacina covid-19',
+            description: 'Doenças evitadas: COVID-19',
+            dose: 'Dose: 3ª dose',
+          },
+          {
+            id: 'febre-amarela-1',
+            name: 'Vacina febre amarela',
+            description: 'Doenças evitadas: febre amarela',
             dose: 'Dose: 1ª dose',
           },
         ],
@@ -168,22 +233,24 @@ export const ageGroups: AgeGroup[] = [
         period: '12 meses (1 ano)',
         vaccines: [
           {
-            id: 'sarampo-1',
-            name: 'Tríplice Viral',
-            description: 'Previne sarampo, caxumba e rubéola',
-            dose: 'Dose: 1ª dose',
-          },
-          {
             id: 'pneumococo-reforco',
-            name: 'Pneumocócica',
-            description: 'Previne pneumonia e meningite pneumocócica',
+            name: 'Vacina pneumocócica 10-valente',
+            description:
+              'Doenças evitadas: doenças pneumocócicas invasivas (pelos sorogrupos contidos na vacina)',
             dose: 'Dose: reforço',
           },
           {
-            id: 'hepb-3',
-            name: 'Hepatite B',
-            description: 'Previne hepatite B',
-            dose: 'Dose: 3ª dose',
+            id: 'meningococica-acwy',
+            name: 'Vacina meningocócica ACWY',
+            description:
+              'Doenças evitadas: doenças meningocócicas (meningite, encefalite, meningoencefalite)',
+            dose: 'Dose: 1 dose',
+          },
+          {
+            id: 'sarampo-1',
+            name: 'Vacina tríplice viral SCR',
+            description: 'Doenças evitadas: sarampo, caxumba e rubéola',
+            dose: 'Dose: 1ª dose',
           },
         ],
       },
@@ -201,28 +268,28 @@ export const ageGroups: AgeGroup[] = [
         period: '15 meses',
         vaccines: [
           {
-            id: 'pentavalente-reforco',
-            name: 'Pentavalente',
-            description:
-              'Previne difteria, tétano, coqueluche, hepatite B e Haemophilus influenzae',
-            dose: 'Dose: reforço',
+            id: 'dtp-reforco-1',
+            name: 'Vacina DTP',
+            description: 'Doenças evitadas: difteria, tétano e coqueluche',
+            dose: 'Dose: 1º reforço',
           },
           {
-            id: 'polio-reforco',
-            name: 'Poliomielite',
-            description: 'Previne poliomielite',
-            dose: 'Dose: reforço',
+            id: 'vip-reforco-1',
+            name: 'Vacina VIP',
+            description: 'Doenças evitadas: poliomielite (paralisia infantil)',
+            dose: 'Dose: 1º reforço',
           },
-        ],
-      },
-      {
-        period: '18 meses',
-        vaccines: [
           {
-            id: 'sarampo-2',
-            name: 'Tríplice Viral',
-            description: 'Previne sarampo, caxumba e rubéola',
-            dose: 'Dose: 2ª dose',
+            id: 'tetraviral',
+            name: 'Vacina tetraviral (SCRV)',
+            description: 'Doenças evitadas: sarampo, caxumba, rubéola e varicela',
+            dose: 'Dose: 1 dose',
+          },
+          {
+            id: 'hepatite-a-1',
+            name: 'Vacina hepatite A',
+            description: 'Doenças evitadas: hepatite A',
+            dose: 'Dose: 1 dose',
           },
         ],
       },
@@ -240,22 +307,28 @@ export const ageGroups: AgeGroup[] = [
         period: '4 anos',
         vaccines: [
           {
-            id: 'difteria-tetano-coqueluche-reforco',
-            name: 'DTP (reforço)',
-            description: 'Reforço contra difteria, tétano e coqueluche conforme esquema vacinal',
-            dose: 'Dose: reforço',
-          },
-          {
-            id: 'polio-2-reforco',
-            name: 'Poliomielite',
-            description: 'Reforço contra poliomielite',
+            id: 'dtp-reforco-2',
+            name: 'Vacina DTP',
+            description: 'Doenças evitadas: difteria, tétano e coqueluche',
             dose: 'Dose: 2º reforço',
           },
           {
-            id: 'sarampo-reforco',
-            name: 'Tríplice ou Tetra Viral',
-            description: 'Reforço contra sarampo, caxumba, rubéola (e varicela)',
+            id: 'vip-reforco-2',
+            name: 'Vacina VIP',
+            description: 'Doenças evitadas: poliomielite (paralisia infantil)',
+            dose: 'Dose: 2º reforço',
+          },
+          {
+            id: 'febre-amarela-reforco',
+            name: 'Vacina febre amarela',
+            description: 'Doenças evitadas: febre amarela',
             dose: 'Dose: reforço',
+          },
+          {
+            id: 'varicela-1',
+            name: 'Vacina varicela',
+            description: 'Doenças evitadas: catapora (varicela)',
+            dose: 'Dose: 1 dose',
           },
         ],
       },
@@ -290,10 +363,10 @@ export const ageGroups: AgeGroup[] = [
     ],
   },
   {
-    id: '11-19a',
-    title: 'Adolescente',
-    subtitle: '11 a 19 anos',
-    ageRange: '11 a 19 anos',
+    id: '10-24a',
+    title: 'Adolescente e Jovem',
+    subtitle: '10 a 24 anos',
+    ageRange: '10 a 24 anos',
     color: 'bg-pink-100',
     icon: adolescenteIcon,
     periods: [
@@ -301,50 +374,71 @@ export const ageGroups: AgeGroup[] = [
         period: '9 a 14 anos',
         vaccines: [
           {
-            id: 'hpv',
-            name: 'HPV',
+            id: 'hpv4-1',
+            name: 'Vacina HPV4',
             description:
               'Previne infecções pelo papilomavírus humano, associadas a câncer e verrugas genitais',
-            dose: 'Dose: esquema conforme idade',
+            dose: 'Dose: 1 dose',
           },
           {
-            id: 'meningococica-acwy',
-            name: 'Meningocócica ACWY',
-            description: 'Previne doenças meningocócicas (meningite e outras infecções graves)',
-            dose: 'Dose: 1ª dose ou reforço',
+            id: 'meningococica-acwy-ado',
+            name: 'Vacina meningocócica ACWY',
+            description:
+              'Doenças evitadas: doenças meningocócicas (meningite e outras infecções graves)',
+            dose: 'Dose: 1 dose',
           },
         ],
       },
       {
-        period: '11 a 19 anos',
+        period: '10 a 24 anos',
         vaccines: [
           {
-            id: 'hepb-adolescente',
-            name: 'Hepatite B',
+            id: 'hepb-10-24',
+            name: 'Vacina hepatite B',
             description: 'Completar ou iniciar esquema contra hepatite B',
-            dose: 'Dose: até 3 doses, conforme histórico',
+            dose: 'Dose: 3 doses',
           },
           {
-            id: 'dt-adolescente',
-            name: 'dT (Dupla adulto)',
+            id: 'dt-10-24',
+            name: 'Vacina dT',
             description: 'Reforço contra difteria e tétano',
-            dose: 'Dose: completar 3 doses e reforçar a cada 10 anos',
+            dose: 'Dose: 3 doses + reforço',
           },
           {
-            id: 'triple-viral-adolescente',
-            name: 'Tríplice Viral',
+            id: 'triple-viral-10-24',
+            name: 'Vacina tríplice viral',
             description: 'Garantir duas doses de vacina contra sarampo, caxumba e rubéola',
-            dose: 'Dose: 1 ou 2 doses, conforme histórico',
+            dose: 'Dose: 2 doses',
+          },
+          {
+            id: 'febre-amarela-10-24',
+            name: 'Vacina febre amarela',
+            description:
+              'Recomendado para quem mora ou viaja para áreas com recomendação de vacina',
+            dose: 'Dose: 1 dose',
+          },
+          {
+            id: 'pneumococo-23-10-24',
+            name: 'Vacina pneumocócica 23V',
+            description: 'Ajuda a prevenir formas graves de pneumonia (apenas povos indígenas)',
+            dose: 'Dose: 2 doses',
+          },
+          {
+            id: 'varicela-10-24',
+            name: 'Vacina varicela',
+            description:
+              'Protege contra catapora (varicela) (para indígenas e profissionais de saúde)',
+            dose: 'Dose: 2 doses',
           },
         ],
       },
     ],
   },
   {
-    id: '20-59a',
+    id: '25-59a',
     title: 'Adulto',
-    subtitle: '20 a 59 anos',
-    ageRange: '20 a 59 anos',
+    subtitle: '25 a 59 anos',
+    ageRange: '25 a 59 anos',
     color: 'bg-sky-100',
     icon: adultoIcon,
     periods: [
@@ -352,42 +446,41 @@ export const ageGroups: AgeGroup[] = [
         period: 'Ao longo da vida adulta',
         vaccines: [
           {
-            id: 'hepb-adulto',
-            name: 'Hepatite B',
-            description: 'Protege contra hepatite B (e D)',
-            dose: 'Dose: completar 3 doses, se necessário',
+            id: 'hepb-25-59',
+            name: 'Vacina hepatite B',
+            description: 'Protege contra hepatite B e hepatite D',
+            dose: 'Dose: 3 doses',
           },
           {
-            id: 'dt-adulto',
-            name: 'dT (Dupla adulto)',
+            id: 'dt-25-59',
+            name: 'Vacina dT',
             description: 'Reforço contra difteria e tétano',
-            dose: 'Dose: reforço a cada 10 anos',
+            dose: 'Dose: 3 doses + reforço',
           },
           {
-            id: 'febre-amarela-adulto',
-            name: 'Febre Amarela',
+            id: 'febre-amarela-25-59',
+            name: 'Vacina febre amarela',
             description:
               'Recomendado para quem mora ou viaja para áreas com recomendação de vacina',
-            dose: 'Dose: conforme histórico vacinal e orientação da UBS',
+            dose: 'Dose: 1 dose',
           },
           {
-            id: 'triple-viral-adulto',
-            name: 'Tríplice Viral',
+            id: 'triple-viral-25-59',
+            name: 'Vacina tríplice viral',
             description: 'Garantir 2 doses de vacina contra sarampo, caxumba e rubéola',
-            dose: 'Dose: 1 ou 2 doses, conforme histórico',
+            dose: 'Dose: 2 doses',
           },
           {
-            id: 'influenza-adulto',
-            name: 'Influenza',
-            description: 'Protege contra gripe; ofertada anualmente para grupos prioritários',
-            dose: 'Dose: 1 vez ao ano (quando indicado)',
+            id: 'pneumococo-23-25-59',
+            name: 'Vacina pneumocócica 23V',
+            description: 'Ajuda a prevenir formas graves de pneumonia',
+            dose: 'Dose: 2 doses',
           },
           {
-            id: 'covid-adulto',
-            name: 'Covid-19',
-            description:
-              'Protege contra formas graves e óbitos pela Covid-19 conforme campanhas anuais',
-            dose: 'Dose: conforme orientação do Ministério da Saúde',
+            id: 'varicela-25-59',
+            name: 'Vacina varicela',
+            description: 'Protege contra catapora (varicela)',
+            dose: 'Dose: 2 doses',
           },
         ],
       },
@@ -406,34 +499,45 @@ export const ageGroups: AgeGroup[] = [
         vaccines: [
           {
             id: 'hepb-gestante',
-            name: 'Hepatite B',
+            name: 'Vacina hepatite B',
             description: 'Completar esquema para proteger a gestante e reduzir risco para o bebê',
-            dose: 'Dose: completar 3 doses, se necessário',
+            dose: 'Dose: 3 doses',
           },
           {
-            id: 'dtpa-gestante',
-            name: 'dTpa (tipo adulto)',
-            description: 'Previne difteria, tétano e coqueluche; protege a mãe e o recém-nascido',
-            dose: 'Dose: 1 dose em cada gestação, a partir do 2º trimestre',
+            id: 'dt-gestante',
+            name: 'Vacina dT',
+            description: 'Reforço contra difteria e tétano',
+            dose: 'Dose: conforme histórico',
           },
           {
             id: 'influenza-gestante',
-            name: 'Influenza',
+            name: 'Vacina influenza',
             description: 'Previne gripe e complicações respiratórias na gestação',
             dose: 'Dose: 1 vez ao ano durante a campanha',
           },
           {
             id: 'covid-gestante',
-            name: 'Covid-19',
+            name: 'Vacina covid-19',
             description: 'Protege contra formas graves de Covid-19 na gestação',
             dose: 'Dose: conforme orientação atual de reforços',
           },
           {
             id: 'febre-amarela-gestante',
-            name: 'Febre Amarela',
+            name: 'Vacina febre amarela',
             description:
               'Indicada apenas em situações especiais de risco, com avaliação profissional',
             dose: 'Dose: única ou reforço, quando recomendada',
+          },
+        ],
+      },
+      {
+        period: 'A partir da 20ª semana',
+        vaccines: [
+          {
+            id: 'dtpa-gestante',
+            name: 'Vacina dTpa',
+            description: 'Previne difteria, tétano e coqueluche; protege a mãe e o recém-nascido',
+            dose: 'Dose: 1 dose',
           },
         ],
       },
@@ -452,40 +556,52 @@ export const ageGroups: AgeGroup[] = [
         vaccines: [
           {
             id: 'hepb-idoso',
-            name: 'Hepatite B',
-            description: 'Protege contra hepatite B (e D)',
-            dose: 'Dose: completar 3 doses, se necessário',
+            name: 'Vacina hepatite B',
+            description: 'Protege contra hepatite B e hepatite D',
+            dose: 'Dose: 3 doses',
           },
           {
             id: 'dt-idoso',
-            name: 'dT (Dupla adulto)',
+            name: 'Vacina dT',
             description: 'Reforço contra difteria e tétano',
             dose: 'Dose: reforço a cada 10 anos',
           },
           {
+            id: 'febre-amarela-idoso',
+            name: 'Vacina febre amarela',
+            description: 'Indicada apenas em situações especiais de risco',
+            dose: 'Dose: única ou reforço',
+          },
+          {
+            id: 'triple-viral-idoso',
+            name: 'Vacina tríplice viral',
+            description: 'Pode ser indicada para pessoas sem comprovação vacinal prévia',
+            dose: 'Dose: conforme histórico e avaliação da UBS',
+          },
+          {
+            id: 'pneumococica-23-idoso',
+            name: 'Vacina pneumocócica 23V',
+            description:
+              'Ajuda a prevenir formas graves de pneumonia e outras doenças pneumocócicas',
+            dose: 'Dose: 2 doses',
+          },
+          {
+            id: 'varicela-idoso',
+            name: 'Vacina varicela',
+            description: 'Protege contra catapora (varicela)',
+            dose: 'Dose: conforme indicação',
+          },
+          {
             id: 'influenza-idoso',
-            name: 'Influenza',
+            name: 'Vacina influenza',
             description: 'Vacina anual contra gripe, prioritária para pessoas idosas',
             dose: 'Dose: 1 vez ao ano',
           },
           {
-            id: 'pneumococica-idoso',
-            name: 'Pneumocócica 23-valente',
-            description:
-              'Ajuda a prevenir formas graves de pneumonia e outras doenças pneumocócicas',
-            dose: 'Dose: 1 ou 2 doses, conforme indicação',
-          },
-          {
             id: 'covid-idoso',
-            name: 'Covid-19',
+            name: 'Vacina covid-19',
             description: 'Reforços regulares para proteção contra formas graves de Covid-19',
             dose: 'Dose: reforços semestrais ou anuais, conforme calendário',
-          },
-          {
-            id: 'triple-viral-idoso',
-            name: 'Tríplice Viral',
-            description: 'Pode ser indicada para pessoas sem comprovação vacinal prévia',
-            dose: 'Dose: conforme histórico e avaliação da UBS',
           },
         ],
       },
