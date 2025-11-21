@@ -178,14 +178,15 @@ export const ageGroups: AgeGroup[] = [
           {
             id: 'influenza-1',
             name: 'Vacina influenza trivalente',
-            description: 'Doenças evitadas: gripe (influenza)',
+            description:
+              'Doenças evitadas: gripe (influenza). Obs.: Crianças de 6 meses a menores de 6 anos devem ser vacinadas todo ano. Quem vai receber a vacina pela primeira vez deve tomar 2 doses com 30 dias de intervalo. As que já tomaram em anos anteriores recebem apenas 1 dose por ano.',
             dose: 'Dose: 1ª dose',
           },
           {
             id: 'covid-1',
             name: 'Vacina covid-19',
             description:
-              'Doenças evitadas: COVID-19. Esquemas: Spikevax (6 e 7 meses) ou Comirnaty (6, 7 e 9 meses)',
+              'Doenças evitadas: formas graves e óbitos causados pelo vírus SARS-CoV-2. Obs.: O esquema pode ser de 2 doses (6 e 7 meses, vacina Spikevax) ou 3 doses (6, 7 e 9 meses, vacina Comirnaty). Para crianças imunocomprometidas, 3 doses, com reforço a cada 6 meses até os 4 anos.',
             dose: 'Dose: 1ª dose',
           },
         ],
@@ -196,7 +197,8 @@ export const ageGroups: AgeGroup[] = [
           {
             id: 'febre-amarela-exc',
             name: 'Vacina febre amarela',
-            description: 'Doenças evitadas: febre amarela',
+            description:
+              'Doenças evitadas: formas graves e óbitos causados pelo vírus febre Amarela. Obs.: A vacina contra febre amarela pode ser recomendada para esta idade quando há alto risco de contrair a doença e não é possível adiar a vacinação. Isso vale para quem vive ou vai viajar para áreas com transmissão ativa, sempre após avaliação do serviço de saúde. Para viajantes, a vacina deve ser tomada pelo menos 10 dias antes da viagem.',
             dose: 'Dose: 1 dose (apenas em casos excepcionais)',
           },
         ],
@@ -207,7 +209,8 @@ export const ageGroups: AgeGroup[] = [
           {
             id: 'covid-2',
             name: 'Vacina covid-19',
-            description: 'Doenças evitadas: COVID-19',
+            description:
+              'Doenças evitadas: formas graves e óbitos causados pelo vírus SARS-CoV-2. Obs.: O esquema pode ser de 2 doses (6 e 7 meses, vacina Spikevax) ou 3 doses (6, 7 e 9 meses, vacina Comirnaty). Para crianças imunocomprometidas, 3 doses, com reforço a cada 6 meses até os 4 anos.',
             dose: 'Dose: 2ª dose',
           },
         ],
@@ -218,7 +221,8 @@ export const ageGroups: AgeGroup[] = [
           {
             id: 'covid-3',
             name: 'Vacina covid-19',
-            description: 'Doenças evitadas: COVID-19',
+            description:
+              'Doenças evitadas: formas graves e óbitos causados pelo vírus SARS-CoV-2. Obs.: O esquema pode ser de 2 doses (6 e 7 meses, vacina Spikevax) ou 3 doses (6, 7 e 9 meses, vacina Comirnaty). Para crianças imunocomprometidas, 3 doses, com reforço a cada 6 meses até os 4 anos.',
             dose: 'Dose: 3ª dose',
           },
           {
@@ -401,7 +405,8 @@ export const ageGroups: AgeGroup[] = [
           {
             id: 'dt-10-24',
             name: 'Vacina dT',
-            description: 'Reforço contra difteria e tétano',
+            description:
+              'Doenças evitadas: difteria e tétano. Obs.: Após o esquema completo de 3 doses, é recomendado 1 dose de reforço a cada 10 anos, antecipado para 5 anos em caso de risco de difteria ou tétano. Para profissionais de saúde, parteiras tradicionais e estagiários que atuam com recém-nascidos, recomenda-se a vacina dTpa.',
             dose: 'Dose: 3 doses + reforço',
           },
           {
@@ -454,7 +459,8 @@ export const ageGroups: AgeGroup[] = [
           {
             id: 'dt-25-59',
             name: 'Vacina dT',
-            description: 'Reforço contra difteria e tétano',
+            description:
+              'Doenças evitadas: difteria e tétano. Obs.: Após o esquema completo de 3 doses, é recomendado 1 reforço a cada 10 anos, antecipado para 5 anos em caso de risco de difteria ou tétano. Para profissionais de saúde, parteiras tradicionais e estagiários que atuam com recém-nascidos, recomenda-se a vacina dTpa.',
             dose: 'Dose: 3 doses + reforço',
           },
           {
@@ -600,8 +606,8 @@ export const ageGroups: AgeGroup[] = [
           {
             id: 'covid-idoso',
             name: 'Vacina covid-19',
-            description: 'Reforços regulares para proteção contra formas graves de Covid-19',
-            dose: 'Dose: reforços semestrais ou anuais, conforme calendário',
+            description: 'Doenças evitadas: formas graves e óbitos causados pelo vírus SARS-CoV-2',
+            dose: 'Dose: 1 dose semestral',
           },
         ],
       },
