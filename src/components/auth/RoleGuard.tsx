@@ -25,8 +25,9 @@ export function RoleGuard({
   // Define o fallback padrão como AccessDenied se não for fornecido
   const defaultFallback = fallback !== undefined ? fallback : <AccessDenied />
 
+  // Enquanto está carregando, retorna null para evitar piscar na tela
   if (loading) {
-    return <div suppressHydrationWarning>{defaultFallback}</div>
+    return null
   }
 
   if (requireAuth && !user) {

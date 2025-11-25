@@ -5,9 +5,6 @@ import { apiClient } from './api'
 const HEALTH_UNITS_CACHE_KEY = 'cache_health_units'
 const VACCINES_CACHE_KEY = 'cache_vaccines'
 
-/**
- * Serviço para gerenciar dados de vacinação
- */
 export class VaccinationService {
   private static instance: VaccinationService
   private baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
@@ -23,11 +20,9 @@ export class VaccinationService {
     try {
       const cachedVaccines = cacheService.getCache<VaccineFromDB[]>(VACCINES_CACHE_KEY)
       if (cachedVaccines && Array.isArray(cachedVaccines) && cachedVaccines.length > 0) {
-        console.log('Retornando vacinas do cache:', cachedVaccines)
         return cachedVaccines
       }
 
-      console.log('Buscando vacinas da API em:', `${this.baseUrl}/api/public/vaccines`)
       const response = await fetch(`${this.baseUrl}/api/public/vaccines`)
 
       if (!response.ok) {
@@ -35,31 +30,24 @@ export class VaccinationService {
       }
 
       const data = await response.json()
-      console.log('Resposta da API:', data)
-
       let vaccines: VaccineFromDB[] = []
 
-      // Handle different response formats
       if (Array.isArray(data)) {
-        console.log('Formato: Array direto')
         vaccines = data.map((vaccine: VaccineFromDB) => ({
           ...vaccine,
           id: vaccine._id || vaccine.id,
         }))
       } else if (data?.success === true && data?.data && Array.isArray(data.data)) {
-        console.log('Formato: {success: true, data: [...]}')
         vaccines = data.data.map((vaccine: VaccineFromDB) => ({
           ...vaccine,
           id: vaccine._id || vaccine.id,
         }))
       } else if (data?.data && Array.isArray(data.data)) {
-        console.log('Formato: data.data é array')
         vaccines = data.data.map((vaccine: VaccineFromDB) => ({
           ...vaccine,
           id: vaccine._id || vaccine.id,
         }))
       } else if (data?.vaccines && Array.isArray(data.vaccines)) {
-        console.log('Formato: data.vaccines é array')
         vaccines = data.vaccines.map((vaccine: VaccineFromDB) => ({
           ...vaccine,
           id: vaccine._id || vaccine.id,
@@ -69,8 +57,6 @@ export class VaccinationService {
         console.warn('Tipo de data:', typeof data)
         vaccines = []
       }
-
-      console.log('Vacinas processadas:', vaccines)
 
       if (vaccines.length > 0) {
         cacheService.setCache(VACCINES_CACHE_KEY, vaccines)

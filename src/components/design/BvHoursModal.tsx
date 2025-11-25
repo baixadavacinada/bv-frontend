@@ -57,6 +57,16 @@ export function BvHoursModal({
   const [checkedDays, setCheckedDays] = useState<{ [key: string]: boolean }>({})
   const [waitInput, setWaitInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  const formatWaitTimeForInput = (timeStr: string) => {
+    const minutes = parseInt(timeStr.split(' ')[0]) || 30
+    const h = Math.floor(minutes / 60)
+      .toString()
+      .padStart(2, '0')
+    const m = (minutes % 60).toString().padStart(2, '0')
+    return `${h}:${m}`
+  }
+
   useEffect(() => {
     if (isOpen) {
       setHours(currentHours)
@@ -70,14 +80,19 @@ export function BvHoursModal({
   }, [isOpen, currentHours, _currentWaitTime])
   const handleTimeChange = (day: keyof OpeningHours, part: 'start' | 'end', value: string) => {
     const currentDayHours = hours[day] === 'Fechado' ? '00:00 - 00:00' : hours[day]
-    const [start, end] = currentDayHours.split(' - ')
 
-    let newHoursString = ''
+    // Parse de forma robusta, removendo espaços extras
+    const parts = currentDayHours.replace(/\s*-\s*/g, '-').split('-')
+    let start = parts[0]?.trim() || '00:00'
+    let end = parts[1]?.trim() || '00:00'
+
     if (part === 'start') {
-      newHoursString = `${value} - ${end}`
+      start = value
     } else {
-      newHoursString = `${start} - ${value}`
+      end = value
     }
+
+    const newHoursString = `${start} - ${end}`
     setHours((prev) => ({ ...prev, [day]: newHoursString }))
   }
   const handleCheckedChange = (day: keyof OpeningHours, checked: boolean) => {
@@ -91,14 +106,6 @@ export function BvHoursModal({
         [day]: currentHours[day] !== 'Fechado' ? currentHours[day] : defaultTime,
       }))
     }
-  }
-  const formatWaitTimeForInput = (timeStr: string) => {
-    const minutes = parseInt(timeStr.split(' ')[0]) || 30
-    const h = Math.floor(minutes / 60)
-      .toString()
-      .padStart(2, '0')
-    const m = (minutes % 60).toString().padStart(2, '0')
-    return `${h}:${m}`
   }
   const formatWaitTimeForSave = (timeInput: string) => {
     const [hours, minutes] = timeInput.split(':').map(Number)
@@ -140,9 +147,20 @@ export function BvHoursModal({
         <div className="grid gap-4 py-4">
           {(Object.keys(dayMap) as Array<keyof OpeningHours>).map((dayKey) => {
             const isChecked = checkedDays[dayKey] || false
-            const [start, end] = (hours[dayKey] === 'Fechado' ? '08:00 - 17:00' : hours[dayKey])
-              .split(' - ')
-              .map((t) => t.trim())
+            const dayHours = hours[dayKey]
+
+            // Parse das horas de forma mais robusta
+            let start = '08:00'
+            let end = '17:00'
+
+            if (dayHours && dayHours !== 'Fechado') {
+              // Remove espaços extras e faz o split tanto com " - " quanto com "-"
+              const parts = dayHours.replace(/\s*-\s*/g, '-').split('-')
+              if (parts.length >= 2) {
+                start = parts[0]?.trim() || '08:00'
+                end = parts[1]?.trim() || '17:00'
+              }
+            }
 
             return (
               <div key={dayKey} className="flex items-center gap-3">
@@ -157,7 +175,7 @@ export function BvHoursModal({
                 </Label>
                 <Input
                   type="time"
-                  value={start}
+                  value={isChecked ? start : '08:00'}
                   disabled={!isChecked}
                   onChange={(e) => handleTimeChange(dayKey, 'start', e.target.value)}
                   className="w-full"
@@ -165,7 +183,7 @@ export function BvHoursModal({
                 <span>às</span>
                 <Input
                   type="time"
-                  value={end}
+                  value={isChecked ? end : '17:00'}
                   disabled={!isChecked}
                   onChange={(e) => handleTimeChange(dayKey, 'end', e.target.value)}
                   className="w-full"

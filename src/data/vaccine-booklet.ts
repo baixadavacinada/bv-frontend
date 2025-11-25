@@ -1,8 +1,11 @@
 import crianca0_5Icon from '@/assets/icons/crianca-0-5.svg'
+import crianca6_12Icon from '@/assets/icons/crianca-6-12.svg'
+import crianca1_2Icon from '@/assets/icons/crianca-1-2.svg'
+import crianca2_4Icon from '@/assets/icons/crianca-2-4.svg'
 import crianca5_10Icon from '@/assets/icons/crianca-5-10.svg'
-import adolescenteIcon from '@/assets/icons/adolescente-11-19.svg'
+import adolescenteIcon from '@/assets/icons/adolescente.svg'
 import adultoIcon from '@/assets/icons/adulto-20-59.svg'
-import gestanteIcon from '@/assets/icons/gestante.svg'
+import gestanteIcon from '@/assets/icons/gravida.svg'
 import idosoIcon from '@/assets/icons/idoso.svg'
 
 export interface VaccinePeriod {
@@ -150,7 +153,7 @@ export const ageGroups: AgeGroup[] = [
     subtitle: '6 a 12 meses',
     ageRange: '6 a 12 meses',
     color: 'bg-purple-100',
-    icon: crianca5_10Icon,
+    icon: crianca6_12Icon,
     periods: [
       {
         period: '6 meses',
@@ -266,7 +269,7 @@ export const ageGroups: AgeGroup[] = [
     subtitle: '1 a 2 anos',
     ageRange: '1 a 2 anos',
     color: 'bg-blue-100',
-    icon: crianca5_10Icon,
+    icon: crianca1_2Icon,
     periods: [
       {
         period: '15 meses',
@@ -305,7 +308,7 @@ export const ageGroups: AgeGroup[] = [
     subtitle: '3 a 4 anos',
     ageRange: '3 a 4 anos',
     color: 'bg-emerald-100',
-    icon: crianca5_10Icon,
+    icon: crianca2_4Icon,
     periods: [
       {
         period: '4 anos',

@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button'
 import { Syringe, Edit, Plus, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { notFound } from 'next/navigation'
-import { useHealthUnits } from '@/hooks/use-health-units' // Importar o hook e o tipo
 import { HealthUnit } from '@/types/health-units'
 import { LazyBvHoursModal } from '@/components/design/lazy/LazyBvHoursModal'
 import { LazyBvAddVaccineModal } from '@/components/design/lazy/LazyBvAddVaccineModal'
@@ -25,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { updateHealthUnits } from '@/services/actions/ubs-actions'
+import { updateHealthUnits, getHealthUnitById } from '@/services/actions/ubs-actions'
 import { useVaccinesList } from '@/hooks/use-vaccines-list'
 import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 
@@ -44,12 +43,27 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     vaccineName: null,
   })
   useAccessibilityValidation({ enabled: true })
-  const { data, isLoading, error } = useHealthUnits()
 
-  const ubsDataFromApi = React.useMemo(() => {
-    if (!data) return undefined
-    return data.find((unit: HealthUnit) => unit._id === resolvedParams.id)
-  }, [data, resolvedParams.id])
+  const [ubsDataFromApi, setUbsDataFromApi] = useState<HealthUnit | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  React.useEffect(() => {
+    const fetchUbs = async () => {
+      try {
+        setIsLoading(true)
+        const data = await getHealthUnitById(resolvedParams.id)
+        setUbsDataFromApi(data)
+      } catch (err) {
+        console.error('Erro ao buscar UBS:', err)
+        setError('Erro ao carregar dados da UBS')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchUbs()
+  }, [resolvedParams.id])
 
   const [ubs, setUbs] = React.useState<HealthUnit | null>(null)
 
@@ -75,7 +89,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
           saturday: ubsDataFromApi.operatingHours?.saturday || '08:00 - 12:00',
           sunday: ubsDataFromApi.operatingHours?.sunday || 'Fechado',
         },
-        averageWaitTime: '30 minutos',
+        averageWaitTime: ubsDataFromApi.averageWaitTime || '30 minutos',
         availableVaccines: ubsDataFromApi.availableVaccines || [
           'Influenza',
           'Covid-19',
@@ -134,6 +148,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
     try {
       await updateHealthUnits(ubsId, {
         operatingHours: newHours,
+        averageWaitTime: newWaitTime,
       })
 
       setUbs((prev) =>

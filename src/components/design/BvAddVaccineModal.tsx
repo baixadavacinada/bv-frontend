@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Dialog,
   DialogContent,
@@ -10,7 +11,6 @@ import {
   DialogClose,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
 interface AddVaccineModalProps {
@@ -38,6 +38,7 @@ export function BvAddVaccineModal({
   existingVaccines,
 }: AddVaccineModalProps) {
   useAccessibilityValidation({ enabled: true })
+  const router = useRouter()
 
   const [newVaccineName, setNewVaccineName] = useState('')
   const [lote, setLote] = useState('')
@@ -119,30 +120,6 @@ export function BvAddVaccineModal({
           </div>
 
           <Separator className="my-2" />
-          <div>
-            <Label htmlFor="new-vaccine-name">Adicionar nova vacina</Label>
-            <Input
-              id="new-vaccine-name"
-              placeholder="Digite aqui o nome da vacina"
-              value={newVaccineName}
-              onChange={(e) => setNewVaccineName(e.target.value)}
-              className="mt-2"
-              disabled={!!selectedVaccine || isLoading}
-            />
-          </div>
-          {/* <div>
-            <Label htmlFor="vaccine-lote">
-              Lote da vacina (digite &quot;erro&quot; para testar)
-            </Label>
-            <Input
-              id="vaccine-lote"
-              placeholder="Digite aqui o lote da vacina"
-              value={lote}
-              onChange={(e) => setLote(e.target.value)}
-              className="mt-2"
-              disabled={isLoading}
-            />
-          </div> */}
         </div>
         <DialogFooter>
           <DialogClose asChild>
@@ -156,6 +133,20 @@ export function BvAddVaccineModal({
               Cancelar
             </Button>
           </DialogClose>
+          <Button
+            className="my-2"
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              setIsOpen(false)
+              router.push('/gestao-vacinas/formulario')
+            }}
+            disabled={isLoading}
+            title="Criar uma nova vacina no sistema"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Criar nova
+          </Button>
           <Button
             className="bg-primary hover:bg-primary/90 my-2"
             type="submit"

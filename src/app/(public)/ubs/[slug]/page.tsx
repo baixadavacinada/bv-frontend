@@ -37,7 +37,6 @@ export default function DetailUbs({ params }: DetailUbsProps) {
 
   const { data, isLoading, error } = useHealthUnits()
   const [showSecondDoseModal, setShowSecondDoseModal] = React.useState(false)
-  const [_selectedVaccines, _setSelectedVaccines] = React.useState<string[]>([])
 
   const ubsDataFromApi = React.useMemo(() => {
     if (!data) return undefined
@@ -283,7 +282,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         </p>
       </div>
 
-      {user && (
+      {user && user.role !== 'public' && (
         <div className="mt-8">
           <Button onClick={handleAddVaccine} className="w-full">
             <Plus className="mr-2 h-4 w-4" />

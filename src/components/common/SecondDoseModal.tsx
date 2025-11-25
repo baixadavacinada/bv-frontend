@@ -39,9 +39,7 @@ const SecondDoseModal: React.FC<Props> = ({ isOpen, onClose, onSelectVaccines })
       setLoading(true)
       vaccinationService.clearVaccinesCache()
       const availableVaccines = await vaccinationService.getAvailableVaccines()
-      console.log('Vacinas carregadas no modal:', availableVaccines)
 
-      // Garantir que é um array
       if (Array.isArray(availableVaccines)) {
         setVaccines(availableVaccines)
       } else {

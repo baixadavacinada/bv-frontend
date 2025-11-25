@@ -14,6 +14,7 @@ import { HealthUnit } from '@/types/health-units'
 import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 import { toSlug } from '@/utils/slug'
 import { toast } from 'sonner'
+import { LocationPermissionHandler } from '@/components/common/LocationPermissionHandler'
 
 type UbsListData = Omit<UbsCardProps, 'onMoreInfo' | 'onDelete'> & {
   healthUnitId: string
@@ -138,6 +139,7 @@ export default function UbsScreen() {
 
   return (
     <div>
+      <LocationPermissionHandler />
       <BvTitleHeader title={'Unidades Básicas de Saúde'} className="mb-6" />
       <div className="mb-8">
         <CollapsibleFilter>

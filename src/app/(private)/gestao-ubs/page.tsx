@@ -20,6 +20,7 @@ import { HealthUnit } from '@/types/health-units'
 import { deleteHealthUnits } from '@/services/actions/ubs-actions'
 import { useDeleteConfirmation } from '@/hooks/use-delete-confirmation'
 import { DeleteConfirmationDialog } from '@/components/common/DeleteConfirmationDialog'
+import { LocationPermissionHandlerAlways } from '@/components/common/LocationPermissionHandlerAlways'
 
 type UbsListData = {
   id: number
@@ -152,8 +153,8 @@ export default function UbsScreen() {
       list = list.filter((ubs) => ubs.isOpen24h === true)
     }
 
-    // Filtrar por proximidade se ativado
-    if (filters.filterByProximity && userCoords) {
+    // Filtrar por proximidade se ativado e temos coordenadas válidas
+    if (filters.filterByProximity && userCoords?.latitude && userCoords?.longitude) {
       list = list.filter((ubs) => ubs.distanceInKm > 0 && ubs.distanceInKm <= 50) // 50km de raio
     }
 
@@ -219,6 +220,7 @@ export default function UbsScreen() {
 
   return (
     <>
+      <LocationPermissionHandlerAlways />
       <BvTitleHeader title="Unidades Básicas de Saúde" className="mb-8" />
       <div className="mb-8">
         <CollapsibleFilter>
@@ -252,7 +254,7 @@ export default function UbsScreen() {
                 />
                 <Label htmlFor="open-24h">Aberto 24h</Label>
               </div>
-              {userCoords && (
+              {userCoords?.latitude && userCoords?.longitude && (
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="proximity-filter"

@@ -54,7 +54,7 @@ export const deleteHealthUnits = async (id: string) => {
 // Use toggleFavoriteHealthUnit de @/services/actions/favorites-actions
 
 export const getHealthUnitById = async (id: string | number) => {
-  const endpoint = `/api/public/health-units/${id}`
+  const endpoint = `/api/admin/health-units/${id}`
 
   try {
     const result = await apiClient.get(endpoint)

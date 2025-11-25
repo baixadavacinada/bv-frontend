@@ -329,9 +329,6 @@ export default function VaccinationRegisterForm() {
                     <p>
                       <strong>Fabricante:</strong> {selectedVaccine.manufacturer}
                     </p>
-                    <p>
-                      <strong>Faixa Etária:</strong> {selectedVaccine.ageGroup}
-                    </p>
                     {selectedVaccine.description && (
                       <p>
                         <strong>Descrição:</strong> {selectedVaccine.description}

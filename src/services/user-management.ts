@@ -319,14 +319,22 @@ export function useUserManagement() {
           isActive: userData.isActive !== false,
         }
 
-        const result = await apiClient.put<UserProfile>('/api/admin/claims', payload)
-        return result
+        // Backend returns { uid, claims, updatedAt }, not UserProfile
+        // So we fetch the updated user to get the full UserProfile
+        await apiClient.put<{ uid: string; claims: Record<string, unknown>; updatedAt: string }>(
+          '/api/admin/claims',
+          payload,
+        )
+
+        // Fetch the updated user profile
+        const updatedUser = await getUserById(uid)
+        return updatedUser
       } catch (err) {
         console.error('Erro ao atualizar claims:', err)
         throw err
       }
     },
-    [],
+    [getUserById],
   )
 
   const updateProfile = useCallback(

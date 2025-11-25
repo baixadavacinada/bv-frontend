@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
@@ -26,6 +26,14 @@ import { X } from 'lucide-react'
 import { CreateHealthUnits, HealthUnit } from '@/types/health-units'
 import { createHealtUnits, updateHealthUnits } from '@/services/actions/ubs-actions'
 import convertHoursToFormData from '@/utils/convertNameHours'
+import { useVaccineManagement } from '@/services/vaccine-management'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 const DEFAULT_LAT = '-22.643'
 const DEFAULT_LON = '-43.655'
@@ -128,10 +136,31 @@ export function UbsForm({ initialData, slug }: UbsFormProps) {
   const router = useRouter()
   useAccessibilityValidation({ enabled: true })
   const { lookupCEP, isLoading: cepLoading, geocoding, error: cepError } = useCEPLookup()
+  const { listVaccines } = useVaccineManagement()
   const [logradouroPreenchido, setLogradouroPreenchido] = useState(!!initialData?.address)
 
   const [step, setStep] = useState(1)
   const [vaccineInput, setVaccineInput] = useState('')
+  const [availableVaccinesFromApi, setAvailableVaccinesFromApi] = useState<string[]>([])
+  const [loadingVaccines, setLoadingVaccines] = useState(false)
+
+  // Carregar vacinas da API
+  useEffect(() => {
+    const loadVaccines = async () => {
+      setLoadingVaccines(true)
+      try {
+        const vaccines = await listVaccines()
+        setAvailableVaccinesFromApi(vaccines.map((v) => v.name))
+      } catch (error) {
+        console.error('Erro ao carregar vacinas:', error)
+        toast.error('Erro ao carregar lista de vacinas')
+      } finally {
+        setLoadingVaccines(false)
+      }
+    }
+
+    loadVaccines()
+  }, [listVaccines])
 
   const formData = initialData
     ? {
@@ -231,13 +260,14 @@ export function UbsForm({ initialData, slug }: UbsFormProps) {
   }
 
   // Funções para gerenciar vacinas (Passo 3)
-  const handleAddVaccine = () => {
-    const trimmedInput = vaccineInput.trim()
-    if (trimmedInput && !selectedVaccines.includes(trimmedInput)) {
-      form.setValue('availableVaccines', [...selectedVaccines, trimmedInput], {
+  const handleAddVaccine = (vaccineName?: string) => {
+    const vaccineToAdd = (vaccineName || vaccineInput).trim()
+    if (vaccineToAdd && !selectedVaccines.includes(vaccineToAdd)) {
+      form.setValue('availableVaccines', [...selectedVaccines, vaccineToAdd], {
         shouldValidate: true,
       })
       setVaccineInput('')
+      toast.success(`${vaccineToAdd} adicionada com sucesso!`)
     }
   }
 
@@ -585,26 +615,40 @@ export function UbsForm({ initialData, slug }: UbsFormProps) {
         {step === 3 && (
           <div className="mx-auto max-w-lg space-y-8">
             <h2 className="text-xl font-semibold">Adicionar vacinas disponíveis</h2>
+
+            {/* Select com vacinas da API */}
             <div className="space-y-2">
-              <Label htmlFor="nova-vacina">Adicionar nova vacina</Label>
+              <Label htmlFor="select-vacina">Selecionar vacina da lista</Label>
               <div className="flex gap-2">
-                <Input
-                  id="nova-vacina"
-                  placeholder="Digite aqui o nome da vacina"
-                  value={vaccineInput}
-                  onChange={(e) => setVaccineInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      handleAddVaccine()
+                <Select
+                  disabled={loadingVaccines}
+                  onValueChange={(value) => {
+                    if (value) {
+                      handleAddVaccine(value)
                     }
                   }}
-                />
-                <Button type="button" onClick={handleAddVaccine}>
-                  Adicionar
-                </Button>
+                >
+                  <SelectTrigger id="select-vacina">
+                    <SelectValue
+                      placeholder={
+                        loadingVaccines ? 'Carregando vacinas...' : 'Selecione uma vacina'
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableVaccinesFromApi.map((vaccine) => (
+                      <SelectItem key={vaccine} value={vaccine}>
+                        {vaccine}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+              {availableVaccinesFromApi.length === 0 && !loadingVaccines && (
+                <p className="text-sm text-amber-600">Nenhuma vacina disponível no sistema</p>
+              )}
             </div>
+
             <FormField
               control={form.control}
               name="availableVaccines"
