@@ -1,6 +1,6 @@
 'use server'
 
-import { CreateHealthUnits, Survey } from '@/types/health-units'
+import { CreateHealthUnits, Survey, HealthUnit } from '@/types/health-units'
 import { apiClient } from '../api'
 
 export const listHealthUnits = async () => {
@@ -53,11 +53,11 @@ export const deleteHealthUnits = async (id: string) => {
 // Favoritos de UBS foram movidos para favorites-actions.ts
 // Use toggleFavoriteHealthUnit de @/services/actions/favorites-actions
 
-export const getHealthUnitById = async (id: string | number) => {
+export const getHealthUnitById = async (id: string | number): Promise<HealthUnit> => {
   const endpoint = `/api/admin/health-units/${id}`
 
   try {
-    const result = await apiClient.get(endpoint)
+    const result = await apiClient.get<HealthUnit>(endpoint)
     return result
   } catch (error) {
     console.error('Falha ao obter unidade de saúde por ID:', error)

@@ -16,10 +16,7 @@ import { SkeletonLoader } from '@/components/ui/skeleton-loader'
 import { toSlug } from '@/utils/slug'
 import { toggleFavoriteHealthUnit } from '@/services/actions/favorites-actions'
 import SecondDoseModal from '@/components/common/SecondDoseModal'
-import {
-  saveSecondDoseConfiguration,
-  getSecondDoseConfiguration,
-} from '@/services/second-dose-service'
+import { saveSecondDoseConfiguration } from '@/services/second-dose-service'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/use-firebase-auth'
 import { usePermissions } from '@/hooks/use-permissions'
@@ -53,23 +50,6 @@ export default function DetailUbs({ params }: DetailUbsProps) {
   }, [data, resolvedParams.slug])
 
   const [ubs, setUbs] = React.useState<HealthUnit | null>(null)
-  // Carregar vacinas selecionadas ao abrir a página
-  React.useEffect(() => {
-    const loadSelectedVaccines = async () => {
-      try {
-        const config = await getSecondDoseConfiguration?.()
-        if (config && config.selectedVaccines) {
-          _setSelectedVaccines(config.selectedVaccines)
-        }
-      } catch (error) {
-        console.error('Erro ao carregar vacinas selecionadas:', error)
-      }
-    }
-
-    if (user) {
-      loadSelectedVaccines()
-    }
-  }, [user])
   const [isLiked, setIsLiked] = React.useState(false)
 
   React.useEffect(() => {
@@ -296,7 +276,6 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         onClose={() => setShowSecondDoseModal(false)}
         onSelectVaccines={async (vaccines, createdBy) => {
           try {
-            _setSelectedVaccines(vaccines)
             if (createdBy) {
               await saveSecondDoseConfiguration({
                 selectedVaccines: vaccines,

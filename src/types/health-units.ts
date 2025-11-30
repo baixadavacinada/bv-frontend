@@ -56,6 +56,7 @@ export type CreateHealthUnits = {
     lng: number | string
   }
   availableVaccines?: string[]
+  averageWaitTime?: string
   isActive?: boolean
 }
 
