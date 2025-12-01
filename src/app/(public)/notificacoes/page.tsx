@@ -3,8 +3,9 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState, useMemo, useEffect } from 'react'
-import { PlusIcon } from 'lucide-react'
+import { PlusIcon, ArrowRight } from 'lucide-react'
 import * as z from 'zod'
+import Link from 'next/link'
 
 import { BvButton, BvTitleHeader, RoleGuard } from '@/components'
 import { BvNotificationToggle } from '@/components/design/BvNotificationToggle'
@@ -258,6 +259,29 @@ export default function NotificationsPage() {
       <div className="min-h-screen">
         <div className="mx-auto max-w-6xl pb-4">
           <BvTitleHeader title={roleConfig.title} className="mb-8" />
+
+          {/* Seção de Gerenciamento de Templates - Admin Only */}
+          {userRole === 'admin' && (
+            <div className="mb-8 rounded-lg border border-blue-200 bg-blue-50 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-900">
+                    Gerenciar Templates de Notificações
+                  </h3>
+                  <p className="mt-1 text-sm text-blue-700">
+                    Acesse o painel para criar, editar e enviar templates de notificações
+                    personalizados.
+                  </p>
+                </div>
+                <Link href="/gestao-templates">
+                  <BvButton className="gap-2">
+                    <span>Ir para Gerenciamento</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </BvButton>
+                </Link>
+              </div>
+            </div>
+          )}
 
           {createdByEmail && (
             <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
