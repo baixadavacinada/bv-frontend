@@ -262,21 +262,21 @@ export default function NotificationsPage() {
 
           {/* Seção de Gerenciamento de Templates - Admin Only */}
           {userRole === 'admin' && (
-            <div className="mb-8 rounded-lg border border-blue-200 bg-blue-50 p-6">
-              <div className="flex items-center justify-between">
+            <div className="mb-8 rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 p-8">
+              <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
                 <div>
-                  <h3 className="text-lg font-semibold text-blue-900">
+                  <h3 className="mb-2 text-2xl font-bold text-blue-900">
                     Gerenciar Templates de Notificações
                   </h3>
-                  <p className="mt-1 text-sm text-blue-700">
+                  <p className="text-blue-700">
                     Acesse o painel para criar, editar e enviar templates de notificações
                     personalizados.
                   </p>
                 </div>
-                <Link href="/gestao-templates">
-                  <BvButton className="gap-2">
+                <Link href="/gestao-templates" className="shrink-0">
+                  <BvButton className="gap-2 px-6 py-3 text-base font-semibold">
                     <span>Ir para Gerenciamento</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className="h-5 w-5" />
                   </BvButton>
                 </Link>
               </div>

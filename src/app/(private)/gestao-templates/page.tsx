@@ -71,14 +71,11 @@ export default function TemplateManagementPage() {
   }, [])
 
   return (
-    <RoleGuard requiredRole="admin">
+    <RoleGuard allowedRoles={['admin']} requireAuth>
       <div className="flex flex-col gap-8">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <BvTitleHeader
-            title="Gerenciamento de Templates"
-            subtitle="Gerencie templates de notificações"
-          />
+          <BvTitleHeader title="Gerenciamento de Templates" />
           <BvButton onClick={loadTemplates} disabled={loading} className="gap-2" variant="outline">
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Atualizar
