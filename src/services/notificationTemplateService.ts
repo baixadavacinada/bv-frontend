@@ -62,7 +62,7 @@ export const getAllTemplates = async (): Promise<NotificationTemplate[]> => {
     const response = await apiClient.get<{ templates: NotificationTemplate[] }>(
       '/api/admin/templates',
     )
-    return response.templates || []
+    return response?.templates || []
   } catch (error) {
     console.error('Error fetching templates:', error)
     throw error
@@ -77,7 +77,7 @@ export const getTemplatesByCategory = async (category: string): Promise<Notifica
     const response = await apiClient.get<{ templates: NotificationTemplate[] }>(
       `/api/admin/templates/category/${category}`,
     )
-    return response.templates || []
+    return response?.templates || []
   } catch (error) {
     console.error('Error fetching templates by category:', error)
     throw error
