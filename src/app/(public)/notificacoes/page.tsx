@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState, useMemo, useEffect } from 'react'
-import { PlusIcon, ArrowRight } from 'lucide-react'
+import { PlusIcon, ArrowRight, Settings } from 'lucide-react'
 import * as z from 'zod'
 import Link from 'next/link'
 
@@ -274,10 +274,12 @@ export default function NotificationsPage() {
                   </p>
                 </div>
                 <Link href="/gestao-templates" className="shrink-0">
-                  <BvButton className="gap-2 px-6 py-3 text-base font-semibold">
-                    <span>Ir para Gerenciamento</span>
-                    <ArrowRight className="h-5 w-5" />
-                  </BvButton>
+                  <button
+                    className="rounded-lg bg-blue-600 p-3 text-white shadow-lg transition-colors hover:bg-blue-700 hover:shadow-xl"
+                    title="Gerenciar Templates"
+                  >
+                    <Settings className="h-6 w-6" />
+                  </button>
                 </Link>
               </div>
             </div>
