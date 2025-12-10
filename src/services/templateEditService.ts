@@ -28,18 +28,17 @@ export interface TemplateEditResponse {
 /**
  * Create a new template
  */
-export const createTemplate = async (payload: CreateTemplatePayload): Promise<TemplateEditResponse> => {
+export const createTemplate = async (
+  payload: CreateTemplatePayload,
+): Promise<TemplateEditResponse> => {
   try {
-    const response = await apiClient.post<TemplateEditResponse>(
-      '/api/admin/templates',
-      payload,
-    )
+    const response = await apiClient.post<TemplateEditResponse>('/api/admin/templates', payload)
     return response || { success: false, error: 'Erro ao criar template' }
   } catch (error) {
     console.error('Error creating template:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Erro ao criar template'
+      error: error instanceof Error ? error.message : 'Erro ao criar template',
     }
   }
 }
@@ -47,7 +46,9 @@ export const createTemplate = async (payload: CreateTemplatePayload): Promise<Te
 /**
  * Update an existing template
  */
-export const updateTemplate = async (payload: UpdateTemplatePayload): Promise<TemplateEditResponse> => {
+export const updateTemplate = async (
+  payload: UpdateTemplatePayload,
+): Promise<TemplateEditResponse> => {
   try {
     const response = await apiClient.put<TemplateEditResponse>(
       `/api/admin/templates/${payload.id}`,
@@ -58,7 +59,7 @@ export const updateTemplate = async (payload: UpdateTemplatePayload): Promise<Te
     console.error('Error updating template:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Erro ao atualizar template'
+      error: error instanceof Error ? error.message : 'Erro ao atualizar template',
     }
   }
 }
@@ -76,7 +77,7 @@ export const deleteTemplate = async (templateId: string): Promise<TemplateEditRe
     console.error('Error deleting template:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Erro ao deletar template'
+      error: error instanceof Error ? error.message : 'Erro ao deletar template',
     }
   }
 }
@@ -87,15 +88,15 @@ export const deleteTemplate = async (templateId: string): Promise<TemplateEditRe
  */
 export const extractVariables = (text: string): string[] => {
   const regex = /\{\{(\w+)\}\}/g
-  const matches = []
+  const matches: string[] = []
   let match
-  
+
   while ((match = regex.exec(text)) !== null) {
     if (!matches.includes(match[1])) {
       matches.push(match[1])
     }
   }
-  
+
   return matches
 }
 
@@ -103,18 +104,20 @@ export const extractVariables = (text: string): string[] => {
  * Highlight variables in text
  * Returns text with {{variableName}} highlighted in a different style
  */
-export const getVariableRanges = (text: string): Array<{ start: number; end: number; variable: string }> => {
+export const getVariableRanges = (
+  text: string,
+): Array<{ start: number; end: number; variable: string }> => {
   const regex = /\{\{(\w+)\}\}/g
   const ranges = []
   let match
-  
+
   while ((match = regex.exec(text)) !== null) {
     ranges.push({
       start: match.index,
       end: match.index + match[0].length,
-      variable: match[1]
+      variable: match[1],
     })
   }
-  
+
   return ranges
 }
