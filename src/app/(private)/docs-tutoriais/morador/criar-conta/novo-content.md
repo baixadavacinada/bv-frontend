@@ -111,17 +111,6 @@ Faça login com seu email e senha para começar.
 
 ### Se Você Encontrar Problemas
 
-**Se não recebi o código de email:**
-* Aguarde 5 minutos e verifique sua pasta de spam.
-* Clique em **Reenviar Código**.
-* Se continuar não recebendo, tente usar outro email.
-
-**Se não recebi o código no WhatsApp:**
-* Verifique sua conexão de internet.
-* Certifique-se de que o WhatsApp tem permissão para notificações.
-* Clique em **Reenviar Código**.
-* Se o problema persistir, tente novamente em alguns minutos.
-
 **Se recebi erro "Email já registrado":**
 * Este email já está associado a uma conta.
 * Tente fazer login com este email ou use outro email.

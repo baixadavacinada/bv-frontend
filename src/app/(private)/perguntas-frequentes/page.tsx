@@ -45,12 +45,6 @@ export default function PerguntasFrequentesScreen() {
         'Aguarde alguns minutos e verifique sua pasta de spam. Se não receber, clique em "Reenviar código". Se o problema persistir, tente usar outro email ou contate o suporte.',
     },
     {
-      id: 'codigo-validacao-whatsapp',
-      question: 'Não recebi o código no WhatsApp',
-      answer:
-        'Verifique sua conexão de internet. Aguarde alguns minutos e clique em "Reenviar código". Certifique-se de que permitiu notificações do WhatsApp.',
-    },
-    {
       id: 'email-registrado',
       question: 'Recebi erro "Email já registrado"',
       answer:

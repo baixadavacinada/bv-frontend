@@ -235,20 +235,6 @@ export default function MoradorCriarContaPage() {
             </div>
 
             <div>
-              <h4 className="mb-2 font-semibold text-gray-900">
-                Se não recebi o código no WhatsApp:
-              </h4>
-              <ul className="space-y-1 text-gray-700">
-                <li>• Verifique sua conexão de internet.</li>
-                <li>• Certifique-se de que o WhatsApp tem permissão para notificações.</li>
-                <li>
-                  • Clique em <strong>Reenviar Código</strong>.
-                </li>
-                <li>• Se o problema persistir, tente novamente em alguns minutos.</li>
-              </ul>
-            </div>
-
-            <div>
               <h4 className="mb-2 font-semibold text-gray-900">{`Se recebi erro "Email já registrado":`}</h4>
               <ul className="space-y-1 text-gray-700">
                 <li>• Este email já está associado a uma conta.</li>
