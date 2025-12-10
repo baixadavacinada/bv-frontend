@@ -29,3 +29,8 @@ export * from './design/lazy/LazyBvAddVaccineModal'
 
 // Export UI components
 export * from './ui/skeleton-loader'
+
+// Export sections components
+export * from './sections/FAQAccordion'
+export * from './sections/TutorialGrid'
+

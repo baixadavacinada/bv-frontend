@@ -4,7 +4,7 @@ import { CiSettings } from 'react-icons/ci'
 import { FaSyringe } from 'react-icons/fa'
 import { IconType } from 'react-icons'
 import { BsHouse, BsGeoAlt, BsFileEarmarkText, BsBell } from 'react-icons/bs'
-import { Star, BookOpen } from 'lucide-react'
+import { Star, BookOpen, HelpCircle } from 'lucide-react'
 
 export interface NavigationItem {
   id: string
@@ -46,6 +46,13 @@ export const sidebarNavigation: NavigationItem[] = [
     label: 'Cartilha de Vacinas',
     href: '/cartilha-vacinas',
     allowedRoles: ['public', 'admin'],
+  },
+  {
+    id: 'perguntas-frequentes',
+    icon: HelpCircle,
+    label: 'Perguntas Frequentes',
+    href: '/perguntas-frequentes',
+    allowedRoles: ['public', 'agent', 'admin'],
   },
   {
     id: 'registro-vacinacao',

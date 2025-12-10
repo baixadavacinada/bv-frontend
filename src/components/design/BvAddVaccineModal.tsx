@@ -124,7 +124,7 @@ export function BvAddVaccineModal({
         <DialogFooter>
           <DialogClose asChild>
             <Button
-              https:className="my-2" //bv-backend-ruby.vercel.app/api/webhooks/whatsapp/status
+              className="my-2"
               type="button"
               variant="outline"
               disabled={isLoading}

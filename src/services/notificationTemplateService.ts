@@ -12,6 +12,7 @@ export interface NotificationTemplate {
   subject: string
   body: string
   category: 'appointment' | 'vaccine' | 'reminder' | 'system' | 'general'
+  status?: 'ativo' | 'desativado'
 }
 
 export interface TemplateContext {
@@ -55,14 +56,23 @@ export interface BroadcastResultItem {
 }
 
 /**
- * Fetch all available templates
+ * Fetch all available templates (both default and custom)
  */
 export const getAllTemplates = async (): Promise<NotificationTemplate[]> => {
   try {
-    const response = await apiClient.get<{ templates: NotificationTemplate[] }>(
-      '/api/admin/templates',
-    )
-    return response?.templates || []
+    // Fetch both default and custom templates
+    const [defaultResponse, customResponse] = await Promise.all([
+      apiClient.get<{ templates: NotificationTemplate[] }>('/api/admin/templates'),
+      apiClient.get<{ templates: NotificationTemplate[] }>('/api/admin/custom-templates').catch(
+        () => ({ templates: [] }),
+      ),
+    ])
+
+    const defaultTemplates = defaultResponse?.templates || []
+    const customTemplates = customResponse?.templates || []
+
+    // Combine and return
+    return [...defaultTemplates, ...customTemplates]
   } catch (error) {
     console.error('Error fetching templates:', error)
     throw error
@@ -161,6 +171,87 @@ export const broadcastTemplate = async (
     return response
   } catch (error) {
     console.error('Error broadcasting template:', error)
+    throw error
+  }
+}
+
+// ==================== CUSTOM TEMPLATES ====================
+
+/**
+ * Create a new custom template
+ */
+export const createCustomTemplate = async (
+  templateData: Omit<NotificationTemplate, 'id'>,
+): Promise<NotificationTemplate> => {
+  try {
+    const response = await apiClient.post<{ template: NotificationTemplate }>(
+      '/api/admin/custom-templates',
+      templateData,
+    )
+    return response.template
+  } catch (error) {
+    console.error('Error creating custom template:', error)
+    throw error
+  }
+}
+
+/**
+ * Update an existing custom template
+ */
+export const updateCustomTemplate = async (
+  templateId: string,
+  templateData: Partial<Omit<NotificationTemplate, 'id'>>,
+): Promise<NotificationTemplate> => {
+  try {
+    const response = await apiClient.put<{ template: NotificationTemplate }>(
+      `/api/admin/custom-templates/${templateId}`,
+      templateData,
+    )
+    return response.template
+  } catch (error) {
+    console.error('Error updating custom template:', error)
+    throw error
+  }
+}
+
+/**
+ * Delete a custom template
+ */
+export const deleteCustomTemplate = async (templateId: string): Promise<void> => {
+  try {
+    await apiClient.delete(`/api/admin/custom-templates/${templateId}`)
+  } catch (error) {
+    console.error('Error deleting custom template:', error)
+    throw error
+  }
+}
+
+/**
+ * Get all custom templates
+ */
+export const getAllCustomTemplates = async (): Promise<NotificationTemplate[]> => {
+  try {
+    const response = await apiClient.get<{ templates: NotificationTemplate[] }>(
+      '/api/admin/custom-templates',
+    )
+    return response?.templates || []
+  } catch (error) {
+    console.error('Error fetching custom templates:', error)
+    throw error
+  }
+}
+
+/**
+ * Get a specific custom template
+ */
+export const getCustomTemplate = async (templateId: string): Promise<NotificationTemplate> => {
+  try {
+    const response = await apiClient.get<{ template: NotificationTemplate }>(
+      `/api/admin/custom-templates/${templateId}`,
+    )
+    return response.template
+  } catch (error) {
+    console.error('Error fetching custom template:', error)
     throw error
   }
 }

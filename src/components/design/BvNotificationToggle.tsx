@@ -6,10 +6,12 @@ export const BvNotificationToggle = ({
   label,
   checked,
   onChange,
+  description,
 }: {
   label: string
   checked: boolean
   onChange: () => void
+  description?: string
 }) => {
   const switchId = useId()
   const labelId = useId()
@@ -23,16 +25,24 @@ export const BvNotificationToggle = ({
   }
 
   return (
-    <div className="flex items-center justify-between py-1">
-      <label id={labelId} htmlFor={switchId} className="cursor-pointer text-base text-gray-900">
-        {label}
-      </label>
+    <div className="flex items-start justify-between gap-4 py-1">
+      <div className="flex-1">
+        <label
+          id={labelId}
+          htmlFor={switchId}
+          className="cursor-pointer text-base font-medium text-gray-900"
+        >
+          {label}
+        </label>
+        {description && <p className="mt-1 text-sm text-gray-600">{description}</p>}
+      </div>
       <Switch
         id={switchId}
         checked={checked}
         onCheckedChange={handleChange}
         aria-labelledby={labelId}
         aria-describedby={`${switchId}-description`}
+        className="shrink-0"
       />
       {/* Descrição invisível para leitores de tela */}
       <span id={`${switchId}-description`} className="sr-only">

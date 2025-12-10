@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState, useMemo, useEffect } from 'react'
-import { PlusIcon, ArrowRight, Settings } from 'lucide-react'
+import { PlusIcon, ArrowRight } from 'lucide-react'
 import * as z from 'zod'
 import Link from 'next/link'
 
@@ -12,24 +12,45 @@ import { BvNotificationToggle } from '@/components/design/BvNotificationToggle'
 import { TitleSection } from '@/components/sections/TitleSection'
 import SecondDoseModal from '@/components/common/SecondDoseModal'
 import Tag from '@/components/design/Tag'
+import { NotificationTemplateSelector } from '@/components/admin/NotificationTemplateSelector'
+import { SecondDoseCombinationSelector } from '@/components/admin/SecondDoseCombinationSelector'
+import {
+  NotificationFrequencyControl,
+  type NotificationFrequency,
+} from '@/components/admin/NotificationFrequencyControl'
+import { SaveNotificationConfirmDialog } from '@/components/admin/SaveNotificationConfirmDialog'
 import { useAuth } from '@/hooks/use-firebase-auth'
 import {
   saveSecondDoseConfiguration,
   getSecondDoseConfiguration,
 } from '@/services/second-dose-service'
+import {
+  saveNotificationSettings,
+  getNotificationSettings,
+} from '@/services/notificationSettingsService'
 import { toast } from 'sonner'
 import DataIcon from '@/assets/icons/profile.svg'
 
 const alertSchema = z.object({
   notifications: z.object({
-    allUsers: z.boolean(),
-    appointment: z.boolean(),
-    newUsers: z.boolean(),
-    newVaccines: z.boolean(),
-    newUBS: z.boolean(),
-    newVaccineRecords: z.boolean(),
-    newSecondDoseReminders: z.boolean(),
+    todos_usuarios: z.boolean(),
+    agendamento: z.boolean(),
+    novos_usuarios: z.boolean(),
+    novas_vacinas: z.boolean(),
+    novas_ubs: z.boolean(),
+    novos_registros_vacinacao: z.boolean(),
+    lembretes_segunda_dose: z.boolean(),
   }),
+  templateSettings: z
+    .record(
+      z.string(),
+      z.object({
+        enabled: z.boolean(),
+        templateId: z.string().optional(),
+        frequency: z.enum(['instant', 'daily', 'weekly', 'never']),
+      }),
+    )
+    .optional(),
 })
 
 export type AlertSettingsFormData = z.infer<typeof alertSchema>
@@ -37,6 +58,8 @@ export type AlertSettingsFormData = z.infer<typeof alertSchema>
 type NotificationConfig = {
   key: keyof AlertSettingsFormData['notifications']
   label: string
+  enableTemplate?: boolean // Se deve mostrar selector de template
+  description?: string // Subtítulo explicativo do switch
 }
 
 type NotificationSection = {
@@ -61,9 +84,18 @@ const ROLE_CONFIGURATIONS: Record<string, RoleConfig> = {
         title: 'Configurar notificações',
         icon: DataIcon,
         notifications: [
-          { key: 'newSecondDoseReminders', label: 'Lembretes da segunda dose' },
-          // { key: 'appointment', label: 'Lembretes de agendamentos' },
-          { key: 'newVaccineRecords', label: 'Novos registros de vacinação' },
+          {
+            key: 'lembretes_segunda_dose',
+            label: 'Lembretes da segunda dose',
+            enableTemplate: true,
+            description: 'Receba lembretes para tomar a segunda dose da vacina',
+          },
+          {
+            key: 'novos_registros_vacinacao',
+            label: 'Novos registros de vacinação',
+            enableTemplate: true,
+            description: 'Notificações quando uma dose for registrada no seu histórico',
+          },
         ],
       },
     ],
@@ -75,17 +107,19 @@ const ROLE_CONFIGURATIONS: Record<string, RoleConfig> = {
         title: 'Notificações para usuários',
         icon: DataIcon,
         notifications: [
-          // { key: 'appointment', label: 'Lembretes de agendamento' },
-          { key: 'newVaccineRecords', label: 'Novos registros de vacinação' },
-          { key: 'newSecondDoseReminders', label: 'Lembretes da segunda dose' },
+          {
+            key: 'novos_registros_vacinacao',
+            label: 'Novos registros de vacinação',
+            enableTemplate: true,
+            description: 'Notifique os usuários quando uma dose for registrada',
+          },
+          {
+            key: 'lembretes_segunda_dose',
+            label: 'Lembretes da segunda dose',
+            enableTemplate: true,
+            description: 'Envie lembretes para usuários que precisam tomar a segunda dose',
+          },
         ],
-      },
-      {
-        title: 'Alertas para segunda dose',
-        icon: DataIcon,
-        notifications: [],
-        description: 'Escolha quais vacinas terão lembrete automático para aplicação da 2ª dose.',
-        hasVaccineSelection: true,
       },
     ],
   },
@@ -95,32 +129,50 @@ const ROLE_CONFIGURATIONS: Record<string, RoleConfig> = {
       {
         title: 'Notificações do sistema',
         icon: DataIcon,
-        notifications: [{ key: 'allUsers', label: 'Lembretes para todos os usuários' }],
+        notifications: [
+          {
+            key: 'todos_usuarios',
+            label: 'Lembretes para todos os usuários',
+            enableTemplate: true,
+            description: 'Envie notificações para todos os usuários do sistema',
+          },
+        ],
       },
       {
         title: 'Notificações para equipe técnica',
         icon: DataIcon,
         notifications: [
-          { key: 'newUsers', label: 'Alertas de novos cadastros de usuários' },
-          { key: 'newVaccines', label: 'Alerta de novas vacinas adicionadas na aplicação' },
-          { key: 'newUBS', label: 'Alerta de novas UBSs cadastradas' },
+          {
+            key: 'novos_usuarios',
+            label: 'Alertas de novos cadastros de usuários',
+            enableTemplate: true,
+            description: 'Receba notificação quando novos usuários se registrarem',
+          },
+          {
+            key: 'novas_vacinas',
+            label: 'Alerta de novas vacinas adicionadas na aplicação',
+            enableTemplate: true,
+            description: 'Notifique quando uma vacina for adicionada ao sistema',
+          },
+          {
+            key: 'novas_ubs',
+            label: 'Alerta de novas UBSs cadastradas',
+            enableTemplate: true,
+            description: 'Receba notificação quando uma nova unidade de saúde for cadastrada',
+          },
         ],
       },
       {
         title: 'Notificações para usuários finais (moradores)',
         icon: DataIcon,
         notifications: [
-          // { key: 'appointment', label: 'Lembretes de agendamento' },
-          // { key: 'newVaccineRecords', label: 'Novos registros de vacinação' },
-          { key: 'newSecondDoseReminders', label: 'Lembretes da segunda dose' },
+          {
+            key: 'lembretes_segunda_dose',
+            label: 'Lembretes da segunda dose',
+            enableTemplate: true,
+            description: 'Notifique os moradores sobre lembretes da segunda dose',
+          },
         ],
-      },
-      {
-        title: 'Alertas para segunda dose',
-        icon: DataIcon,
-        notifications: [],
-        description: 'Escolha quais vacinas terão lembrete automático para aplicação da 2ª dose.',
-        hasVaccineSelection: true,
       },
     ],
   },
@@ -162,6 +214,12 @@ const NotificationSectionComponent = ({
   onAddVaccine,
   selectedVaccines,
   onRemoveVaccine,
+  selectedSecondDoseCombinations,
+  onSelectSecondDoseCombination,
+  onRemoveSecondDoseCombination,
+  templateSettings,
+  onTemplateSelect,
+  onFrequencyChange,
 }: {
   section: NotificationSection
   notifications: AlertSettingsFormData['notifications']
@@ -169,26 +227,76 @@ const NotificationSectionComponent = ({
   onAddVaccine?: () => void
   selectedVaccines?: string[]
   onRemoveVaccine?: (vaccine: string) => void
+  selectedSecondDoseCombinations?: string[]
+  onSelectSecondDoseCombination?: (combinationId: string) => void
+  onRemoveSecondDoseCombination?: (combinationId: string) => void
+  templateSettings: Record<
+    string,
+    { enabled: boolean; templateId?: string; frequency: NotificationFrequency }
+  >
+  onTemplateSelect: (notificationKey: string, templateId: string) => void
+  onFrequencyChange: (notificationKey: string, frequency: NotificationFrequency) => void
 }) => (
   <TitleSection icon={section.icon} title={section.title}>
     <div className="space-y-4">
       {section.description && <p className="text-base font-normal">{section.description}</p>}
 
-      {section.notifications.map((config) => (
-        <BvNotificationToggle
-          key={config.key}
-          label={config.label}
-          checked={notifications[config.key]}
-          onChange={() => onToggle(config.key)}
-        />
-      ))}
+      {section.notifications.map((config) => {
+        const settingKey = config.key as string
+        const isEnabled = notifications[config.key]
+        const settings = templateSettings[settingKey] || {
+          enabled: false,
+          templateId: '',
+          frequency: 'weekly',
+        }
+
+        return (
+          <div key={config.key} className="space-y-3">
+            <BvNotificationToggle
+              label={config.label}
+              checked={isEnabled}
+              onChange={() => onToggle(config.key)}
+            />
+
+            {isEnabled && config.enableTemplate && (
+              <div className="ml-4 space-y-3 border-l-4 border-blue-200 pl-4">
+                <NotificationTemplateSelector
+                  enabled={isEnabled}
+                  onTemplateSelect={(templateId) => onTemplateSelect(settingKey, templateId)}
+                  selectedTemplateId={settings.templateId}
+                />
+
+                {config.key === 'lembretes_segunda_dose' &&
+                  selectedSecondDoseCombinations &&
+                  onSelectSecondDoseCombination &&
+                  onRemoveSecondDoseCombination && (
+                    <SecondDoseCombinationSelector
+                      selectedCombinations={selectedSecondDoseCombinations}
+                      onSelectCombination={onSelectSecondDoseCombination}
+                      onRemoveCombination={onRemoveSecondDoseCombination}
+                    />
+                  )}
+
+                <NotificationFrequencyControl
+                  frequency={settings.frequency || 'weekly'}
+                  onChange={(freq) => onFrequencyChange(settingKey, freq)}
+                  label="Com que frequência deseja receber?"
+                  showDescription={true}
+                />
+              </div>
+            )}
+          </div>
+        )
+      })}
 
       {section.hasVaccineSelection && onAddVaccine && selectedVaccines && onRemoveVaccine && (
-        <VaccineSelectionSection
-          onAddVaccine={onAddVaccine}
-          selectedVaccines={selectedVaccines}
-          onRemoveVaccine={onRemoveVaccine}
-        />
+        <div className="space-y-4">
+          <VaccineSelectionSection
+            onAddVaccine={onAddVaccine}
+            selectedVaccines={selectedVaccines}
+            onRemoveVaccine={onRemoveVaccine}
+          />
+        </div>
       )}
     </div>
   </TitleSection>
@@ -196,26 +304,32 @@ const NotificationSectionComponent = ({
 
 export default function NotificationsPage() {
   const [showSecondDoseModal, setShowSecondDoseModal] = useState(false)
+  const [selectedSecondDoseCombinations, setSelectedSecondDoseCombinations] = useState<string[]>([])
   const [selectedVaccines, setSelectedVaccines] = useState<string[]>([])
   const [createdByEmail, setCreatedByEmail] = useState<string>('')
+  const [showConfirmSave, setShowConfirmSave] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
   const { user } = useAuth()
 
-  const { watch, setValue } = useForm<AlertSettingsFormData>({
+  const { watch, setValue, getValues } = useForm<AlertSettingsFormData>({
     resolver: zodResolver(alertSchema),
     defaultValues: {
       notifications: {
-        allUsers: false,
-        appointment: false,
-        newUsers: false,
-        newVaccines: false,
-        newUBS: false,
-        newVaccineRecords: false,
-        newSecondDoseReminders: false,
+        todos_usuarios: false,
+        agendamento: false,
+        novos_usuarios: false,
+        novas_vacinas: false,
+        novas_ubs: false,
+        novos_registros_vacinacao: false,
+        lembretes_segunda_dose: false,
       },
+      templateSettings: {},
     },
   })
 
   const notifications = watch('notifications')
+  const templateSettings = watch('templateSettings') || {}
   const userRole = user?.role || 'public'
 
   const roleConfig = useMemo(
@@ -227,6 +341,36 @@ export default function NotificationsPage() {
     setValue(`notifications.${key}`, !notifications[key])
   }
 
+  const handleTemplateSelect = (notificationKey: string, templateId: string) => {
+    const currentSettings = templateSettings[notificationKey] || {
+      enabled: true,
+      frequency: 'weekly' as NotificationFrequency,
+    }
+    setValue(`templateSettings.${notificationKey}`, {
+      ...currentSettings,
+      templateId,
+    })
+  }
+
+  const handleFrequencyChange = (notificationKey: string, frequency: NotificationFrequency) => {
+    const currentSettings = templateSettings[notificationKey] || {
+      enabled: true,
+      templateId: '',
+    }
+    setValue(`templateSettings.${notificationKey}`, {
+      ...currentSettings,
+      frequency,
+    })
+  }
+
+  const handleSelectSecondDoseCombination = (combinationId: string) => {
+    setSelectedSecondDoseCombinations((prev) => [...prev, combinationId])
+  }
+
+  const handleRemoveSecondDoseCombination = (combinationId: string) => {
+    setSelectedSecondDoseCombinations((prev) => prev.filter((c) => c !== combinationId))
+  }
+
   const handleAddVaccine = () => {
     setShowSecondDoseModal(true)
   }
@@ -235,24 +379,69 @@ export default function NotificationsPage() {
     setSelectedVaccines((prev) => prev.filter((v) => v !== vaccine))
   }
 
-  // Carregar vacinas selecionadas ao abrir a página
+  const handleSaveNotifications = async () => {
+    try {
+      setIsSaving(true)
+      const formData = getValues()
+
+      await saveNotificationSettings({
+        notifications: formData.notifications,
+        templateSettings: (formData.templateSettings || {}) as Record<
+          string,
+          { enabled: boolean; templateId?: string; frequency: NotificationFrequency }
+        >,
+      })
+
+      setLastSavedAt(new Date())
+      setShowConfirmSave(false)
+      toast.success('✓ Notificações agendadas com sucesso!')
+    } catch (error) {
+      console.error('Erro ao salvar notificações:', error)
+      toast.error('Erro ao salvar configurações de notificação')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // Carregar vacinas selecionadas e configurações de notificações
   useEffect(() => {
-    const loadSelectedVaccines = async () => {
+    const loadConfigurations = async () => {
       try {
-        const config = await getSecondDoseConfiguration()
-        if (config && config.selectedVaccines) {
-          setSelectedVaccines(config.selectedVaccines)
-          setCreatedByEmail(config.createdBy || '')
+        // Carregar configurações de vacinas
+        const vaccineConfig = await getSecondDoseConfiguration()
+        if (vaccineConfig && vaccineConfig.selectedVaccines) {
+          setSelectedVaccines(vaccineConfig.selectedVaccines)
+          setCreatedByEmail(vaccineConfig.createdBy || '')
+        }
+
+        // Carregar configurações de notificações salvas
+        const notificationConfig = await getNotificationSettings()
+        if (notificationConfig.success && notificationConfig.data) {
+          // Atualizar form com dados salvos
+          const notifKeys = Object.keys(notificationConfig.data.notifications)
+          notifKeys.forEach((key) => {
+            const typedKey = key as keyof AlertSettingsFormData['notifications']
+            setValue(`notifications.${typedKey}`, notificationConfig.data!.notifications[key])
+          })
+
+          // Atualizar template settings
+          if (notificationConfig.data.templateSettings) {
+            Object.entries(notificationConfig.data.templateSettings).forEach(([key, value]) => {
+              setValue(`templateSettings.${key}`, value)
+            })
+          }
+
+          setLastSavedAt(new Date())
         }
       } catch (error) {
-        console.error('Erro ao carregar vacinas selecionadas:', error)
+        console.error('Erro ao carregar configurações:', error)
       }
     }
 
     if (user) {
-      loadSelectedVaccines()
+      loadConfigurations()
     }
-  }, [user])
+  }, [user, setValue])
 
   return (
     <RoleGuard requireAuth={true}>
@@ -260,27 +449,15 @@ export default function NotificationsPage() {
         <div className="mx-auto max-w-6xl pb-4">
           <BvTitleHeader title={roleConfig.title} className="mb-8" />
 
-          {/* Seção de Gerenciamento de Templates - Admin Only */}
-          {userRole === 'admin' && (
-            <div className="mb-8 rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 p-8">
-              <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
-                <div>
-                  <h3 className="mb-2 text-2xl font-bold text-blue-900">
-                    Gerenciar Templates de Notificações
-                  </h3>
-                  <p className="text-blue-700">
-                    Acesse o painel para criar, editar e enviar templates de notificações
-                    personalizados.
+          {(userRole === 'admin' || userRole === 'agent') && (
+            <div className="mb-6 rounded-lg border-l-4 border-blue-500 bg-blue-50 p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-blue-900">
+                    💡 <strong>Dica:</strong> Você pode gerenciar e personalizar os templates de
+                    notificações ao final desta página.
                   </p>
                 </div>
-                <Link href="/gestao-templates" className="shrink-0">
-                  <button
-                    className="rounded-lg bg-blue-600 p-3 text-white shadow-lg transition-colors hover:bg-blue-700 hover:shadow-xl"
-                    title="Gerenciar Templates"
-                  >
-                    <Settings className="h-6 w-6" />
-                  </button>
-                </Link>
               </div>
             </div>
           )}
@@ -303,12 +480,62 @@ export default function NotificationsPage() {
                     onAddVaccine={section.hasVaccineSelection ? handleAddVaccine : undefined}
                     selectedVaccines={selectedVaccines}
                     onRemoveVaccine={handleRemoveVaccine}
+                    selectedSecondDoseCombinations={selectedSecondDoseCombinations}
+                    onSelectSecondDoseCombination={handleSelectSecondDoseCombination}
+                    onRemoveSecondDoseCombination={handleRemoveSecondDoseCombination}
+                    templateSettings={templateSettings}
+                    onTemplateSelect={handleTemplateSelect}
+                    onFrequencyChange={handleFrequencyChange}
                   />
                 ))}
+                <div className="space-y-3">
+                  <BvButton
+                    title={isSaving ? 'Salvando...' : 'Agendar Disparos'}
+                    onClick={() => setShowConfirmSave(true)}
+                    disabled={isSaving || !Object.values(notifications).some(Boolean)}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                  />
+                  {lastSavedAt && (
+                    <p className="text-center text-sm text-gray-600">
+                      ✓ Última atualização: {lastSavedAt.toLocaleString('pt-BR')}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
+
+          {(userRole === 'admin' || userRole === 'agent') && (
+            <div className="mt-12 rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 p-8">
+              <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
+                <div>
+                  <h3 className="mb-2 text-2xl font-bold text-blue-900">
+                    Gerenciar Templates de Notificações
+                  </h3>
+                  <p className="text-blue-700">
+                    Acesse o painel para criar, editar e enviar templates de notificações
+                    personalizados.
+                  </p>
+                </div>
+                <Link href="/gestao-templates" className="shrink-0">
+                  <button
+                    className="rounded-lg bg-blue-600 p-3 text-white shadow-lg transition-colors hover:bg-blue-700 hover:shadow-xl"
+                    title="Gerenciar Templates"
+                  >
+                    <ArrowRight className="h-6 w-6" />
+                  </button>
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
+
+        <SaveNotificationConfirmDialog
+          isOpen={showConfirmSave}
+          isLoading={isSaving}
+          onConfirm={handleSaveNotifications}
+          onCancel={() => setShowConfirmSave(false)}
+        />
 
         <SecondDoseModal
           isOpen={showSecondDoseModal}
@@ -318,7 +545,6 @@ export default function NotificationsPage() {
               setSelectedVaccines(vaccines)
               if (createdBy) {
                 setCreatedByEmail(createdBy)
-                // Salvar configuração no backend
                 await saveSecondDoseConfiguration({
                   selectedVaccines: vaccines,
                   createdBy,
