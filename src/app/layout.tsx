@@ -10,6 +10,7 @@ import { FavoritesProvider } from '@/contexts/FavoritesContext'
 import { FavoriteMaterialsProvider } from '@/contexts/FavoriteMaterialsContext'
 import { LazyCookieConsentModal } from '@/components'
 import { ToasterWithAuth } from '@/components/common/ToasterWithAuth'
+import { NavigationLoadingProvider } from '@/components/providers/NavigationLoadingProvider'
 
 const barlow = Barlow({
   subsets: ['latin'],
@@ -35,19 +36,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={cn(barlow.className, 'bg-background antialiased dark:bg-slate-900')}>
-        <NextIntlClientProvider messages={messages}>
-          <AuthProvider>
-            <LocationProvider>
-              <FavoritesProvider>
-                <FavoriteMaterialsProvider>
-                  <LazyCookieConsentModal />
-                  <div>{children}</div>
-                  <ToasterWithAuth />
-                </FavoriteMaterialsProvider>
-              </FavoritesProvider>
-            </LocationProvider>
-          </AuthProvider>
-        </NextIntlClientProvider>
+        <NavigationLoadingProvider>
+          <NextIntlClientProvider messages={messages}>
+            <AuthProvider>
+              <LocationProvider>
+                <FavoritesProvider>
+                  <FavoriteMaterialsProvider>
+                    <LazyCookieConsentModal />
+                    <div>{children}</div>
+                    <ToasterWithAuth />
+                  </FavoriteMaterialsProvider>
+                </FavoritesProvider>
+              </LocationProvider>
+            </AuthProvider>
+          </NextIntlClientProvider>
+        </NavigationLoadingProvider>
       </body>
     </html>
   )
