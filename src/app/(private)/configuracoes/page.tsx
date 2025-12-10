@@ -48,6 +48,7 @@ export default function SettingsScreen() {
     if (user) {
       setValue('name', user.displayName || '')
       setValue('email', user.email || '')
+      setValue('phone', user.phone || '')
     }
   }, [user, setValue])
 

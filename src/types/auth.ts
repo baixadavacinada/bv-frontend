@@ -39,6 +39,7 @@ export interface UserProfile extends UserClaims {
   email: string | null
   displayName?: string | null
   photoURL?: string
+  phone?: string | null
   emailVerified: boolean
   createdAt: string
   lastSignIn?: string

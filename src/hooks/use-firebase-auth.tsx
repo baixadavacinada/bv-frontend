@@ -14,6 +14,7 @@ export interface User {
   email: string | null
   displayName: string | null
   photoURL: string | null
+  phone?: string | null
   role: UserRole
   permissions: Permission[]
   ubsId?: string
@@ -68,6 +69,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         email: firebaseUser.email,
         displayName: firebaseUser.displayName,
         photoURL: firebaseUser.photoURL,
+        phone: userProfile.phone,
         role: userProfile.role,
         permissions: userProfile.permissions,
         ubsId: userProfile.ubsId,

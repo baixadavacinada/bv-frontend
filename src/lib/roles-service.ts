@@ -87,6 +87,7 @@ export async function fetchUserProfile(token: string, uid: string): Promise<User
             uid: data.data.uid,
             email: data.data.email,
             displayName: data.data.displayName,
+            phone: data.data.phone,
             role: data.data.role || 'public',
             permissions: data.data.permissions || [],
             ubsId: data.data.ubsId,
