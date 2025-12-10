@@ -126,7 +126,7 @@ export default function Page() {
 
                 <BvButton
                   variant="default"
-                  title={isLoading ? 'Entrando...' : 'Entrar com o Google'}
+                  title={isLoading ? 'Criando conta...' : 'Criar com o Google'}
                   className="text-primary flex w-full items-center justify-center gap-2 bg-white shadow-sm hover:bg-gray-50"
                   onClick={handleGoogleLogin}
                   disabled={isLoading}

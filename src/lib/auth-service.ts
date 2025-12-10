@@ -85,6 +85,7 @@ export async function loginWithGoogle(): Promise<{
   user: FirebaseUser
   token: string
   backendData?: unknown
+  emailExists?: boolean
 }> {
   try {
     const provider = new GoogleAuthProvider()
@@ -97,6 +98,31 @@ export async function loginWithGoogle(): Promise<{
       const isProduction = process.env.NODE_ENV === 'production'
       const secureFlag = isProduction ? 'secure;' : ''
       document.cookie = `firebase-token=${token}; path=/; ${secureFlag} samesite=strict; max-age=${24 * 60 * 60}`
+    }
+
+    // Check if email already exists in database
+    let emailExists = false
+    try {
+      const checkEmailResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/public/users/check-email`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            email: result.user.email,
+          }),
+        },
+      )
+
+      if (checkEmailResponse.ok) {
+        const checkData = await checkEmailResponse.json()
+        emailExists = checkData.data?.exists || false
+      }
+    } catch (error) {
+      console.warn('Could not check email existence:', error)
     }
 
     let backendData = null
@@ -125,6 +151,7 @@ export async function loginWithGoogle(): Promise<{
       user: result.user,
       token: token,
       backendData: backendData,
+      emailExists: emailExists,
     }
   } catch (error: unknown) {
     const firebaseError = error as { code?: string; message?: string }
