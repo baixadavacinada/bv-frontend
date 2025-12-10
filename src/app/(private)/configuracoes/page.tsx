@@ -168,8 +168,13 @@ export default function SettingsScreen() {
                           {...register('acceptWhatsAppNotifications')}
                           onChange={(e) => {
                             if (e.target.checked) {
+                              // Ao marcar WhatsApp, marca as notificações
                               setValue('notifications.secondDose', true)
                               setValue('notifications.newVaccines', true)
+                            } else {
+                              // Ao desmarcar WhatsApp, desmarca as notificações
+                              setValue('notifications.secondDose', false)
+                              setValue('notifications.newVaccines', false)
                             }
                           }}
                           className="h-5 w-5 cursor-pointer rounded border-green-300 text-green-600"
