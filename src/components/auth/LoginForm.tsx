@@ -70,23 +70,25 @@ export function LoginForm({ onSuccess, redirectTo = '/inicio' }: LoginFormProps)
     try {
       const result = await loginWithGoogle()
 
-      // Se o email já existe, mostre mensagem de erro
-      if (result.emailExists) {
-        setError(
-          'Este email já está cadastrado. Faça login com sua senha ou use "Esqueceu a senha?" para recuperá-la.',
-        )
-        setIsLoading(false)
+      // Se o email JÃO existe, redirecionar para registro pré-preenchido com dados do Google
+      if (!result.emailExists) {
+        const params = new URLSearchParams({
+          email: result.user.email || '',
+          displayName: result.user.displayName || '',
+          fromGoogle: 'true',
+        })
+
+        router.push(`/registro-usuario?${params.toString()}`)
         return
       }
 
-      // Redirecionar para registro pré-preenchido com dados do Google
-      const params = new URLSearchParams({
-        email: result.user.email || '',
-        displayName: result.user.displayName || '',
-        fromGoogle: 'true',
-      })
-
-      router.push(`/registro-usuario?${params.toString()}`)
+      // Se o email já existe, fazer login normalmente
+      if (onSuccess) {
+        onSuccess()
+      } else {
+        router.push(redirectTo)
+        router.refresh()
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao fazer login com Google')
     } finally {
@@ -165,8 +167,8 @@ export function LoginForm({ onSuccess, redirectTo = '/inicio' }: LoginFormProps)
           className="w-full"
           onClick={handleGoogleLogin}
           disabled={isLoading}
-          title={isLoading ? 'Criando conta...' : 'Criar com Google'}
-          aria-label={isLoading ? 'Criando conta com Google...' : 'Criar com Google'}
+          title={isLoading ? 'Entrando...' : 'Entrar com Google'}
+          aria-label={isLoading ? 'Entrando com Google...' : 'Entrar com Google'}
           leftIcon={
             <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
               <path
