@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { X } from 'lucide-react'
 
 interface VariableBlock {
@@ -91,26 +92,35 @@ export function VariableBlockInput({
   label,
   availableVariables = [],
 }: VariableBlockInputProps) {
+  useAccessibilityValidation({ enabled: true })
   const [blocks, setBlocks] = useState<Block[]>(() => parseValueToBlocks(value))
   const [inputValue, setInputValue] = useState('')
   const inputRef = useRef<HTMLDivElement>(null)
   const textInputRef = useRef<HTMLInputElement>(null)
-
-  // Sincroniza blocos com o valor do input - apenas quando blocos mudam
-  useEffect(() => {
-    const newValue = blocksToString(blocks)
-    if (newValue !== value) {
-      onChange(newValue)
-    }
-  }, [blocks, onChange, value])
+  const isInitialMount = useRef(true)
 
   // Sincroniza com mudanças externas do value
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+
     const currentValue = blocksToString(blocks)
     if (value !== currentValue) {
       setBlocks(parseValueToBlocks(value))
     }
-  }, [value, blocks])
+  }, [value])
+
+  // Notifica mudanças quando blocos mudam (mas não na inicial)
+  useEffect(() => {
+    if (isInitialMount.current) return
+
+    const newValue = blocksToString(blocks)
+    if (newValue !== value) {
+      onChange(newValue)
+    }
+  }, [blocks])
 
   const addVariable = useCallback(
     (variableName: string, displayName: string) => {
@@ -195,7 +205,7 @@ export function VariableBlockInput({
       {/* Container de blocos */}
       <div
         ref={inputRef}
-        className="flex min-h-10 flex-wrap gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100"
+        className="flex min-h-10 flex-nowrap gap-2 overflow-x-auto rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100"
       >
         {blocks.map((block, index) => (
           <div key={block.id}>

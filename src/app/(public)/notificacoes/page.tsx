@@ -60,6 +60,7 @@ type NotificationConfig = {
   label: string
   enableTemplate?: boolean // Se deve mostrar selector de template
   description?: string // Subtítulo explicativo do switch
+  templateCategory?: 'appointment' | 'vaccine' | 'reminder' | 'system' | 'general'
 }
 
 type NotificationSection = {
@@ -89,12 +90,14 @@ const ROLE_CONFIGURATIONS: Record<string, RoleConfig> = {
             label: 'Lembretes da segunda dose',
             enableTemplate: true,
             description: 'Receba lembretes para tomar a segunda dose da vacina',
+            templateCategory: 'reminder',
           },
           {
             key: 'novos_registros_vacinacao',
             label: 'Novos registros de vacinação',
             enableTemplate: true,
             description: 'Notificações quando uma dose for registrada no seu histórico',
+            templateCategory: 'vaccine',
           },
         ],
       },
@@ -112,12 +115,14 @@ const ROLE_CONFIGURATIONS: Record<string, RoleConfig> = {
             label: 'Novos registros de vacinação',
             enableTemplate: true,
             description: 'Notifique os usuários quando uma dose for registrada',
+            templateCategory: 'vaccine',
           },
           {
             key: 'lembretes_segunda_dose',
             label: 'Lembretes da segunda dose',
             enableTemplate: true,
             description: 'Envie lembretes para usuários que precisam tomar a segunda dose',
+            templateCategory: 'reminder',
           },
         ],
       },
@@ -147,18 +152,21 @@ const ROLE_CONFIGURATIONS: Record<string, RoleConfig> = {
             label: 'Alertas de novos cadastros de usuários',
             enableTemplate: true,
             description: 'Receba notificação quando novos usuários se registrarem',
+            templateCategory: 'system',
           },
           {
             key: 'novas_vacinas',
             label: 'Alerta de novas vacinas adicionadas na aplicação',
             enableTemplate: true,
             description: 'Notifique quando uma vacina for adicionada ao sistema',
+            templateCategory: 'vaccine',
           },
           {
             key: 'novas_ubs',
             label: 'Alerta de novas UBSs cadastradas',
             enableTemplate: true,
             description: 'Receba notificação quando uma nova unidade de saúde for cadastrada',
+            templateCategory: 'system',
           },
         ],
       },
@@ -171,6 +179,7 @@ const ROLE_CONFIGURATIONS: Record<string, RoleConfig> = {
             label: 'Lembretes da segunda dose',
             enableTemplate: true,
             description: 'Notifique os moradores sobre lembretes da segunda dose',
+            templateCategory: 'reminder',
           },
         ],
       },
@@ -264,6 +273,7 @@ const NotificationSectionComponent = ({
                   enabled={isEnabled}
                   onTemplateSelect={(templateId) => onTemplateSelect(settingKey, templateId)}
                   selectedTemplateId={settings.templateId}
+                  category={config.templateCategory}
                 />
 
                 {config.key === 'lembretes_segunda_dose' &&

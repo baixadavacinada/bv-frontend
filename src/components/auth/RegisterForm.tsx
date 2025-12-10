@@ -24,7 +24,7 @@ const registerSchema = z
       .optional()
       .refine(
         (val) => !val || phoneRegex.test(val.replace(/\D/g, '')),
-        'Número de telefone inválido. Use formato: (XX) 99999-9999 ou +55 (XX) 99999-9999',
+        'Número de telefone inválido. Use formato: (XX) 99999-9999',
       ),
     acceptWhatsAppNotifications: z.boolean().optional(),
     acceptTerms: z.boolean().refine((val) => val === true, {
@@ -228,9 +228,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
               e.target.value = formatted
             }}
           />
-          <p className="mt-1 text-xs text-gray-500">
-            Formato: (XX) 99999-9999 ou +55 (XX) 99999-9999
-          </p>
+          <p className="mt-1 text-xs text-gray-500">Formato: XX999999999</p>
         </div>
 
         {/* Toggle para notificações por WhatsApp */}

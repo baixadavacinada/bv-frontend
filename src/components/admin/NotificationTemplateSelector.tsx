@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { AlertCircle, Loader } from 'lucide-react'
 import {
   Select,
@@ -18,13 +19,16 @@ interface NotificationTemplateSelectorProps {
   enabled: boolean
   onTemplateSelect: (templateId: string) => void
   selectedTemplateId?: string
+  category?: 'appointment' | 'vaccine' | 'reminder' | 'system' | 'general'
 }
 
 export function NotificationTemplateSelector({
   enabled,
   onTemplateSelect,
   selectedTemplateId,
+  category,
 }: NotificationTemplateSelectorProps) {
+  useAccessibilityValidation({ enabled: true })
   const [templates, setTemplates] = useState<NotificationTemplate[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState<NotificationTemplate | null>(null)
@@ -36,12 +40,18 @@ export function NotificationTemplateSelector({
         setLoading(true)
         const data = await getAllTemplates()
         // Filtrar apenas templates ativos
-        const activeTemplates = data.filter((t) => t.status === 'ativo')
-        setTemplates(activeTemplates)
+        let filtered = data.filter((t) => t.status === 'ativo')
+
+        // Filtrar por categoria se fornecida
+        if (category) {
+          filtered = filtered.filter((t) => t.category === category)
+        }
+
+        setTemplates(filtered)
 
         // If we have a previously selected template, set it
         if (selectedTemplateId) {
-          const found = activeTemplates.find((t) => t.id === selectedTemplateId)
+          const found = filtered.find((t) => t.id === selectedTemplateId)
           if (found) {
             setSelectedTemplate(found)
           }
@@ -57,7 +67,7 @@ export function NotificationTemplateSelector({
     if (enabled) {
       loadTemplates()
     }
-  }, [enabled, selectedTemplateId])
+  }, [enabled, selectedTemplateId, category])
 
   const handleTemplateChange = useCallback(
     (templateId: string) => {

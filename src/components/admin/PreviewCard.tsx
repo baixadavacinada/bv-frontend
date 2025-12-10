@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,54 +11,49 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Copy, Eye, Edit, Trash2, AlertCircle, HelpCircle, Lock } from 'lucide-react'
+import { Copy, Eye, Edit, Trash2, Lock } from 'lucide-react'
 import { NotificationTemplate } from '@/services/notificationTemplateService'
 import { toast } from 'sonner'
 
-const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string; icon: string }> =
-  {
-    appointment: {
-      bg: 'bg-blue-50',
-      text: 'text-blue-700',
-      border: 'border-blue-200',
-      icon: '📅',
-    },
-    vaccine: {
-      bg: 'bg-green-50',
-      text: 'text-green-700',
-      border: 'border-green-200',
-      icon: '💉',
-    },
-    reminder: {
-      bg: 'bg-orange-50',
-      text: 'text-orange-700',
-      border: 'border-orange-200',
-      icon: '🔔',
-    },
-    system: {
-      bg: 'bg-purple-50',
-      text: 'text-purple-700',
-      border: 'border-purple-200',
-      icon: '⚙️',
-    },
-    general: {
-      bg: 'bg-gray-50',
-      text: 'text-gray-700',
-      border: 'border-gray-200',
-      icon: '📢',
-    },
-  }
-
-const VARIABLE_DESCRIPTIONS: Record<string, string> = {
-  userName: 'Nome do usuário',
-  healthUnitName: 'Nome da UBS',
-  vaccineName: 'Nome da vacina',
-  date: 'Data do agendamento',
-  time: 'Horário',
-  appointmentId: 'ID do agendamento',
-  doses: 'Total de doses',
-  currentDose: 'Dose atual',
-  phoneNumber: 'Número de telefone',
+const CATEGORY_COLORS: Record<
+  string,
+  { bg: string; text: string; border: string; icon: string; label: string }
+> = {
+  appointment: {
+    bg: 'bg-blue-50',
+    text: 'text-blue-700',
+    border: 'border-blue-200',
+    icon: '📅',
+    label: 'Agendamento',
+  },
+  vaccine: {
+    bg: 'bg-green-50',
+    text: 'text-green-700',
+    border: 'border-green-200',
+    icon: '💉',
+    label: 'Vacina',
+  },
+  reminder: {
+    bg: 'bg-orange-50',
+    text: 'text-orange-700',
+    border: 'border-orange-200',
+    icon: '🔔',
+    label: 'Lembrete',
+  },
+  system: {
+    bg: 'bg-purple-50',
+    text: 'text-purple-700',
+    border: 'border-purple-200',
+    icon: '⚙️',
+    label: 'Sistema',
+  },
+  general: {
+    bg: 'bg-gray-50',
+    text: 'text-gray-700',
+    border: 'border-gray-200',
+    icon: '📢',
+    label: 'Geral',
+  },
 }
 
 interface PreviewCardProps {
@@ -75,17 +71,11 @@ export function PreviewCard({
   onDelete,
   compact = false,
 }: PreviewCardProps) {
+  useAccessibilityValidation({ enabled: true })
   const [isOpen, setIsOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'details' | 'whatsapp'>('details')
 
   const colors = CATEGORY_COLORS[template.category] || CATEGORY_COLORS.general
-
-  const extractVariables = (text: string): string[] => {
-    const matches = text.match(/\{\{(\w+)\}\}/g) || []
-    return Array.from(new Set(matches.map((m) => m.replace(/\{\{|\}\}/g, ''))))
-  }
-
-  const variables = extractVariables(`${template.subject} ${template.body}`)
 
   const renderWithHighlightedVars = (text: string) => {
     const parts = text.split(/(\{\{[^}]+\}\})/g)
@@ -114,14 +104,15 @@ export function PreviewCard({
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            {/* Header com ícone, nome e categoria */}
-            <div className="mb-2 flex items-center gap-2">
-              <span className="text-xl">{colors.icon}</span>
-              <h3 className="flex-1 truncate font-semibold text-gray-900">{template.name}</h3>
+            {/* Header com nome e categoria */}
+            <div className="mb-2 flex items-start gap-2">
+              <h3 className="line-clamp-2 flex-1 text-sm font-semibold text-gray-900">
+                {template.name}
+              </h3>
             </div>
 
             {/* Descrição */}
-            <p className={`text-sm ${colors.text} mb-3 truncate`}>{template.description}</p>
+            <p className={`text-sm ${colors.text} mb-3 line-clamp-2`}>{template.description}</p>
 
             {/* Preview do corpo */}
             {!compact && (
@@ -133,20 +124,16 @@ export function PreviewCard({
             {/* Variáveis e badge */}
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline" className="text-xs">
-                {Object.keys(CATEGORY_COLORS).find((k) => k === template.category) && (
-                  <>
-                    {colors.icon}{' '}
-                    {template.category.charAt(0).toUpperCase() + template.category.slice(1)}
-                  </>
-                )}
+                {colors.icon} {colors.label}
               </Badge>
-
-              {variables.length > 0 && (
-                <div className="flex items-center gap-1 text-xs text-gray-600">
-                  <AlertCircle className="h-3 w-3" />
-                  <span>{variables.length} var.</span>
-                </div>
-              )}
+              <Badge
+                variant={template.status === 'ativo' ? 'default' : 'secondary'}
+                className={`text-xs ${
+                  template.status === 'ativo' ? 'bg-green-600 text-white hover:bg-green-700' : ''
+                }`}
+              >
+                {template.status === 'ativo' ? '✓ Ativo' : '✗ Desativado'}
+              </Badge>
             </div>
           </div>
 
@@ -294,41 +281,6 @@ export function PreviewCard({
                     {renderWithHighlightedVars(template.body)}
                   </div>
                 </div>
-
-                {/* Variáveis */}
-                {variables.length > 0 && (
-                  <div className="space-y-3 rounded-lg border-l-4 border-blue-500 bg-blue-50 p-4">
-                    <div className="flex items-center gap-2">
-                      <HelpCircle className="h-5 w-5 text-blue-600" />
-                      <h4 className="font-semibold text-blue-900">🔄 Variáveis Disponíveis</h4>
-                    </div>
-
-                    <p className="text-sm text-blue-800">
-                      Essas variáveis são preenchidas automaticamente com dados reais do usuário:
-                    </p>
-
-                    <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                      {variables.map((varName) => (
-                        <div
-                          key={varName}
-                          className="rounded border border-blue-200 bg-white p-3 text-xs"
-                        >
-                          <code className="mb-1 block font-mono font-semibold text-blue-700">
-                            {'{'}
-                            {'{'}
-                            {varName}
-                            {'}'}
-                            {'}'}
-                          </code>
-                          <p className="text-gray-600">
-                            {VARIABLE_DESCRIPTIONS[varName as keyof typeof VARIABLE_DESCRIPTIONS] ||
-                              'Variável customizada'}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </>
             ) : (
               // WhatsApp Preview

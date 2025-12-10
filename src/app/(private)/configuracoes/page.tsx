@@ -146,7 +146,7 @@ export default function SettingsScreen() {
                       label="Telefone/WhatsApp (opcional):"
                       type="tel"
                       {...register('phone')}
-                      placeholder="(XX) 99999-9999 ou +55 (XX) 99999-9999"
+                      placeholder="(XX) 99999-9999"
                       className={
                         emptyFields.phone
                           ? 'border-yellow-300 bg-yellow-50 placeholder:text-gray-400'

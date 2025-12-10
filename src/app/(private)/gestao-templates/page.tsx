@@ -30,6 +30,7 @@ export default function GestaoTemplatesPage() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | 'all'>('all')
+  const [showInactive, setShowInactive] = useState(false)
   const [showEditor, setShowEditor] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<NotificationTemplate | null>(null)
   const [isSaving, setIsSaving] = useState(false)
@@ -40,6 +41,13 @@ export default function GestaoTemplatesPage() {
       try {
         setLoading(true)
         const data = await getAllCustomTemplates()
+        // Debug: Check for duplicates
+        const ids = data.map((t) => t.id)
+        const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index)
+        if (duplicates.length > 0) {
+          console.warn('Duplicate template IDs found:', duplicates)
+        }
+        console.log('Loaded templates:', data.length, data)
         setTemplates(data)
       } catch (error) {
         console.error('Erro ao carregar templates:', error)
@@ -56,8 +64,12 @@ export default function GestaoTemplatesPage() {
   useEffect(() => {
     let filtered = templates
 
-    // Mostrar apenas templates ativos por padrão
-    filtered = filtered.filter((t) => t.status === 'ativo')
+    // Filtrar por status (ativo/desativado)
+    if (showInactive) {
+      filtered = filtered.filter((t) => t.status === 'desativado')
+    } else {
+      filtered = filtered.filter((t) => t.status === 'ativo')
+    }
 
     // Search filter
     if (searchTerm) {
@@ -73,8 +85,15 @@ export default function GestaoTemplatesPage() {
       filtered = filtered.filter((t) => t.category === selectedCategory)
     }
 
+    // Verificar se há duplicatas
+    const ids = filtered.map((t) => t.id)
+    const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index)
+    if (duplicates.length > 0) {
+      console.warn('Duplicate template IDs found:', duplicates)
+    }
+
     setFilteredTemplates(filtered)
-  }, [templates, searchTerm, selectedCategory])
+  }, [templates, searchTerm, selectedCategory, showInactive])
 
   const categories = Array.from(new Set(templates.map((t) => t.category))).sort()
 
@@ -149,7 +168,7 @@ export default function GestaoTemplatesPage() {
             <div className="flex items-start gap-3">
               <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
               <div>
-                <p className="text-sm font-semibold text-blue-900">📝 Como funciona</p>
+                <p className="text-sm font-semibold text-blue-900">Como funciona</p>
                 <p className="mt-1 text-sm text-blue-800">
                   Crie templates de notificação com variáveis dinâmicas (como nome do usuário, data,
                   etc). As variáveis são preenchidas automaticamente quando a notificação é enviada.
@@ -164,7 +183,7 @@ export default function GestaoTemplatesPage() {
           </div>
 
           {/* Search */}
-          <div className="mb-6">
+          <div className="mb-6 space-y-4">
             <div className="relative">
               <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
               <Input
@@ -173,6 +192,25 @@ export default function GestaoTemplatesPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
+            </div>
+
+            {/* Toggle para mostrar templates desativados */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowInactive(!showInactive)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  showInactive ? 'bg-blue-600' : 'bg-gray-300'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    showInactive ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+              <label className="text-sm font-medium text-gray-700">
+                {showInactive ? 'Mostrando templates desativados' : 'Mostrar templates desativados'}
+              </label>
             </div>
           </div>
 

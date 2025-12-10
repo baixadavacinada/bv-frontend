@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useMemo } from 'react'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -58,6 +59,7 @@ export function TemplateEditDialog({
   onClose,
   onSuccess,
 }: TemplateEditDialogProps) {
+  useAccessibilityValidation({ enabled: true })
   const isEditMode = !!template
 
   const [formData, setFormData] = useState({
@@ -124,8 +126,8 @@ export function TemplateEditDialog({
       }
 
       const response = isEditMode
-        ? await updateTemplate(payload as any)
-        : await createTemplate(payload)
+        ? await updateTemplate(payload as NotificationTemplate)
+        : await createTemplate(payload as NotificationTemplate)
 
       if (response.success) {
         toast.success(

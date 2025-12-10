@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,7 +13,6 @@ import {
 } from '@/components/ui/dialog'
 import { Eye, Copy, MessageCircle } from 'lucide-react'
 import { NotificationTemplate } from '@/services/notificationTemplateService'
-import { extractVariables } from '@/services/templateEditService'
 import { toast } from 'sonner'
 
 interface TemplatePreviewCardProps {
@@ -21,33 +21,24 @@ interface TemplatePreviewCardProps {
   onSend?: (template: NotificationTemplate) => void
 }
 
-const VARIABLE_DESCRIPTIONS: Record<string, string> = {
-  userName: 'Nome do usuário',
-  healthUnitName: 'Nome da UBS',
-  vaccineName: 'Nome da vacina',
-  date: 'Data',
-  time: 'Horário',
-  appointmentId: 'ID do Agendamento',
-  doses: 'Total de doses',
-  currentDose: 'Dose atual',
-  phoneNumber: 'Número de telefone',
-  message: 'Mensagem customizada',
+const CATEGORY_COLORS: Record<string, { bg: string; text: string; icon: string; label: string }> = {
+  appointment: { bg: 'bg-blue-100', text: 'text-blue-800', icon: '📅', label: 'Agendamento' },
+  vaccine: { bg: 'bg-green-100', text: 'text-green-800', icon: '💉', label: 'Vacina' },
+  reminder: { bg: 'bg-orange-100', text: 'text-orange-800', icon: '🔔', label: 'Lembrete' },
+  system: { bg: 'bg-purple-100', text: 'text-purple-800', icon: '⚙️', label: 'Sistema' },
+  general: { bg: 'bg-gray-100', text: 'text-gray-800', icon: '📢', label: 'Geral' },
 }
 
-const CATEGORY_COLORS: Record<string, { bg: string; text: string; icon: string }> = {
-  appointment: { bg: 'bg-blue-100', text: 'text-blue-800', icon: '📅' },
-  vaccine: { bg: 'bg-green-100', text: 'text-green-800', icon: '💉' },
-  reminder: { bg: 'bg-orange-100', text: 'text-orange-800', icon: '🔔' },
-  system: { bg: 'bg-purple-100', text: 'text-purple-800', icon: '⚙️' },
-  general: { bg: 'bg-gray-100', text: 'text-gray-800', icon: '📢' },
-}
-
-export function TemplatePreviewCard({ template, showSendButton = true, onSend }: TemplatePreviewCardProps) {
+export function TemplatePreviewCard({
+  template,
+  showSendButton = true,
+  onSend,
+}: TemplatePreviewCardProps) {
+  useAccessibilityValidation({ enabled: true })
   const [isOpen, setIsOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'details' | 'preview'>('details')
 
   const categoryColors = CATEGORY_COLORS[template.category] || CATEGORY_COLORS.general
-  const variables = extractVariables(`${template.subject} ${template.body}`)
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -59,7 +50,10 @@ export function TemplatePreviewCard({ template, showSendButton = true, onSend }:
     return parts.map((part, idx) => {
       if (/^\{\{[^}]+\}\}$/.test(part)) {
         return (
-          <span key={idx} className="rounded bg-blue-100 px-1 font-mono text-xs font-semibold text-blue-900">
+          <span
+            key={idx}
+            className="rounded bg-blue-100 px-1 font-mono text-xs font-semibold text-blue-900"
+          >
             {part}
           </span>
         )
@@ -72,19 +66,22 @@ export function TemplatePreviewCard({ template, showSendButton = true, onSend }:
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full text-left rounded-lg border border-gray-200 bg-white p-4 hover:border-blue-400 hover:shadow-md transition-all"
+        className="w-full rounded-lg border border-gray-200 bg-white p-4 text-left transition-all hover:border-blue-400 hover:shadow-md"
       >
         <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <Badge variant="secondary" className={`${categoryColors.bg} ${categoryColors.text} border-0`}>
-                {categoryColors.icon} {template.category}
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex items-center gap-2">
+              <Badge
+                variant="secondary"
+                className={`${categoryColors.bg} ${categoryColors.text} border-0`}
+              >
+                {categoryColors.icon} {categoryColors.label}
               </Badge>
             </div>
             <h3 className="font-semibold text-gray-900">{template.name}</h3>
-            <p className="text-sm text-gray-600 truncate">{template.description}</p>
+            <p className="truncate text-sm text-gray-600">{template.description}</p>
           </div>
-          <Eye className="h-5 w-5 text-gray-400 flex-shrink-0 mt-1" />
+          <Eye className="mt-1 h-5 w-5 flex-shrink-0 text-gray-400" />
         </div>
       </button>
 
@@ -94,7 +91,7 @@ export function TemplatePreviewCard({ template, showSendButton = true, onSend }:
           <DialogHeader>
             <div className="flex items-center gap-2">
               <Badge className={`${categoryColors.bg} ${categoryColors.text} border-0`}>
-                {categoryColors.icon} {template.category}
+                {categoryColors.icon} {categoryColors.label}
               </Badge>
             </div>
             <DialogTitle>{template.name}</DialogTitle>
@@ -102,7 +99,7 @@ export function TemplatePreviewCard({ template, showSendButton = true, onSend }:
           </DialogHeader>
 
           {/* Tabs */}
-          <div className="flex gap-2 border-b border-gray-200 mb-4">
+          <div className="mb-4 flex gap-2 border-b border-gray-200">
             <button
               onClick={() => setActiveTab('details')}
               className={`px-4 py-2 text-sm font-medium transition-colors ${
@@ -115,7 +112,7 @@ export function TemplatePreviewCard({ template, showSendButton = true, onSend }:
             </button>
             <button
               onClick={() => setActiveTab('preview')}
-              className={`px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${
                 activeTab === 'preview'
                   ? 'border-b-2 border-green-600 text-green-600'
                   : 'text-gray-600 hover:text-gray-900'
@@ -130,98 +127,67 @@ export function TemplatePreviewCard({ template, showSendButton = true, onSend }:
             <div className="space-y-4">
               {/* Assunto */}
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="mb-2 flex items-center justify-between">
                   <h4 className="text-sm font-semibold text-gray-900">Assunto</h4>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => copyToClipboard(template.subject)}
-                    className="h-7 px-2 text-xs gap-1"
+                    className="h-7 gap-1 px-2 text-xs"
                   >
                     <Copy className="h-3 w-3" />
                     Copiar
                   </Button>
                 </div>
-                <div className="rounded border border-blue-200 bg-blue-50 p-3 text-sm text-gray-900 break-words">
+                <div className="rounded border border-blue-200 bg-blue-50 p-3 text-sm break-words text-gray-900">
                   {renderWithVariables(template.subject)}
                 </div>
               </div>
 
               {/* Corpo */}
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="mb-2 flex items-center justify-between">
                   <h4 className="text-sm font-semibold text-gray-900">Corpo da Mensagem</h4>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => copyToClipboard(template.body)}
-                    className="h-7 px-2 text-xs gap-1"
+                    className="h-7 gap-1 px-2 text-xs"
                   >
                     <Copy className="h-3 w-3" />
                     Copiar
                   </Button>
                 </div>
-                <div className="rounded border border-green-200 bg-green-50 p-3 text-sm text-gray-900 whitespace-pre-wrap break-words max-h-64 overflow-y-auto font-mono">
+                <div className="max-h-64 overflow-y-auto rounded border border-green-200 bg-green-50 p-3 font-mono text-sm break-words whitespace-pre-wrap text-gray-900">
                   {renderWithVariables(template.body)}
                 </div>
               </div>
-
-              {/* Variáveis */}
-              {variables.length > 0 && (
-                <div className="rounded border border-yellow-200 bg-yellow-50 p-3">
-                  <h4 className="text-sm font-semibold text-yellow-900 mb-2">Variáveis Utilizadas</h4>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    {variables.map((varName) => (
-                      <div key={varName} className="rounded bg-white p-2 border border-yellow-200">
-                        <code className="font-mono font-semibold text-yellow-900">
-                          {'{'}
-                          {'{'}
-                          {varName}
-                          {'}'}
-                          {'}'}
-                        </code>
-                        <p className="text-gray-600 text-xs mt-1">
-                          {VARIABLE_DESCRIPTIONS[varName] || 'Variável customizada'}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           ) : (
             // WhatsApp Preview Tab
             <div className="space-y-4">
               <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                <h4 className="text-sm font-semibold text-green-900 mb-3">Visualização WhatsApp</h4>
+                <h4 className="mb-3 text-sm font-semibold text-green-900">Visualização WhatsApp</h4>
 
                 <div className="space-y-2">
                   {/* Exemplo de mensagens */}
-                  <div className="bg-white rounded-lg p-3 border border-green-100 text-sm space-y-2">
+                  <div className="space-y-2 rounded-lg border border-green-100 bg-white p-3 text-sm">
                     {/* Mensagem de exemplo com variáveis substituídas */}
                     <div className="flex justify-end">
-                      <div className="max-w-xs rounded-lg bg-green-100 px-3 py-2 text-gray-800 rounded-br-none">
-                        <p className="text-xs font-semibold text-gray-600 mb-1">Assunto:</p>
+                      <div className="max-w-xs rounded-lg rounded-br-none bg-green-100 px-3 py-2 text-gray-800">
+                        <p className="mb-1 text-xs font-semibold text-gray-600">Assunto:</p>
                         <p className="break-words">{renderWithVariables(template.subject)}</p>
                       </div>
                     </div>
 
                     <div className="flex justify-end">
-                      <div className="max-w-xs rounded-lg bg-green-100 px-3 py-2 text-gray-800 rounded-br-none">
+                      <div className="max-w-xs rounded-lg rounded-br-none bg-green-100 px-3 py-2 text-gray-800">
                         <p className="break-words whitespace-pre-wrap">
                           {renderWithVariables(template.body)}
                         </p>
-                        <p className="text-xs text-gray-600 mt-2">14:30</p>
+                        <p className="mt-2 text-xs text-gray-600">14:30</p>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="bg-gray-50 rounded p-2 border border-gray-200 text-xs text-gray-600">
-                    <p>
-                      💡 <strong>Nota:</strong> Variáveis como {{'{'}}{'{'}
-                      {'userName}{'}
-                      {'}'} serão substituídas pelos dados reais do usuário no envio.
-                    </p>
                   </div>
                 </div>
               </div>
@@ -230,7 +196,7 @@ export function TemplatePreviewCard({ template, showSendButton = true, onSend }:
 
           {/* Send Button */}
           {showSendButton && onSend && (
-            <Button onClick={() => onSend(template)} className="w-full gap-2 mt-4">
+            <Button onClick={() => onSend(template)} className="mt-4 w-full gap-2">
               <MessageCircle className="h-4 w-4" />
               Enviar Notificação
             </Button>
