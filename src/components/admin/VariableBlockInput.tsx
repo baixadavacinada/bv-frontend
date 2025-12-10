@@ -110,6 +110,7 @@ export function VariableBlockInput({
     if (value !== currentValue) {
       setBlocks(parseValueToBlocks(value))
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value])
 
   // Notifica mudanças quando blocos mudam (mas não na inicial)
@@ -120,7 +121,8 @@ export function VariableBlockInput({
     if (newValue !== value) {
       onChange(newValue)
     }
-  }, [blocks])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blocks, onChange, value])
 
   const addVariable = useCallback(
     (variableName: string, displayName: string) => {

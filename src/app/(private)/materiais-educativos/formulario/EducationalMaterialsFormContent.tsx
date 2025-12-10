@@ -112,15 +112,6 @@ export function EducationalMaterialsFormContent() {
     }
 
     try {
-      const _payload = {
-        title: data.title,
-        author: data.author,
-        description: data.description,
-        fileId: selectedFile.id,
-        fileName: selectedFile.name,
-        fileUrl: selectedFile.url,
-      }
-
       if (isEdit) {
         toast.success('Conteúdo atualizado com sucesso!')
       } else {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Plus, Search, Filter, Loader, AlertCircle } from 'lucide-react'
+import { Plus, Search, Loader, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -94,8 +94,6 @@ export default function GestaoTemplatesPage() {
 
     setFilteredTemplates(filtered)
   }, [templates, searchTerm, selectedCategory, showInactive])
-
-  const categories = Array.from(new Set(templates.map((t) => t.category))).sort()
 
   const handleSave = async (templateData: Omit<NotificationTemplate, 'id'>) => {
     try {
@@ -225,7 +223,7 @@ export default function GestaoTemplatesPage() {
               <AlertCircle className="mx-auto h-12 w-12 text-gray-400" />
               <p className="mt-2 font-semibold text-gray-900">Nenhum template encontrado</p>
               <p className="mt-1 text-sm text-gray-600">
-                Crie seu primeiro template clicando em "Novo Template"
+                Crie seu primeiro template clicando em &quot;Novo Template&quot;
               </p>
               <Button onClick={handleCreateNew} className="mt-4">
                 <Plus className="mr-2 h-4 w-4" />
