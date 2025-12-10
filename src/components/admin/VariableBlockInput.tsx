@@ -121,7 +121,6 @@ export function VariableBlockInput({
     if (newValue !== value) {
       onChange(newValue)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blocks, onChange, value])
 
   const addVariable = useCallback(

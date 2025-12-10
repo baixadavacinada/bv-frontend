@@ -101,7 +101,7 @@ export function EducationalMaterialsFormContent() {
     )
   }
 
-  const onSubmit = async (data: EducationalMaterialsFormData) => {
+  const onSubmit = async (_data: EducationalMaterialsFormData) => {
     // Validar se arquivo foi selecionado
     if (!selectedFile) {
       setError('driveFile', {
