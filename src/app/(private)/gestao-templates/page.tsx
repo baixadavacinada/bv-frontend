@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
-import { Plus, Search, Loader, AlertCircle } from 'lucide-react'
+import { Plus, Search, Loader, AlertCircle, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -18,6 +18,7 @@ import { TemplateCard } from '@/components/admin/TemplateCard'
 import { TemplateEditor } from '@/components/admin/TemplateEditor'
 import { SendTemplateDialogUnified } from '@/components/admin/SendTemplateDialogUnified'
 import { SendTemplateTestDialog } from '@/components/Notifications/SendTemplateTestDialog'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
@@ -48,6 +49,7 @@ export default function GestaoTemplatesPage() {
   const [showSendDialog, setShowSendDialog] = useState(false)
   const [testingTemplate, setTestingTemplate] = useState<NotificationTemplate | null>(null)
   const [showTestDialog, setShowTestDialog] = useState(false)
+  const [activeTab, setActiveTab] = useState('gerenciar')
 
   // Load templates
   useEffect(() => {
@@ -173,149 +175,224 @@ export default function GestaoTemplatesPage() {
       <div className="min-h-screen">
         <div className="mx-auto max-w-7xl pb-4">
           {/* Header */}
-          <div className="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-            <div>
-              <BvTitleHeader title="🔔 Central de Notificações" className="mb-2" />
-              <p className="text-sm text-gray-600">
-                Gerencie templates e envie notificações personalizadas
-              </p>
-            </div>
-            <Button
-              onClick={handleCreateNew}
-              className="gap-2 bg-blue-600 whitespace-nowrap hover:bg-blue-700"
-              disabled={loading}
-            >
-              <Plus className="h-4 w-4" />
-              Novo Template
-            </Button>
+          <div className="mb-6">
+            <BvTitleHeader title="Central de Notificações" className="mb-2" />
+            <p className="text-sm text-gray-600">
+              Gerencie templates e envie notificações personalizadas
+            </p>
           </div>
 
-          {/* Info Box */}
-          <div className="mb-6 rounded-lg border-l-4 border-blue-500 bg-blue-50 p-4">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
-              <div>
-                <p className="text-sm font-semibold text-blue-900">💡 Dica</p>
-                <p className="mt-1 text-sm text-blue-800">
-                  Crie templates reutilizáveis com variáveis dinâmicas. Use{' '}
-                  <code className="rounded bg-blue-100 px-1.5 py-0.5 font-mono text-xs">
-                    {'{{variavel}}'}
-                  </code>{' '}
-                  para personalizar cada mensagem automaticamente.
-                </p>
+          {/* Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="mb-6 grid w-full grid-cols-3">
+              <TabsTrigger value="enviar" className="gap-2">
+                <Plus className="h-4 w-4" />
+                Enviar Nova
+              </TabsTrigger>
+              <TabsTrigger value="gerenciar" className="gap-2">
+                ⚙️ Gerenciar Templates
+              </TabsTrigger>
+              <TabsTrigger value="historico" className="gap-2">
+                📋 Histórico
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Tab: Enviar Nova */}
+            <TabsContent value="enviar" className="space-y-6">
+              <div className="rounded-lg border border-gray-200 bg-white p-6">
+                <h2 className="mb-4 text-lg font-semibold">Enviar Notificação com Template</h2>
+
+                {templates.length === 0 ? (
+                  <div className="py-12 text-center">
+                    <p className="mb-4 text-gray-600">Nenhum template disponível</p>
+                    <Button onClick={handleCreateNew} className="gap-2">
+                      <Plus className="h-4 w-4" />
+                      Criar Primeiro Template
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="py-8 text-center text-gray-500">
+                    <p>Selecione um template abaixo para enviar uma notificação</p>
+                  </div>
+                )}
+
+                {/* Templates Grid for Sending */}
+                {templates.length > 0 && (
+                  <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {templates.map((template) => (
+                      <div
+                        key={template.id}
+                        className="cursor-pointer rounded-lg border border-gray-200 p-4 transition-colors hover:border-blue-400"
+                        onClick={() => handleSend(template)}
+                      >
+                        <h3 className="mb-1 text-sm font-semibold">{template.name}</h3>
+                        <p className="mb-3 text-xs text-gray-600">{template.description}</p>
+                        <Button size="sm" className="w-full gap-2 bg-blue-600 hover:bg-blue-700">
+                          <Send className="h-3.5 w-3.5" />
+                          Enviar Agora
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
+            </TabsContent>
 
-          {/* Filters & Search */}
-          <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            {/* Search */}
-            <div className="relative max-w-md flex-1">
-              <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                placeholder="Buscar templates por nome..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            {/* Tab: Gerenciar Templates */}
+            <TabsContent value="gerenciar" className="space-y-6">
+              <div className="flex gap-4">
+                <Button
+                  onClick={handleCreateNew}
+                  className="gap-2 bg-blue-600 whitespace-nowrap hover:bg-blue-700"
+                  disabled={loading}
+                >
+                  <Plus className="h-4 w-4" />
+                  Novo Template
+                </Button>
+              </div>
 
-            {/* Filters */}
-            <div className="flex items-center gap-3">
-              <Select
-                value={selectedCategory}
-                onValueChange={(value) => setSelectedCategory(value as typeof selectedCategory)}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas categorias</SelectItem>
-                  <SelectItem value="vaccine">💉 Vacina</SelectItem>
-                  <SelectItem value="appointment">📅 Agendamento</SelectItem>
-                  <SelectItem value="health_alert">⚠️ Alerta</SelectItem>
-                  <SelectItem value="reminder">🔔 Lembrete</SelectItem>
-                  <SelectItem value="campaign">📢 Campanha</SelectItem>
-                  <SelectItem value="general">📝 Geral</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* Info Box */}
+              <div className="rounded-lg border-l-4 border-blue-500 bg-blue-50 p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
+                  <div>
+                    <p className="text-sm font-semibold text-blue-900">💡 Dica</p>
+                    <p className="mt-1 text-sm text-blue-800">
+                      Crie templates reutilizáveis com variáveis dinâmicas. Use{' '}
+                      <code className="rounded bg-blue-100 px-1.5 py-0.5 font-mono text-xs">
+                        {'{{variavel}}'}
+                      </code>{' '}
+                      para personalizar cada mensagem automaticamente.
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-              {/* Toggle Status */}
-              <button
-                onClick={() => setShowInactive(!showInactive)}
-                className={`relative inline-flex h-9 w-16 items-center rounded-full border transition-colors ${
-                  showInactive ? 'border-blue-600 bg-blue-600' : 'border-gray-300 bg-gray-200'
-                }`}
-                title={showInactive ? 'Mostrando inativos' : 'Mostrando ativos'}
-              >
-                <span
-                  className={`inline-block h-7 w-7 transform rounded-full bg-white shadow-sm transition-transform ${
-                    showInactive ? 'translate-x-8' : 'translate-x-1'
-                  }`}
-                />
-                <span className="absolute left-2 text-[10px] font-medium text-white">
-                  {showInactive ? '🔴' : '🟢'}
-                </span>
-              </button>
-            </div>
-          </div>
+              {/* Filters & Search */}
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                {/* Search */}
+                <div className="relative max-w-md flex-1">
+                  <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    placeholder="Buscar templates por nome..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
 
-          {/* Templates Grid */}
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <Loader className="h-10 w-10 animate-spin text-blue-600" />
-              <p className="mt-3 text-sm text-gray-600">Carregando templates...</p>
-            </div>
-          ) : templates.length === 0 ? (
-            <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 py-16 text-center">
-              <div className="mb-4 text-6xl">📝</div>
-              <p className="text-lg font-semibold text-gray-900">Nenhum template criado</p>
-              <p className="mt-2 text-sm text-gray-600">
-                Comece criando seu primeiro template de notificação
-              </p>
-              <Button onClick={handleCreateNew} className="mt-6">
-                <Plus className="mr-2 h-4 w-4" />
-                Criar Primeiro Template
-              </Button>
-            </div>
-          ) : filteredTemplates.length === 0 ? (
-            <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 py-16 text-center">
-              <div className="mb-4 text-6xl">🔍</div>
-              <p className="text-lg font-semibold text-gray-900">Nenhum template encontrado</p>
-              <p className="mt-2 text-sm text-gray-600">Tente ajustar os filtros ou busca</p>
-            </div>
-          ) : (
-            <>
-              {/* Results count */}
-              <div className="mb-4 flex items-center justify-between">
-                <p className="text-sm text-gray-600">
-                  {filteredTemplates.length}{' '}
-                  {filteredTemplates.length === 1 ? 'template encontrado' : 'templates encontrados'}
-                  {selectedCategory !== 'all' && ' nesta categoria'}
-                </p>
+                {/* Filters */}
+                <div className="flex items-center gap-3">
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={(value) => setSelectedCategory(value as typeof selectedCategory)}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas categorias</SelectItem>
+                      <SelectItem value="vaccine">💉 Vacina</SelectItem>
+                      <SelectItem value="appointment">📅 Agendamento</SelectItem>
+                      <SelectItem value="reminder">🔔 Lembrete</SelectItem>
+                      <SelectItem value="general">📝 Geral</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Toggle Status */}
+                  <button
+                    onClick={() => setShowInactive(!showInactive)}
+                    className={`relative inline-flex h-9 w-16 items-center rounded-full border transition-colors ${
+                      showInactive ? 'border-blue-600 bg-blue-600' : 'border-gray-300 bg-gray-200'
+                    }`}
+                    title={showInactive ? 'Mostrando inativos' : 'Mostrando ativos'}
+                  >
+                    <span
+                      className={`inline-block h-7 w-7 transform rounded-full bg-white shadow-sm transition-transform ${
+                        showInactive ? 'translate-x-8' : 'translate-x-1'
+                      }`}
+                    />
+                    <span className="absolute left-2 text-[10px] font-medium text-white">
+                      {showInactive ? '🔴' : '🟢'}
+                    </span>
+                  </button>
+                </div>
               </div>
 
               {/* Templates Grid */}
-              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                {filteredTemplates.map((template) => (
-                  <TemplateCard
-                    key={template.id}
-                    template={template}
-                    onEdit={handleEdit}
-                    onSend={handleSend}
-                    onTest={handleTest}
-                    onDelete={(t) => handleDelete(t.id)}
-                    onToggleStatus={(t) => {
-                      handleSave({
-                        ...t,
-                        status: t.status === 'ativo' ? 'desativado' : 'ativo',
-                      })
-                    }}
-                  />
-                ))}
+              {loading ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <Loader className="h-10 w-10 animate-spin text-blue-600" />
+                  <p className="mt-3 text-sm text-gray-600">Carregando templates...</p>
+                </div>
+              ) : templates.length === 0 ? (
+                <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 py-16 text-center">
+                  <div className="mb-4 text-6xl">📝</div>
+                  <p className="text-lg font-semibold text-gray-900">Nenhum template criado</p>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Comece criando seu primeiro template de notificação
+                  </p>
+                  <Button onClick={handleCreateNew} className="mt-6">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Criar Primeiro Template
+                  </Button>
+                </div>
+              ) : filteredTemplates.length === 0 ? (
+                <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 py-16 text-center">
+                  <div className="mb-4 text-6xl">🔍</div>
+                  <p className="text-lg font-semibold text-gray-900">Nenhum template encontrado</p>
+                  <p className="mt-2 text-sm text-gray-600">Tente ajustar os filtros ou busca</p>
+                </div>
+              ) : (
+                <>
+                  {/* Results count */}
+                  <div className="mb-4 flex items-center justify-between">
+                    <p className="text-sm text-gray-600">
+                      {filteredTemplates.length}{' '}
+                      {filteredTemplates.length === 1
+                        ? 'template encontrado'
+                        : 'templates encontrados'}
+                      {selectedCategory !== 'all' && ' nesta categoria'}
+                    </p>
+                  </div>
+
+                  {/* Templates Grid */}
+                  <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                    {filteredTemplates.map((template) => (
+                      <TemplateCard
+                        key={template.id}
+                        template={template}
+                        onEdit={handleEdit}
+                        onSend={handleSend}
+                        onTest={handleTest}
+                        onDelete={(t) => handleDelete(t.id)}
+                        onToggleStatus={(t) => {
+                          handleSave({
+                            ...t,
+                            status: t.status === 'ativo' ? 'desativado' : 'ativo',
+                          })
+                        }}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </TabsContent>
+
+            {/* Tab: Histórico */}
+            <TabsContent value="historico" className="space-y-6">
+              <div className="rounded-lg border border-gray-200 bg-white p-6">
+                <h2 className="mb-4 text-lg font-semibold">Histórico de Envios</h2>
+                <div className="py-12 text-center">
+                  <div className="mb-4 text-6xl">📊</div>
+                  <p className="text-gray-600">Histórico de envios virá em breve</p>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Aqui você poderá visualizar todos os envios realizados
+                  </p>
+                </div>
               </div>
-            </>
-          )}
+            </TabsContent>
+          </Tabs>
         </div>
 
         {/* Editor Dialog */}
