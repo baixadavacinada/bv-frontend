@@ -15,6 +15,7 @@ import { BvTitleHeader, RoleGuard } from '@/components'
 import { PreviewCard } from '@/components/admin/PreviewCard'
 import { TemplateTabs } from '@/components/admin/TemplateTabs'
 import { TemplateEditor } from '@/components/admin/TemplateEditor'
+import { SendTemplateDialogUnified } from '@/components/admin/SendTemplateDialogUnified'
 import {
   getAllCustomTemplates,
   createCustomTemplate,
@@ -34,6 +35,8 @@ export default function GestaoTemplatesPage() {
   const [showEditor, setShowEditor] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<NotificationTemplate | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [sendingTemplate, setSendingTemplate] = useState<NotificationTemplate | null>(null)
+  const [showSendDialog, setShowSendDialog] = useState(false)
 
   // Load templates
   useEffect(() => {
@@ -127,6 +130,11 @@ export default function GestaoTemplatesPage() {
   const handleEdit = (template: NotificationTemplate) => {
     setEditingTemplate(template)
     setShowEditor(true)
+  }
+
+  const handleSend = (template: NotificationTemplate) => {
+    setSendingTemplate(template)
+    setShowSendDialog(true)
   }
 
   const handleDelete = async (templateId: string) => {
@@ -252,6 +260,7 @@ export default function GestaoTemplatesPage() {
                           showActions={true}
                           onEdit={handleEdit}
                           onDelete={handleDelete}
+                          onSend={handleSend}
                           compact
                         />
                       ))}
@@ -288,6 +297,21 @@ export default function GestaoTemplatesPage() {
             />
           </DialogContent>
         </Dialog>
+
+        {/* Send Dialog */}
+        {sendingTemplate && (
+          <SendTemplateDialogUnified
+            template={sendingTemplate}
+            isOpen={showSendDialog}
+            onClose={() => {
+              setShowSendDialog(false)
+              setSendingTemplate(null)
+            }}
+            onSuccess={() => {
+              toast.success('Template enviado com sucesso!')
+            }}
+          />
+        )}
       </div>
     </RoleGuard>
   )

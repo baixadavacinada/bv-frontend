@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Copy, Eye, Edit, Trash2, Lock } from 'lucide-react'
+import { Copy, Eye, Edit, Trash2, AlertCircle } from 'lucide-react'
 import { NotificationTemplate } from '@/services/notificationTemplateService'
 import { toast } from 'sonner'
 
@@ -61,6 +61,7 @@ interface PreviewCardProps {
   showActions?: boolean
   onEdit?: (template: NotificationTemplate) => void
   onDelete?: (templateId: string) => void
+  onSend?: (template: NotificationTemplate) => void
   compact?: boolean
 }
 
@@ -69,6 +70,7 @@ export function PreviewCard({
   showActions = false,
   onEdit,
   onDelete,
+  onSend,
   compact = false,
 }: PreviewCardProps) {
   useAccessibilityValidation({ enabled: true })
@@ -86,7 +88,7 @@ export function PreviewCard({
             key={idx}
             className="inline-flex items-center gap-1 rounded border border-yellow-300 bg-yellow-100 px-2 py-0.5 font-mono text-xs font-semibold text-yellow-900"
           >
-            <Lock className="h-3 w-3" />
+            <AlertCircle className="h-3 w-3" />
             {part}
           </span>
         )
@@ -154,6 +156,20 @@ export function PreviewCard({
 
             {showActions && (
               <>
+                {onSend && (
+                  <Button
+                    type="button"
+                    variant="default"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onSend(template)
+                    }}
+                    className="bg-green-600 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-green-700"
+                  >
+                    📤
+                  </Button>
+                )}
                 {onEdit && (
                   <Button
                     type="button"
@@ -337,6 +353,19 @@ export function PreviewCard({
                     chaves) serão substituídos com informações reais do usuário no momento do envio.
                   </p>
                 </div>
+
+                {onSend && (
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsOpen(false)
+                      onSend(template)
+                    }}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                  >
+                    📤 Enviar Este Template
+                  </Button>
+                )}
               </div>
             )}
           </div>

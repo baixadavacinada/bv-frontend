@@ -121,6 +121,130 @@ export const previewTemplate = async (
 }
 
 /**
+ * Send template notification using unified endpoint
+ * Supports single, broadcast, and filter modes
+ */
+export interface SendTemplatePayload {
+  templateId: string
+  recipients: {
+    mode: 'single' | 'broadcast' | 'filter'
+    userIds?: string[]
+    filter?: {
+      role?: 'public' | 'agent' | 'admin'
+      acceptWhatsAppNotifications?: boolean
+      hasPhone?: boolean
+    }
+  }
+  context?: TemplateContext
+  channels?: ('whatsapp' | 'email' | 'push')[]
+  scheduledFor?: string
+}
+
+export interface SendTemplateResult {
+  success: boolean
+  data: {
+    jobId?: string
+    message: string
+    preview?: {
+      subject: string
+      body: string
+      recipientsCount: number
+      recipients: Array<{
+        userId: string
+        userName: string
+        phone: string
+      }>
+    }
+  }
+  error?: string
+}
+
+/**
+ * Send notification using template (new unified endpoint)
+ */
+export const sendTemplateNotification = async (
+  payload: SendTemplatePayload,
+): Promise<SendTemplateResult> => {
+  try {
+    const response = await apiClient.post<SendTemplateResult>(
+      '/api/admin/notifications/send-template',
+      payload,
+    )
+    return response
+  } catch (error) {
+    console.error('Error sending template notification:', error)
+    throw error
+  }
+}
+
+/**
+ * Send test notification for a template
+ */
+export const sendTemplateTest = async (
+  templateId: string,
+  recipientEmail: string,
+  context: TemplateContext,
+): Promise<SendTemplateResult> => {
+  try {
+    const response = await apiClient.post<SendTemplateResult>(
+      `/api/admin/notifications/send-template`,
+      {
+        templateId,
+        recipients: {
+          mode: 'single',
+          userIds: [recipientEmail],
+        },
+        context,
+        channels: ['email'],
+      },
+    )
+    return response
+  } catch (error) {
+    console.error('Error sending template test:', error)
+    throw error
+  }
+}
+
+/**
+ * Preview recipients for a given filter
+ */
+interface FilterOptions {
+  role?: 'public' | 'agent' | 'admin'
+  acceptWhatsAppNotifications?: boolean
+  hasPhone?: boolean
+}
+
+interface PreviewRecipientsResult {
+  total: number
+  recipients: Array<{ userId: string; userName: string; phone: string; email?: string }>
+}
+
+export const previewRecipients = async (
+  mode: 'single' | 'broadcast' | 'filter',
+  userIds?: string[],
+  filter?: FilterOptions,
+): Promise<PreviewRecipientsResult> => {
+  try {
+    const params = new URLSearchParams()
+    params.append('mode', mode)
+    if (userIds && userIds.length > 0) {
+      params.append('userIds', userIds.join(','))
+    }
+    if (filter) {
+      params.append('filter', JSON.stringify(filter))
+    }
+
+    const response = await apiClient.get<{ data: PreviewRecipientsResult }>(
+      `/api/admin/notifications/preview-recipients?${params.toString()}`,
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error previewing recipients:', error)
+    throw error
+  }
+}
+
+/**
  * Send template notification to single user
  */
 export const sendTemplateToUser = async (
