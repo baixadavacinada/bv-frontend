@@ -3,6 +3,8 @@
 import { BvTitleHeader } from '@/components/design/BvTitleHeader'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export default function AdminGerenciarUsuariosPage() {
   return (
     <main className="w-full" role="main">

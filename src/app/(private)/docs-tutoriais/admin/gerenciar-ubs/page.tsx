@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { BvTitleHeader } from '@/components/design/BvTitleHeader'
 import Link from 'next/link'
 

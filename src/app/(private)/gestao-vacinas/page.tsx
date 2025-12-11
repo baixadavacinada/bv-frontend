@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { BvButton, BvTitleHeader, RoleGuard } from '@/components'
 import { DeleteConfirmationDialog } from '@/components/common/DeleteConfirmationDialog'
 import { ManagementTable } from '@/components/common/ManagementTable'

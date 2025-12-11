@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { BvTitleHeader } from '@/components'
 import { UbsForm } from '@/components/design/BvUbsFrom'
 import { Suspense } from 'react'

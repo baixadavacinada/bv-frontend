@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import React, { useState } from 'react'
 import { BvTitleHeader } from '@/components'
 import { Calendar, Baby, Heart, Users } from 'lucide-react'

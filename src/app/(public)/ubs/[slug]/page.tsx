@@ -1,4 +1,6 @@
 'use client'
+
+export const dynamic = 'force-dynamic'
 import { BvTitleHeader } from '@/components'
 import { BvTitleIco } from '@/components/design/BvTitleIco'
 import { BvShareMenu } from '@/components/design/BvShareMenu'

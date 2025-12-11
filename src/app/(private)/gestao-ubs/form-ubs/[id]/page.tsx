@@ -1,4 +1,6 @@
 'use client'
+
+export const dynamic = 'force-dynamic'
 import { BvTitleHeader, RoleGuard } from '@/components'
 import { UbsForm } from '@/components/design/BvUbsFrom' // Ajuste o caminho para seu UbsForm
 import { useHealthUnits } from '@/hooks/use-health-units'

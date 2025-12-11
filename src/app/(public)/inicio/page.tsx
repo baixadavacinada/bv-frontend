@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import React from 'react'
 import { EducationalMaterialsSection } from '@/components/sections/EducationalMaterialsSection'
 import { MainActionsSection } from '@/components/sections/MainActionsSection'
