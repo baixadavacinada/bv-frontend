@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -60,6 +60,9 @@ export function SendTemplateDialogUnified({
   const [loading, setLoading] = useState(false)
   const [previewLoading, setPreviewLoading] = useState(false)
 
+  // Recipient selection mode
+  const [recipientTarget, setRecipientTarget] = useState<'self' | 'other' | 'broadcast'>('self')
+
   // Step 1: Recipients
   const [recipientMode, setRecipientMode] = useState<RecipientMode>('broadcast')
   const [singleUserId, setSingleUserId] = useState('')
@@ -72,7 +75,7 @@ export function SendTemplateDialogUnified({
   const [contextValues, setContextValues] = useState<Record<string, string>>({})
 
   // Step 3: Preview & Send
-  const [channels, setChannels] = useState<('whatsapp' | 'email' | 'push')[]>(['whatsapp'])
+  const [channels, setChannels] = useState<('whatsapp' | 'push')[]>(['whatsapp'])
   const [previewData, setPreviewData] = useState<{
     subject: string
     body: string
@@ -91,7 +94,9 @@ export function SendTemplateDialogUnified({
     return Array.from(matches)
   }, [])
 
-  const variables = extractVariables(`${template.subject} ${template.body}`)
+  const variables = useMemo(() => {
+    return extractVariables(`${template.subject} ${template.body}`)
+  }, [extractVariables, template.subject, template.body])
 
   // Initialize context with empty values
   useEffect(() => {
@@ -102,7 +107,26 @@ export function SendTemplateDialogUnified({
     setContextValues(newContext)
   }, [variables])
 
-  const handleToggleChannel = useCallback((channel: 'whatsapp' | 'email' | 'push') => {
+  // Reset dialog when opening
+  useEffect(() => {
+    if (isOpen) {
+      setStep(1)
+      setLoading(false)
+      setPreviewLoading(false)
+      setRecipientTarget('self')
+      setRecipientMode('broadcast')
+      setSingleUserId('')
+      setBroadcastUserIds('')
+      setFilterRole('public')
+      setFilterWhatsApp(true)
+      setFilterPhone(false)
+      setChannels(['whatsapp'])
+      setPreviewData(null)
+      setScheduledFor('')
+    }
+  }, [isOpen, template.id])
+
+  const handleToggleChannel = useCallback((channel: 'whatsapp' | 'push') => {
     setChannels((prev) => {
       if (prev.includes(channel)) {
         return prev.filter((c) => c !== channel)
@@ -254,108 +278,207 @@ export function SendTemplateDialogUnified({
         {step === 1 && (
           <div className="space-y-6">
             <div className="space-y-3">
-              <Label className="text-base font-semibold">Modo de Envio</Label>
+              <Label className="text-base font-semibold">Destinatário</Label>
               <div className="space-y-3">
-                <label className="flex cursor-pointer items-center space-x-3">
+                <label className="flex cursor-pointer items-center space-x-3 rounded-lg border border-gray-200 p-4 hover:border-blue-400 hover:bg-blue-50">
                   <input
                     type="radio"
-                    name="recipient-mode"
-                    value="single"
-                    checked={recipientMode === 'single'}
-                    onChange={(e) => setRecipientMode(e.target.value as RecipientMode)}
+                    name="recipient-target"
+                    value="self"
+                    checked={recipientTarget === 'self'}
+                    onChange={(e) =>
+                      setRecipientTarget(e.target.value as 'self' | 'other' | 'broadcast')
+                    }
                     className="h-4 w-4"
                   />
-                  <span className="text-sm font-medium">Usuário Específico</span>
+                  <div className="flex-1">
+                    <span className="text-sm font-medium">Para Mim Mesmo</span>
+                    <p className="text-xs text-gray-500">
+                      Enviar uma notificação de teste para sua conta
+                    </p>
+                  </div>
                 </label>
 
-                <label className="flex cursor-pointer items-center space-x-3">
+                <label className="flex cursor-pointer items-center space-x-3 rounded-lg border border-gray-200 p-4 hover:border-blue-400 hover:bg-blue-50">
                   <input
                     type="radio"
-                    name="recipient-mode"
+                    name="recipient-target"
+                    value="other"
+                    checked={recipientTarget === 'other'}
+                    onChange={(e) =>
+                      setRecipientTarget(e.target.value as 'self' | 'other' | 'broadcast')
+                    }
+                    className="h-4 w-4"
+                  />
+                  <div className="flex-1">
+                    <span className="text-sm font-medium">Para Outra Pessoa</span>
+                    <p className="text-xs text-gray-500">Informe os dados do destinatário</p>
+                  </div>
+                </label>
+
+                <label className="flex cursor-pointer items-center space-x-3 rounded-lg border border-gray-200 p-4 hover:border-blue-400 hover:bg-blue-50">
+                  <input
+                    type="radio"
+                    name="recipient-target"
                     value="broadcast"
-                    checked={recipientMode === 'broadcast'}
-                    onChange={(e) => setRecipientMode(e.target.value as RecipientMode)}
+                    checked={recipientTarget === 'broadcast'}
+                    onChange={(e) =>
+                      setRecipientTarget(e.target.value as 'self' | 'other' | 'broadcast')
+                    }
                     className="h-4 w-4"
                   />
-                  <span className="text-sm font-medium">Múltiplos Usuários</span>
-                </label>
-
-                <label className="flex cursor-pointer items-center space-x-3">
-                  <input
-                    type="radio"
-                    name="recipient-mode"
-                    value="filter"
-                    checked={recipientMode === 'filter'}
-                    onChange={(e) => setRecipientMode(e.target.value as RecipientMode)}
-                    className="h-4 w-4"
-                  />
-                  <span className="text-sm font-medium">Filtro Automático</span>
+                  <div className="flex-1">
+                    <span className="text-sm font-medium">Para Múltiplas Pessoas</span>
+                    <p className="text-xs text-gray-500">
+                      Informe uma lista de destinatários ou filtros
+                    </p>
+                  </div>
                 </label>
               </div>
             </div>
 
-            {/* Single User */}
-            {recipientMode === 'single' && (
-              <div className="space-y-2">
-                <Label htmlFor="userId">ID do Usuário</Label>
-                <Input
-                  id="userId"
-                  placeholder="Informe o ID do usuário"
-                  value={singleUserId}
-                  onChange={(e) => setSingleUserId(e.target.value)}
-                />
+            {/* Para Outra Pessoa */}
+            {recipientTarget === 'other' && (
+              <div className="space-y-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+                <h4 className="font-semibold text-blue-900">Informe os dados do destinatário</h4>
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="recipientName">Nome</Label>
+                    <Input
+                      id="recipientName"
+                      placeholder="Nome da pessoa"
+                      value={contextValues['userName'] || ''}
+                      onChange={(e) =>
+                        setContextValues((prev) => ({ ...prev, userName: e.target.value }))
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="recipientPhone">Número de WhatsApp</Label>
+                    <Input
+                      id="recipientPhone"
+                      placeholder="+55 (11) 9999-9999"
+                      value={contextValues['phoneNumber'] || ''}
+                      onChange={(e) =>
+                        setContextValues((prev) => ({ ...prev, phoneNumber: e.target.value }))
+                      }
+                    />
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* Broadcast */}
-            {recipientMode === 'broadcast' && (
-              <div className="space-y-2">
-                <Label htmlFor="userIds">IDs dos Usuários</Label>
-                <Textarea
-                  id="userIds"
-                  placeholder="Informe os IDs separados por vírgula ou quebra de linha&#10;user1@email.com, user2@email.com"
-                  value={broadcastUserIds}
-                  onChange={(e) => setBroadcastUserIds(e.target.value)}
-                  rows={4}
-                />
-              </div>
-            )}
-
-            {/* Filter */}
-            {recipientMode === 'filter' && (
+            {/* Para Múltiplas Pessoas - Modo Broadcast */}
+            {recipientTarget === 'broadcast' && (
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="role">Papel do Usuário</Label>
-                  <select
-                    id="role"
-                    value={filterRole}
-                    onChange={(e) =>
-                      setFilterRole(e.target.value as 'public' | 'agent' | 'admin' | '')
-                    }
-                    className="w-full rounded-md border px-3 py-2"
-                  >
-                    <option value="">Qualquer papel</option>
-                    <option value="public">Público</option>
-                    <option value="agent">Agente</option>
-                    <option value="admin">Admin</option>
-                  </select>
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold">Modo de Envio em Massa</Label>
+                  <div className="space-y-3">
+                    <label className="flex cursor-pointer items-center space-x-3">
+                      <input
+                        type="radio"
+                        name="broadcast-mode"
+                        value="single"
+                        checked={recipientMode === 'single'}
+                        onChange={(e) => setRecipientMode(e.target.value as RecipientMode)}
+                        className="h-4 w-4"
+                      />
+                      <span className="text-sm font-medium">Usuário Específico</span>
+                    </label>
+
+                    <label className="flex cursor-pointer items-center space-x-3">
+                      <input
+                        type="radio"
+                        name="broadcast-mode"
+                        value="broadcast"
+                        checked={recipientMode === 'broadcast'}
+                        onChange={(e) => setRecipientMode(e.target.value as RecipientMode)}
+                        className="h-4 w-4"
+                      />
+                      <span className="text-sm font-medium">Múltiplos Usuários</span>
+                    </label>
+
+                    <label className="flex cursor-pointer items-center space-x-3">
+                      <input
+                        type="radio"
+                        name="broadcast-mode"
+                        value="filter"
+                        checked={recipientMode === 'filter'}
+                        onChange={(e) => setRecipientMode(e.target.value as RecipientMode)}
+                        className="h-4 w-4"
+                      />
+                      <span className="text-sm font-medium">Filtro Automático</span>
+                    </label>
+                  </div>
                 </div>
 
-                <label className="flex cursor-pointer items-center space-x-3">
-                  <Checkbox
-                    checked={filterWhatsApp}
-                    onCheckedChange={(checked) => setFilterWhatsApp(checked as boolean)}
-                  />
-                  <span className="text-sm font-medium">Apenas usuários que aceitam WhatsApp</span>
-                </label>
+                {/* Single User */}
+                {recipientMode === 'single' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="userId">ID do Usuário</Label>
+                    <Input
+                      id="userId"
+                      placeholder="Informe o ID do usuário"
+                      value={singleUserId}
+                      onChange={(e) => setSingleUserId(e.target.value)}
+                    />
+                  </div>
+                )}
 
-                <label className="flex cursor-pointer items-center space-x-3">
-                  <Checkbox
-                    checked={filterPhone}
-                    onCheckedChange={(checked) => setFilterPhone(checked as boolean)}
-                  />
-                  <span className="text-sm font-medium">Apenas usuários com telefone</span>
-                </label>
+                {/* Broadcast */}
+                {recipientMode === 'broadcast' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="userIds">IDs dos Usuários</Label>
+                    <Textarea
+                      id="userIds"
+                      placeholder="Informe os IDs separados por vírgula ou quebra de linha&#10;user1, user2, user3"
+                      value={broadcastUserIds}
+                      onChange={(e) => setBroadcastUserIds(e.target.value)}
+                      rows={4}
+                    />
+                  </div>
+                )}
+
+                {/* Filter */}
+                {recipientMode === 'filter' && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="role">Papel do Usuário</Label>
+                      <select
+                        id="role"
+                        value={filterRole}
+                        onChange={(e) =>
+                          setFilterRole(e.target.value as 'public' | 'agent' | 'admin' | '')
+                        }
+                        className="w-full rounded-md border px-3 py-2"
+                      >
+                        <option value="">Qualquer papel</option>
+                        <option value="public">Público</option>
+                        <option value="agent">Profissional de Saúde</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </div>
+
+                    <label className="flex cursor-pointer items-center space-x-3">
+                      <Checkbox
+                        checked={filterWhatsApp}
+                        onCheckedChange={(checked) => setFilterWhatsApp(checked as boolean)}
+                      />
+                      <span className="text-sm font-medium">
+                        Apenas usuários que aceitam WhatsApp
+                      </span>
+                    </label>
+
+                    <label className="flex cursor-pointer items-center space-x-3">
+                      <Checkbox
+                        checked={filterPhone}
+                        onCheckedChange={(checked) => setFilterPhone(checked as boolean)}
+                      />
+                      <span className="text-sm font-medium">Apenas usuários com telefone</span>
+                    </label>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -443,13 +566,6 @@ export function SendTemplateDialogUnified({
                     onCheckedChange={() => handleToggleChannel('whatsapp')}
                   />
                   <span className="text-sm font-medium">WhatsApp</span>
-                </label>
-                <label className="flex cursor-pointer items-center space-x-3">
-                  <Checkbox
-                    checked={channels.includes('email')}
-                    onCheckedChange={() => handleToggleChannel('email')}
-                  />
-                  <span className="text-sm font-medium">Email</span>
                 </label>
                 <label className="flex cursor-pointer items-center space-x-3">
                   <Checkbox

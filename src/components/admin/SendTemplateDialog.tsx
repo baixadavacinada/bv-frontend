@@ -172,17 +172,17 @@ export function SendTemplateDialog({
             {mode === 'single' ? (
               <Input
                 id="userId"
-                placeholder="Ex: user-firebase-uid-123"
+                placeholder="Ex: usuario-firebase-uid-123"
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
               />
             ) : (
               <Textarea
                 id="userIds"
-                placeholder="Um ID por linha&#10;Ex:&#10;user-1&#10;user-2&#10;user-3"
+                placeholder="Um ID por linha&#10;Ex:&#10;usuario-1&#10;usuario-2&#10;usuario-3"
                 value={userIds}
                 onChange={(e) => setUserIds(e.target.value)}
-                rows={5}
+                rows={4}
               />
             )}
             <p className="text-muted-foreground text-xs">
@@ -221,7 +221,7 @@ export function SendTemplateDialog({
             </Label>
             <Textarea
               id="context"
-              placeholder={`{"userName": "João", "vaccineName": "COVID-19", "date": "01/12/2025"}`}
+              placeholder={`{"nomeUsuário": "João", "nomeVacina": "COVID-19", "data": "01/12/2025"}`}
               value={contextData}
               onChange={(e) => setContextData(e.target.value)}
               rows={4}

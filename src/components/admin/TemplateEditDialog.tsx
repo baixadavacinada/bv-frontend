@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -41,16 +41,16 @@ const CATEGORIES = [
 ]
 
 const VARIABLE_INFO: Record<string, string> = {
-  userName: 'Nome do usuário',
+  userName: 'Nome do Usuário',
   healthUnitName: 'Nome da UBS',
-  vaccineName: 'Nome da vacina',
+  vaccineName: 'Nome da Vacina',
   date: 'Data',
   time: 'Horário',
   appointmentId: 'ID do Agendamento',
-  doses: 'Total de doses',
-  currentDose: 'Dose atual',
-  phoneNumber: 'Número de telefone',
-  message: 'Mensagem customizada',
+  doses: 'Total de Doses',
+  currentDose: 'Dose Atual',
+  phoneNumber: 'Telefone',
+  message: 'Mensagem Customizada',
 }
 
 export function TemplateEditDialog({
@@ -72,6 +72,20 @@ export function TemplateEditDialog({
 
   const [isLoading, setIsLoading] = useState(false)
   const [previewMode, setPreviewMode] = useState(false)
+
+  // Sincroniza formData quando template muda
+  useEffect(() => {
+    if (template && isOpen) {
+      setFormData({
+        name: template.name || '',
+        description: template.description || '',
+        subject: template.subject || '',
+        body: template.body || '',
+        category: template.category || 'general',
+      })
+      setPreviewMode(false)
+    }
+  }, [template?.id, isOpen])
 
   // Extract variables from subject and body
   const usedVariables = useMemo(() => {
@@ -232,7 +246,7 @@ export function TemplateEditDialog({
                   id="subject"
                   value={formData.subject}
                   onChange={(e) => handleChange('subject', e.target.value)}
-                  placeholder="Ex: Seu agendamento na {{healthUnitName}} foi confirmado"
+                  placeholder="Ex: Seu agendamento na {{unidadeSaude}} foi confirmado"
                   rows={2}
                   className="font-mono text-sm"
                 />

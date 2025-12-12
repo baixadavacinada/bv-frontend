@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import {
   Dialog,
@@ -12,19 +12,28 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Loader2, Send } from 'lucide-react'
+import { Loader2, Send, MessageCircle, User } from 'lucide-react'
 import {
   NotificationTemplate,
   sendTemplateTest,
   TemplateContext,
 } from '@/services/notificationTemplateService'
 import { toast } from 'sonner'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface SendTemplateTestDialogProps {
   template: NotificationTemplate
   isOpen: boolean
   onClose: () => void
   onSuccess?: () => void
+  currentUserPhone?: string
+  currentUserName?: string
 }
 
 export function SendTemplateTestDialog({
@@ -32,9 +41,13 @@ export function SendTemplateTestDialog({
   isOpen,
   onClose,
   onSuccess,
+  currentUserPhone = '',
+  currentUserName = 'Você',
 }: SendTemplateTestDialogProps) {
   useAccessibilityValidation({ enabled: true })
-  const [email, setEmail] = useState('')
+  const [recipientTarget, setRecipientTarget] = useState<'self' | 'other'>('self')
+  const [whatsappNumber, setWhatsappNumber] = useState('')
+  const [recipientName, setRecipientName] = useState('')
   const [variables, setVariables] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
 
@@ -49,17 +62,54 @@ export function SendTemplateTestDialog({
     setVariables((prev) => ({ ...prev, [variable]: value }))
   }
 
+  // Resetar quando dialog abre
+  useEffect(() => {
+    if (isOpen) {
+      setRecipientTarget('self')
+      setWhatsappNumber(currentUserPhone)
+      setRecipientName(currentUserName)
+      setVariables({})
+      setIsLoading(false)
+    }
+  }, [isOpen, currentUserPhone, currentUserName])
+
+  // Sincronizar whatsappNumber quando recipientTarget muda para 'self'
+  useEffect(() => {
+    if (recipientTarget === 'self') {
+      setWhatsappNumber(currentUserPhone)
+      setRecipientName(currentUserName)
+    }
+  }, [recipientTarget, currentUserPhone, currentUserName])
+
   const handleSendTest = async () => {
-    // Validate email
-    if (!email.trim()) {
-      toast.error('Informe um email para enviar o teste')
-      return
+    let finalNumber = whatsappNumber
+    let finalName = recipientName
+
+    // Se for para mim mesmo, use dados do usuário atual
+    if (recipientTarget === 'self') {
+      if (!currentUserPhone.trim()) {
+        toast.error('Seu número de WhatsApp não está cadastrado')
+        return
+      }
+      finalNumber = currentUserPhone
+      finalName = currentUserName
+    } else {
+      // Se for para outro, valide os dados preenchidos
+      if (!whatsappNumber.trim()) {
+        toast.error('Informe o número de WhatsApp do destinatário')
+        return
+      }
+      if (!recipientName.trim()) {
+        toast.error('Informe o nome do destinatário')
+        return
+      }
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      toast.error('Email inválido')
+    // Validar número de WhatsApp (at least 10 digits)
+    const phoneRegex = /^\d{10,}$/
+    const cleanedNumber = finalNumber.replace(/\D/g, '')
+    if (!phoneRegex.test(cleanedNumber)) {
+      toast.error('Número de WhatsApp inválido (mínimo 10 dígitos)')
       return
     }
 
@@ -73,8 +123,8 @@ export function SendTemplateTestDialog({
     try {
       setIsLoading(true)
       const context: TemplateContext = variables
-      await sendTemplateTest(template.id, email, context)
-      toast.success('Template de teste enviado com sucesso!')
+      await sendTemplateTest(template.id, cleanedNumber, context, 'whatsapp')
+      toast.success('Template de teste enviado com sucesso via WhatsApp!')
       onSuccess?.()
       onClose()
     } catch (error) {
@@ -89,7 +139,7 @@ export function SendTemplateTestDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>📧 Enviar Template de Teste</DialogTitle>
+          <DialogTitle>📬 Enviar Template de Teste</DialogTitle>
           <DialogDescription>
             Envie um teste do template &quot;{template.name}&quot; para validar antes de envios em
             massa
@@ -97,23 +147,80 @@ export function SendTemplateTestDialog({
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Recipient */}
+          {/* Recipient Target Selection */}
           <div className="space-y-3">
-            <Label>Destinatário do Teste</Label>
-            <div>
-              <Label htmlFor="test-email" className="text-xs text-gray-600">
-                Email
-              </Label>
-              <Input
-                id="test-email"
-                type="email"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1"
-              />
+            <Label>Enviar para quem?</Label>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setRecipientTarget('self')}
+                className={`flex-1 rounded-lg border-2 p-3 text-left transition-colors ${
+                  recipientTarget === 'self'
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">Para mim mesmo</div>
+                    <div className="text-xs text-gray-500">{currentUserName}</div>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setRecipientTarget('other')}
+                className={`flex-1 rounded-lg border-2 p-3 text-left transition-colors ${
+                  recipientTarget === 'other'
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">Para outro usuário</div>
+                    <div className="text-xs text-gray-500">Preença dados</div>
+                  </div>
+                </div>
+              </button>
             </div>
           </div>
+
+          {/* Recipient Details */}
+          {recipientTarget === 'other' && (
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="recipient-name" className="text-xs text-gray-600">
+                  Nome do Destinatário
+                </Label>
+                <Input
+                  id="recipient-name"
+                  placeholder="Nome da pessoa"
+                  value={recipientName}
+                  onChange={(e) => setRecipientName(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="test-whatsapp" className="text-xs text-gray-600">
+                  Número de WhatsApp
+                </Label>
+                <Input
+                  id="test-whatsapp"
+                  type="tel"
+                  placeholder="+55 (11) 99999-9999 ou 5511999999999"
+                  value={whatsappNumber}
+                  onChange={(e) => setWhatsappNumber(e.target.value)}
+                  className="mt-1"
+                />
+                <p className="mt-2 text-xs text-gray-500">
+                  Formato: com ou sem formatação. Exemplo: (11) 99999-9999 ou 5511999999999
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Variables */}
           {extractedVariables.length > 0 && (

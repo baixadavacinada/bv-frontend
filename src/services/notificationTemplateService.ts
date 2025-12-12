@@ -59,27 +59,15 @@ export interface BroadcastResultItem {
 /**
  * Fetch all available templates (both default and custom)
  */
-export const getAllTemplates = async (): Promise<NotificationTemplate[]> => {
-  try {
-    const response = await apiClient.get<{ data: { templates: NotificationTemplate[] } }>(
-      '/api/admin/templates',
-    )
-    return response?.data?.templates || []
-  } catch (error) {
-    console.error('Error fetching templates:', error)
-    throw error
-  }
-}
-
 /**
  * Fetch templates by category
  */
 export const getTemplatesByCategory = async (category: string): Promise<NotificationTemplate[]> => {
   try {
-    const response = await apiClient.get<{ data: { templates: NotificationTemplate[] } }>(
+    const response = await apiClient.get<{ templates: NotificationTemplate[] }>(
       `/api/admin/templates/category/${category}`,
     )
-    return response?.data?.templates || []
+    return response?.templates || []
   } catch (error) {
     console.error('Error fetching templates by category:', error)
     throw error
@@ -91,10 +79,10 @@ export const getTemplatesByCategory = async (category: string): Promise<Notifica
  */
 export const getTemplate = async (templateId: string): Promise<NotificationTemplate> => {
   try {
-    const response = await apiClient.get<{ data: { template: NotificationTemplate } }>(
+    const response = await apiClient.get<{ template: NotificationTemplate }>(
       `/api/admin/templates/${templateId}`,
     )
-    return response.data.template
+    return response?.template as NotificationTemplate
   } catch (error) {
     console.error('Error fetching template:', error)
     throw error
@@ -113,7 +101,7 @@ export const previewTemplate = async (
       `/api/admin/templates/${templateId}/preview`,
       { context },
     )
-    return response
+    return response as PreviewResult
   } catch (error) {
     console.error('Error previewing template:', error)
     throw error
@@ -182,8 +170,9 @@ export const sendTemplateNotification = async (
  */
 export const sendTemplateTest = async (
   templateId: string,
-  recipientEmail: string,
+  recipient: string,
   context: TemplateContext,
+  channel: 'email' | 'whatsapp' = 'email',
 ): Promise<SendTemplateResult> => {
   try {
     const response = await apiClient.post<SendTemplateResult>(
@@ -192,10 +181,10 @@ export const sendTemplateTest = async (
         templateId,
         recipients: {
           mode: 'single',
-          userIds: [recipientEmail],
+          userIds: [recipient],
         },
         context,
-        channels: ['email'],
+        channels: [channel],
       },
     )
     return response
@@ -347,10 +336,10 @@ export const deleteCustomTemplate = async (templateId: string): Promise<void> =>
  */
 export const getAllCustomTemplates = async (): Promise<NotificationTemplate[]> => {
   try {
-    const response = await apiClient.get<{ data: { templates: NotificationTemplate[] } }>(
+    const response = await apiClient.get<{ templates: NotificationTemplate[] }>(
       '/api/admin/templates',
     )
-    return response?.data?.templates || []
+    return response?.templates || []
   } catch (error) {
     console.error('Error fetching custom templates:', error)
     throw error

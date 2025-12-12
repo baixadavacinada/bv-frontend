@@ -98,33 +98,43 @@ export function VariableBlockInput({
   const inputRef = useRef<HTMLDivElement>(null)
   const textInputRef = useRef<HTMLInputElement>(null)
   const isInitialMount = useRef(true)
+  const isUserEditing = useRef(false)
+  const lastSyncedValue = useRef(value)
 
-  // Sincroniza com mudanças externas do value
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false
+      lastSyncedValue.current = value
       return
     }
 
-    const currentValue = blocksToString(blocks)
-    if (value !== currentValue) {
-      setBlocks(parseValueToBlocks(value))
+    // Se o usuário está editando, não sincroniza
+    if (isUserEditing.current) {
+      return
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // Só sincroniza se o valor externo realmente mudou
+    if (value !== lastSyncedValue.current) {
+      lastSyncedValue.current = value
+      setBlocks(parseValueToBlocks(value))
+      setInputValue('')
+    }
   }, [value])
 
-  // Notifica mudanças quando blocos mudam (mas não na inicial)
+  // Notifica mudanças quando o USUÁRIO edita (não na sincronização)
   useEffect(() => {
-    if (isInitialMount.current) return
+    if (isInitialMount.current || !isUserEditing.current) return
 
     const newValue = blocksToString(blocks)
-    if (newValue !== value) {
+    if (newValue !== lastSyncedValue.current) {
+      lastSyncedValue.current = newValue
       onChange(newValue)
     }
-  }, [blocks, onChange, value])
+  }, [blocks, onChange])
 
   const addVariable = useCallback(
     (variableName: string, displayName: string) => {
+      isUserEditing.current = true
       setBlocks((prevBlocks) => {
         const newBlocks = [...prevBlocks]
 
@@ -160,10 +170,12 @@ export function VariableBlockInput({
   )
 
   const removeBlock = useCallback((blockId: string) => {
+    isUserEditing.current = true
     setBlocks((prevBlocks) => prevBlocks.filter((b) => b.id !== blockId))
   }, [])
 
   const handleTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    isUserEditing.current = true
     const newValue = e.target.value
     setInputValue(newValue)
 
@@ -183,6 +195,7 @@ export function VariableBlockInput({
       if (e.key === 'Backspace' && inputValue === '' && blocks.length > 1) {
         // Se o input está vazio e há múltiplos blocos, remove o último bloco
         e.preventDefault()
+        isUserEditing.current = true
         setBlocks((prevBlocks) => {
           const newBlocks = prevBlocks.slice(0, -1)
 

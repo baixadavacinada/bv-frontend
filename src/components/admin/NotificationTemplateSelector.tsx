@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import { getAllTemplates, NotificationTemplate } from '@/services/notificationTemplateService'
+import { getAllCustomTemplates, NotificationTemplate } from '@/services/notificationTemplateService'
 import { PreviewCard } from './PreviewCard'
 import { toast } from 'sonner'
 
@@ -38,7 +38,7 @@ export function NotificationTemplateSelector({
     const loadTemplates = async () => {
       try {
         setLoading(true)
-        const data = await getAllTemplates()
+        const data = await getAllCustomTemplates()
         // Filtrar apenas templates ativos
         let filtered = data.filter((t) => t.status === 'ativo')
 
@@ -113,7 +113,7 @@ export function NotificationTemplateSelector({
                   id="template-select"
                   className="border-amber-300 bg-white text-amber-900"
                 >
-                  <SelectValue placeholder="Selecione um template..." />
+                  <SelectValue placeholder="Selecione um modelo..." />
                 </SelectTrigger>
                 <SelectContent>
                   {templates.length === 0 ? (

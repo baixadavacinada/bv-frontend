@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { AlertCircle, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { VariableBlockInput } from './VariableBlockInput'
 import {
   Select,
   SelectContent,
@@ -77,7 +76,6 @@ export function TemplateEditor({
   })
 
   const [showVariableGuide, setShowVariableGuide] = useState(false)
-  const [availableVars, setAvailableVars] = useState<string[]>([])
 
   useEffect(() => {
     if (template) {
@@ -89,14 +87,13 @@ export function TemplateEditor({
         category: template.category,
       })
     }
-  }, [template])
+  }, [template?.id])
 
   // Extract and track available variables
-  useEffect(() => {
+  const extractedVars = useMemo(() => {
     const text = `${formData.subject} ${formData.body}`
     const matches = text.match(/\{\{(\w+)\}\}/g) || []
-    const vars = Array.from(new Set(matches.map((m) => m.replace(/\{\{|\}\}/g, ''))))
-    setAvailableVars(vars)
+    return Array.from(new Set(matches.map((m) => m.replace(/\{\{|\}\}/g, ''))))
   }, [formData.subject, formData.body])
 
   const insertVariable = (varName: string, field: 'subject' | 'body') => {
@@ -221,18 +218,17 @@ export function TemplateEditor({
             Adicionar Variável
           </Button>
         </div>
-        <VariableBlockInput
+        <Textarea
+          id="subject"
           value={formData.subject}
-          onChange={(value) => setFormData((prev) => ({ ...prev, subject: value }))}
-          onAddVariable={() => {}}
-          placeholder="Ex: Seu agendamento foi confirmado"
-          availableVariables={Object.entries(VARIABLE_MAPPINGS).map(([key, value]) => ({
-            name: key,
-            displayName: value.displayName,
-          }))}
+          onChange={(e) => setFormData((prev) => ({ ...prev, subject: e.target.value }))}
+          placeholder="Ex: Seu agendamento foi confirmado. Use {{variavel}} para dados dinâmicos."
+          rows={2}
+          className="font-mono text-sm"
         />
         <p className="text-xs text-gray-500">
-          Clique nas variáveis acima ou em &quot;Adicionar Variável&quot; para inseri-las
+          Use {'{{'} variavel {'}}'} para inserir dados dinâmicos. Clique em &quot;Adicionar
+          Variável&quot; para ver a lista.
         </p>
       </div>
 
@@ -253,30 +249,30 @@ export function TemplateEditor({
             Adicionar Variável
           </Button>
         </div>
-        <VariableBlockInput
+
+        <Textarea
+          id="body"
           value={formData.body}
-          onChange={(value) => setFormData((prev) => ({ ...prev, body: value }))}
-          onAddVariable={() => {}}
-          placeholder="Escreva a mensagem completa..."
-          availableVariables={Object.entries(VARIABLE_MAPPINGS).map(([key, value]) => ({
-            name: key,
-            displayName: value.displayName,
-          }))}
+          onChange={(e) => setFormData((prev) => ({ ...prev, body: e.target.value }))}
+          placeholder="Escreva a mensagem completa... Use {{variavel}} para dados dinâmicos."
+          rows={6}
+          className="font-mono text-sm"
         />
         <p className="text-xs text-gray-500">
-          Clique nas variáveis abaixo para inseri-las. Elas ficarão como blocos não-editáveis.
+          Use {'{{'} variavel {'}}'} para inserir dados dinâmicos. Clique em &quot;Adicionar
+          Variável&quot; para ver a lista.
         </p>
       </div>
 
       {/* Variáveis Utilizadas */}
-      {availableVars.length > 0 && (
+      {extractedVars.length > 0 && (
         <div className="rounded-lg border-l-4 border-blue-500 bg-blue-50 p-4">
           <div className="flex items-start gap-2">
             <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
             <div className="flex-1">
               <p className="text-sm font-semibold text-blue-900">Variáveis Detectadas</p>
               <div className="mt-2 flex flex-wrap gap-2">
-                {availableVars.map((varName) => {
+                {extractedVars.map((varName) => {
                   const varInfo = VARIABLE_MAPPINGS[varName]
                   return (
                     <div

@@ -18,6 +18,7 @@ import { TemplateCard } from '@/components/admin/TemplateCard'
 import { TemplateEditor } from '@/components/admin/TemplateEditor'
 import { SendTemplateDialogUnified } from '@/components/admin/SendTemplateDialogUnified'
 import { SendTemplateTestDialog } from '@/components/Notifications/SendTemplateTestDialog'
+import { useAuth } from '@/hooks/use-firebase-auth'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import {
   Select,
@@ -36,6 +37,7 @@ import {
 import { toast } from 'sonner'
 
 export default function GestaoTemplatesPage() {
+  const { user } = useAuth()
   const [templates, setTemplates] = useState<NotificationTemplate[]>([])
   const [filteredTemplates, setFilteredTemplates] = useState<NotificationTemplate[]>([])
   const [loading, setLoading] = useState(true)
@@ -449,6 +451,8 @@ export default function GestaoTemplatesPage() {
               setShowTestDialog(false)
               setTestingTemplate(null)
             }}
+            currentUserPhone={user?.phone || ''}
+            currentUserName={user?.displayName || 'Você'}
           />
         )}
       </div>

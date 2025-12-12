@@ -129,22 +129,24 @@ export function TemplatePreviewDialog({
             </p>
             <div className="bg-muted/50 space-y-1 rounded-md border p-3 text-xs">
               <p>
-                <span className="bg-muted rounded px-2 py-1 font-mono">{'{{userName}}'}</span> -
+                <span className="bg-muted rounded px-2 py-1 font-mono">{'{{nomeUsuario}}'}</span> -
                 Nome do usuário
               </p>
               <p>
-                <span className="bg-muted rounded px-2 py-1 font-mono">{'{{healthUnitName}}'}</span>{' '}
+                <span className="bg-muted rounded px-2 py-1 font-mono">
+                  {'{{nomeUnidadeSaude}}'}
+                </span>{' '}
                 - Nome da UBS
               </p>
               <p>
-                <span className="bg-muted rounded px-2 py-1 font-mono">{'{{vaccineName}}'}</span> -
+                <span className="bg-muted rounded px-2 py-1 font-mono">{'{{nomeVacina}}'}</span> -
                 Nome da vacina
               </p>
               <p>
-                <span className="bg-muted rounded px-2 py-1 font-mono">{'{{date}}'}</span> - Data
+                <span className="bg-muted rounded px-2 py-1 font-mono">{'{{data}}'}</span> - Data
               </p>
               <p>
-                <span className="bg-muted rounded px-2 py-1 font-mono">{'{{time}}'}</span> - Horário
+                <span className="bg-muted rounded px-2 py-1 font-mono">{'{{hora}}'}</span> - Horário
               </p>
             </div>
           </div>
