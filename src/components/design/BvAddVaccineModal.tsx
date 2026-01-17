@@ -154,7 +154,14 @@ export function BvAddVaccineModal({
             disabled={isLoading}
             title="Adicionar a vacina selecionada ou digitada"
           >
-            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Adicionar'}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                Salvando...
+              </>
+            ) : (
+              'Adicionar'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

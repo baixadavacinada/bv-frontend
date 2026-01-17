@@ -135,7 +135,11 @@ export function LoginForm({ onSuccess, redirectTo = '/inicio' }: LoginFormProps)
             aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
             disabled={isLoading}
           >
-            {showPassword ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+            {showPassword ? (
+              <Eye className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <EyeOff className="h-5 w-5" aria-hidden="true" />
+            )}
           </button>
         </div>
       </div>

@@ -46,7 +46,7 @@ export function LocationPermissionModal() {
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="bg-primary/10 rounded-full p-3">
-              <MapPin className="text-primary h-6 w-6" />
+              <MapPin className="text-primary h-6 w-6" aria-hidden="true" />
             </div>
             <DialogTitle>Compartilhe sua localização</DialogTitle>
           </div>

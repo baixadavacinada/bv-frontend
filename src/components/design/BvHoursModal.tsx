@@ -213,7 +213,14 @@ export function BvHoursModal({
           </DialogClose>
 
           <Button className="my-2" type="submit" onClick={handleSaveClick} disabled={isLoading}>
-            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Salvar'}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                Salvando...
+              </>
+            ) : (
+              'Salvar'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

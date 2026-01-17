@@ -225,7 +225,7 @@ export function SendTemplateTestDialog({
               Cancelar
             </Button>
             <Button onClick={handleSendTest} disabled={isLoading} className="gap-2">
-              {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isLoading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
               <Send className="h-4 w-4" />
               Enviar Teste
             </Button>
