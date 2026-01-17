@@ -1,12 +1,22 @@
 'use client'
 
-import React, { useId, useEffect, useMemo } from 'react'
+import React, { useId, useEffect, useMemo, useState } from 'react'
 import { BvCardSecondary } from '@/components/design/BvCardSecondary'
 import { EducationalMaterial } from '@/types/cards'
 import { useAppTranslations } from '@/hooks/use-translations'
 import { useAccessibilityValidation, useLiveRegion } from '@/hooks/use-accessibility'
 import { handleSmartDownload } from '@/utils/deviceDetection'
 import { useFavoriteMaterials } from '@/contexts/FavoriteMaterialsContext'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { ExternalLink } from 'lucide-react'
 
 interface EducationalMaterialsSectionProps {
   materials: EducationalMaterial[]
@@ -21,6 +31,8 @@ export const EducationalMaterialsSection: React.FC<EducationalMaterialsSectionPr
   const { announceToScreenReader } = useLiveRegion()
   const { favoriteMaterials } = useFavoriteMaterials()
   const sectionId = useId()
+  const [selectedMaterial, setSelectedMaterial] = useState<EducationalMaterial | null>(null)
+  const [showDownloadDialog, setShowDownloadDialog] = useState(false)
 
   useAccessibilityValidation()
 
@@ -39,13 +51,31 @@ export const EducationalMaterialsSection: React.FC<EducationalMaterialsSectionPr
   }, [materials, favoriteMaterials])
 
   const handleMaterialInteraction = (material: EducationalMaterial) => {
-    announceToScreenReader(
-      accessibility('educationalMaterials.materialOpened', { title: material.title }),
-    )
-
     if (material.downloadUrl) {
-      handleSmartDownload(material.downloadUrl, `${material.title}.pdf`)
+      setSelectedMaterial(material)
+      setShowDownloadDialog(true)
+      announceToScreenReader(
+        `Diálogo de confirmação aberto para ${material.title}. Este é um arquivo externo em PDF.`,
+        'polite',
+      )
     }
+  }
+
+  const handleConfirmDownload = () => {
+    if (selectedMaterial?.downloadUrl) {
+      announceToScreenReader(
+        accessibility('educationalMaterials.materialOpened', { title: selectedMaterial.title }),
+      )
+      handleSmartDownload(selectedMaterial.downloadUrl, `${selectedMaterial.title}.pdf`)
+    }
+    setShowDownloadDialog(false)
+    setSelectedMaterial(null)
+  }
+
+  const handleCancelDownload = () => {
+    announceToScreenReader('Download cancelado')
+    setShowDownloadDialog(false)
+    setSelectedMaterial(null)
   }
 
   const handleKeyDown = (event: React.KeyboardEvent, material: EducationalMaterial) => {
@@ -166,6 +196,40 @@ export const EducationalMaterialsSection: React.FC<EducationalMaterialsSectionPr
           </div>
         </div>
       )}
+
+      <AlertDialog open={showDownloadDialog} onOpenChange={setShowDownloadDialog}>
+        <AlertDialogContent
+          className="max-w-md"
+          role="alertdialog"
+          aria-labelledby="pdf-dialog-title"
+          aria-describedby="pdf-dialog-description"
+        >
+          <AlertDialogHeader>
+            <div className="mb-2 flex items-center gap-2">
+              <ExternalLink className="text-primary h-5 w-5" aria-hidden="true" />
+              <AlertDialogTitle id="pdf-dialog-title">Abrir arquivo externo</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription id="pdf-dialog-description" className="space-y-2">
+              <p>
+                Você está prestes a abrir <strong>{selectedMaterial?.title}</strong>, um arquivo PDF
+                externo.
+              </p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Este arquivo será aberto em uma nova aba de seu navegador.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-2">
+            <AlertDialogCancel onClick={handleCancelDownload}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDownload}
+              className="bg-primary hover:bg-primary/90"
+            >
+              Abrir arquivo
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   )
 }
