@@ -101,7 +101,7 @@ export default function ProfissionalCriarContaPage() {
                 <li>• Médico(a)</li>
                 <li>• Enfermeiro(a)</li>
                 <li>• Técnico de Enfermagem</li>
-                <li>• Agente de Saúde</li>
+                <li>• Profissional de Saúde</li>
                 <li>• Assistente Social</li>
                 <li>• Psicólogo(a)</li>
                 <li>• Outro</li>

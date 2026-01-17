@@ -67,7 +67,7 @@ export default function MoradorLembretesPage() {
             </li>
           </ul>
           <p className="mt-4 text-gray-700">
-            Clique no botão ou checklabel para ativar/desativar cada opção.
+            Clique no botão ou caixa de seleção para ativar/desativar cada opção.
           </p>
         </section>
 

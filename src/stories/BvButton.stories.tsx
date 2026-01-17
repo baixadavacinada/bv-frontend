@@ -172,7 +172,7 @@ export const Disabled: Story = {
 // ===== EXEMPLOS DE USO COM ICONES =====
 
 export const AgendarVacina: Story = {
-  name: '💉 Agendar Vacinação - Icone Direita',
+  name: '💉 Agendar Vacinação - Ícone à Direita',
   args: {
     title: 'Agendar Vacina',
     rightIcon: <Calendar />,
@@ -182,14 +182,14 @@ export const AgendarVacina: Story = {
     docs: {
       description: {
         story:
-          'Opção de adição do ícone à direita do texto de agendamento para indicar a ação de marcar uma vacina.',
+          'Opção com adição do ícone à direita do texto de agendamento para indicar a ação de marcar uma vacina.',
       },
     },
   },
 }
 
 export const EnviarEmail: Story = {
-  name: '✉️ Enviar Email - Icone Esquerda',
+  name: '✉️ Enviar Email - Ícone à Esquerda',
   args: {
     title: 'Enviar por Email',
     leftIcon: <Mail />,
@@ -200,7 +200,7 @@ export const EnviarEmail: Story = {
     docs: {
       description: {
         story:
-          'Opção adição do ícone a esquerda do texto de email para indicar a ação de envio de informações por email.',
+          'Opção com adição do ícone à esquerda do texto de email para indicar a ação de envio de informações por email.',
       },
     },
   },

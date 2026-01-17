@@ -44,7 +44,7 @@ function LoginPageContent() {
               height: 'auto',
             }}
           />
-          <h1 className="text-2xl font-bold text-gray-900">Japeri Vacinada</h1>
+          <h2 className="text-2xl font-bold text-gray-900">Japeri Vacinada</h2>
         </div>
 
         <div className="rounded-lg bg-white p-6 shadow-md">
