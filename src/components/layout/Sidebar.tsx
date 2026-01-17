@@ -104,7 +104,7 @@ export function Sidebar() {
             <div className="flex flex-col items-center gap-2">
               <Image
                 src="/logo-prefeitura-japeri-branco.png"
-                alt="Prefeitura Municipal de Japeri"
+                alt="Brasão e logo da Prefeitura Municipal de Japeri - governo parceiro no Japeri Vacinada"
                 width={40}
                 height={40}
                 className="object-contain"

@@ -270,12 +270,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         </div>
       </div>
 
-      <BvTitleIco
-        alt="Icone de Calendario"
-        ico={CaledarIco}
-        title="Horário de funcionamento:"
-        className="mt-12 mb-6"
-      />
+      <BvTitleIco ico={CaledarIco} title="Horário de funcionamento:" className="mt-12 mb-6" />
       <div className="grid grid-cols-1 gap-4 rounded-lg bg-gray-50 p-6 md:grid-cols-3">
         <p>Segunda: {operatingHours.monday == '-' ? 'Fechado' : operatingHours.monday}</p>
         <p>Terça: {operatingHours.tuesday == '-' ? 'Fechado' : operatingHours.tuesday}</p>
@@ -297,12 +292,7 @@ export default function DetailUbs({ params }: DetailUbsProps) {
         </Button>
       </div>
 
-      <BvTitleIco
-        alt="Icone de Seringa"
-        ico={SyringeIco}
-        title="Vacinas disponíveis:"
-        className="mt-12 mb-6"
-      />
+      <BvTitleIco ico={SyringeIco} title="Vacinas disponíveis:" className="mt-12 mb-6" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         {availableVaccines.map((vaccine: string, index: number) => (
           <div

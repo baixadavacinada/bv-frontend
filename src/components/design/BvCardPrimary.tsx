@@ -46,20 +46,15 @@ interface LayoutProps {
   icon?: string | StaticImageData
 }
 
-// Componente para renderizar o ícone
 const CardIcon: React.FC<CardIconProps> = ({ icon, title, className = '' }) => (
-  <div className={`flex h-20 w-20 flex-shrink-0 items-center justify-center ${className}`}>
-    <Image
-      src={icon}
-      alt={`Ícone de ${title}`}
-      width={80}
-      height={80}
-      className="h-full w-full object-contain"
-    />
+  <div
+    className={`flex h-20 w-20 flex-shrink-0 items-center justify-center ${className}`}
+    aria-hidden="true"
+  >
+    <Image src={icon} alt="" width={80} height={80} className="h-full w-full object-contain" />
   </div>
 )
 
-// Componente para renderizar título e descrição
 const CardText: React.FC<CardTextProps> = ({ title, description, className = '' }) => (
   <div className={className}>
     <CardTitle className="mb-2 text-xl font-semibold">{title}</CardTitle>
@@ -67,7 +62,6 @@ const CardText: React.FC<CardTextProps> = ({ title, description, className = '' 
   </div>
 )
 
-// Layouts específicos para cada variante
 const layouts = {
   default: ({ title, description, icon }: LayoutProps) => (
     <div className="flex flex-col items-start">

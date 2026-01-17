@@ -95,7 +95,7 @@ export default function Page() {
             <CardContent className="flex flex-col items-center justify-center space-y-6 pt-8 lg:items-start">
               <Image
                 src={DoctorIllustration}
-                alt="Ilustração de um profissional da saúde segurando uma seringa"
+                alt="Imagem de uma pessoa profissional de saúde segurando uma seringa"
                 width={400}
                 height={400}
                 className="mb-4 lg:hidden"
@@ -179,7 +179,7 @@ export default function Page() {
           <div className="hidden h-full w-full items-center justify-center lg:flex">
             <Image
               src={DoctorIllustration}
-              alt="Ilustração de um profissional da saúde segurando uma seringa"
+              alt="Imagem de uma pessoa profissional de saúde segurando uma seringa"
               width={400}
               height={400}
               priority

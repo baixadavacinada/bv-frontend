@@ -50,17 +50,17 @@ export function BvUbsCard({
     >
       <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
         <div className="rounded-lg bg-slate-100 p-3 dark:bg-slate-800">
-          <Hospital className="h-6 w-6 text-slate-600 dark:text-slate-300" />
+          <Hospital className="h-6 w-6 text-slate-600 dark:text-slate-300" aria-hidden="true" />
         </div>
         <CardTitle className="pr-1 text-xl font-bold">{name}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-400">
         <div className="flex items-center gap-2">
-          <Home className="h-4 w-4" />
+          <Home className="h-4 w-4" aria-hidden="true" />
           <span>{neighborhood}</span>
         </div>
         <div className="flex items-center gap-2">
-          <Compass className="h-4 w-4" />
+          <Compass className="h-4 w-4" aria-hidden="true" />
           <span>Distância {distanceInKm.toFixed(1)} km</span>
         </div>
       </CardContent>
