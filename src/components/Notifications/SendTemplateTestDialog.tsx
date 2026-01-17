@@ -17,6 +17,8 @@ import {
   NotificationTemplate,
   sendTemplateTest,
   TemplateContext,
+  getEligibleUsersForTest,
+  EligibleUser,
 } from '@/services/notificationTemplateService'
 import { toast } from 'sonner'
 import {
@@ -41,17 +43,19 @@ export function SendTemplateTestDialog({
   isOpen,
   onClose,
   onSuccess,
-  currentUserPhone = '',
+  currentUserPhone = '11965966428',
   currentUserName = 'Você',
 }: SendTemplateTestDialogProps) {
   useAccessibilityValidation({ enabled: true })
   const [recipientTarget, setRecipientTarget] = useState<'self' | 'other'>('self')
+  const [selectedUserId, setSelectedUserId] = useState<string>('')
   const [whatsappNumber, setWhatsappNumber] = useState('')
   const [recipientName, setRecipientName] = useState('')
   const [variables, setVariables] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
+  const [eligibleUsers, setEligibleUsers] = useState<EligibleUser[]>([])
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false)
 
-  // Extract variables from template (same as TemplateEditor)
   const extractedVariables = useMemo(() => {
     const text = `${template.subject} ${template.body}`
     const matches = text.match(/\{\{(\w+)\}\}/g) || []
@@ -66,10 +70,27 @@ export function SendTemplateTestDialog({
   useEffect(() => {
     if (isOpen) {
       setRecipientTarget('self')
+      setSelectedUserId('')
       setWhatsappNumber(currentUserPhone)
       setRecipientName(currentUserName)
       setVariables({})
       setIsLoading(false)
+
+      // Carregar usuários elegíveis
+      const loadUsers = async () => {
+        setIsLoadingUsers(true)
+        try {
+          const users = await getEligibleUsersForTest()
+          setEligibleUsers(users)
+        } catch (error) {
+          console.error('Error loading eligible users:', error)
+          setEligibleUsers([])
+        } finally {
+          setIsLoadingUsers(false)
+        }
+      }
+
+      loadUsers()
     }
   }, [isOpen, currentUserPhone, currentUserName])
 
@@ -78,14 +99,20 @@ export function SendTemplateTestDialog({
     if (recipientTarget === 'self') {
       setWhatsappNumber(currentUserPhone)
       setRecipientName(currentUserName)
+    } else if (recipientTarget === 'other' && selectedUserId) {
+      // Quando muda para 'other', carregar dados do usuário selecionado
+      const selectedUser = eligibleUsers.find((u) => u.id === selectedUserId)
+      if (selectedUser) {
+        setWhatsappNumber(selectedUser.phone)
+        setRecipientName(selectedUser.name)
+      }
     }
-  }, [recipientTarget, currentUserPhone, currentUserName])
+  }, [recipientTarget, selectedUserId, currentUserPhone, currentUserName, eligibleUsers])
 
   const handleSendTest = async () => {
     let finalNumber = whatsappNumber
     let finalName = recipientName
 
-    // Se for para mim mesmo, use dados do usuário atual
     if (recipientTarget === 'self') {
       if (!currentUserPhone.trim()) {
         toast.error('Seu número de WhatsApp não está cadastrado')
@@ -94,7 +121,6 @@ export function SendTemplateTestDialog({
       finalNumber = currentUserPhone
       finalName = currentUserName
     } else {
-      // Se for para outro, valide os dados preenchidos
       if (!whatsappNumber.trim()) {
         toast.error('Informe o número de WhatsApp do destinatário')
         return
@@ -150,77 +176,16 @@ export function SendTemplateTestDialog({
           {/* Recipient Target Selection */}
           <div className="space-y-3">
             <Label>Enviar para quem?</Label>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setRecipientTarget('self')}
-                className={`flex-1 rounded-lg border-2 p-3 text-left transition-colors ${
-                  recipientTarget === 'self'
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  <div>
-                    <div className="text-sm font-semibold text-gray-900">Para mim mesmo</div>
-                    <div className="text-xs text-gray-500">{currentUserName}</div>
-                  </div>
+            <button className="w-full rounded-lg border-2 border-blue-500 bg-blue-50 p-3 text-left transition-colors">
+              <div className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">Para mim mesmo</div>
+                  <div className="text-xs text-gray-500">{currentUserName}</div>
                 </div>
-              </button>
-
-              <button
-                onClick={() => setRecipientTarget('other')}
-                className={`flex-1 rounded-lg border-2 p-3 text-left transition-colors ${
-                  recipientTarget === 'other'
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <MessageCircle className="h-5 w-5" />
-                  <div>
-                    <div className="text-sm font-semibold text-gray-900">Para outro usuário</div>
-                    <div className="text-xs text-gray-500">Preença dados</div>
-                  </div>
-                </div>
-              </button>
-            </div>
+              </div>
+            </button>
           </div>
-
-          {/* Recipient Details */}
-          {recipientTarget === 'other' && (
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="recipient-name" className="text-xs text-gray-600">
-                  Nome do Destinatário
-                </Label>
-                <Input
-                  id="recipient-name"
-                  placeholder="Nome da pessoa"
-                  value={recipientName}
-                  onChange={(e) => setRecipientName(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="test-whatsapp" className="text-xs text-gray-600">
-                  Número de WhatsApp
-                </Label>
-                <Input
-                  id="test-whatsapp"
-                  type="tel"
-                  placeholder="+55 (11) 99999-9999 ou 5511999999999"
-                  value={whatsappNumber}
-                  onChange={(e) => setWhatsappNumber(e.target.value)}
-                  className="mt-1"
-                />
-                <p className="mt-2 text-xs text-gray-500">
-                  Formato: com ou sem formatação. Exemplo: (11) 99999-9999 ou 5511999999999
-                </p>
-              </div>
-            </div>
-          )}
 
           {/* Variables */}
           {extractedVariables.length > 0 && (

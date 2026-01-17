@@ -7,6 +7,7 @@ import {
   groupCombinationsByVaccine,
 } from '@/services/second-dose-helper'
 import { Badge } from '@/components/ui/badge'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
 interface SecondDoseCombinationSelectorProps {
   selectedCombinations: string[]

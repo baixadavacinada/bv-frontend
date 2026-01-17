@@ -165,7 +165,8 @@ export default function VaccineBookletScreen() {
               'h-2 rounded-full transition-all',
               index === currentGroupIndex ? 'w-8 bg-blue-600' : 'w-2 bg-gray-300 hover:bg-gray-400',
             )}
-            aria-label={`Ir para faixa etária ${index + 1}`}
+            aria-label={`Ir para faixa etária: ${ageGroups[index].title} de ${ageGroups[index].subtitle}`}
+            aria-current={index === currentGroupIndex ? 'step' : undefined}
           />
         ))}
       </div>
@@ -176,6 +177,8 @@ export default function VaccineBookletScreen() {
             <button
               onClick={() => togglePeriod(period.period)}
               className="flex w-full items-center justify-between bg-gray-50 px-4 py-3 text-left transition-colors hover:bg-gray-100 md:px-6 md:py-4"
+              aria-expanded={expandedPeriods.has(period.period)}
+              aria-controls={`period-${period.period}`}
             >
               <h3 className="text-sm font-semibold text-gray-900 md:text-base">{period.period}</h3>
               <ChevronRight
@@ -187,7 +190,7 @@ export default function VaccineBookletScreen() {
             </button>
 
             {expandedPeriods.has(period.period) && (
-              <div className="divide-y divide-gray-200 bg-white">
+              <div className="divide-y divide-gray-200 bg-white" id={`period-${period.period}`}>
                 {period.vaccines.map((vaccine) => (
                   <div key={vaccine.id} className="px-4 py-3 md:px-6 md:py-4">
                     <div className="flex items-start gap-3 md:gap-4">

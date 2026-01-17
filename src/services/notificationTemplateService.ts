@@ -360,3 +360,25 @@ export const getCustomTemplate = async (templateId: string): Promise<Notificatio
     throw error
   }
 }
+
+/**
+ * Get users with phone and WhatsApp acceptance
+ */
+export interface EligibleUser {
+  id: string
+  name: string
+  phone: string
+  email: string
+}
+
+export const getEligibleUsersForTest = async (): Promise<EligibleUser[]> => {
+  try {
+    const response = await apiClient.get<{ data: { users: EligibleUser[] } }>(
+      '/api/admin/users/eligible-for-test',
+    )
+    return response.data.users || []
+  } catch (error) {
+    console.error('Error fetching eligible users:', error)
+    return []
+  }
+}

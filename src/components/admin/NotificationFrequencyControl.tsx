@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Info } from 'lucide-react'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
 export type NotificationFrequency = 'instant' | 'daily' | 'weekly' | 'never'
 
@@ -57,6 +58,7 @@ export function NotificationFrequencyControl({
   label = 'Frequência de Envio',
   showDescription = true,
 }: NotificationFrequencyControlProps) {
+  useAccessibilityValidation({ enabled: true })
   const currentOption = FREQUENCY_OPTIONS.find((opt) => opt.value === frequency)
 
   return (

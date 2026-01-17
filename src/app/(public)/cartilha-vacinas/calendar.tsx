@@ -100,7 +100,7 @@ export default function VaccineCalendarContent() {
       {currentCalendar && (
         <div className="rounded-lg bg-white p-6 shadow-md">
           <div className="mb-6">
-            <h2 className="mb-2 text-2xl font-bold text-gray-900">{currentCalendar.title}</h2>
+            <h3 className="mb-2 text-2xl font-bold text-gray-900">{currentCalendar.title}</h3>
             <p className="text-gray-600">{currentCalendar.description}</p>
           </div>
 

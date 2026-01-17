@@ -21,7 +21,16 @@ import {
   previewRecipients,
   previewTemplate,
   NotificationTemplate,
+  getEligibleUsersForTest,
+  EligibleUser,
 } from '@/services/notificationTemplateService'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
 interface SendTemplateDialogUnifiedProps {
@@ -55,15 +64,12 @@ export function SendTemplateDialogUnified({
 }: SendTemplateDialogUnifiedProps) {
   useAccessibilityValidation({ enabled: true })
 
-  // Step management
   const [step, setStep] = useState<Step>(1)
   const [loading, setLoading] = useState(false)
   const [previewLoading, setPreviewLoading] = useState(false)
 
-  // Recipient selection mode
   const [recipientTarget, setRecipientTarget] = useState<'self' | 'other' | 'broadcast'>('self')
 
-  // Step 1: Recipients
   const [recipientMode, setRecipientMode] = useState<RecipientMode>('broadcast')
   const [singleUserId, setSingleUserId] = useState('')
   const [broadcastUserIds, setBroadcastUserIds] = useState('')
@@ -71,10 +77,8 @@ export function SendTemplateDialogUnified({
   const [filterWhatsApp, setFilterWhatsApp] = useState(true)
   const [filterPhone, setFilterPhone] = useState(false)
 
-  // Step 2: Context variables
   const [contextValues, setContextValues] = useState<Record<string, string>>({})
 
-  // Step 3: Preview & Send
   const [channels, setChannels] = useState<('whatsapp' | 'push')[]>(['whatsapp'])
   const [previewData, setPreviewData] = useState<{
     subject: string
@@ -83,7 +87,6 @@ export function SendTemplateDialogUnified({
   } | null>(null)
   const [scheduledFor, setScheduledFor] = useState('')
 
-  // Extract variables from template body
   const extractVariables = useCallback((text: string): string[] => {
     const regex = /\{\{(\w+)\}\}/g
     const matches = new Set<string>()
@@ -98,7 +101,6 @@ export function SendTemplateDialogUnified({
     return extractVariables(`${template.subject} ${template.body}`)
   }, [extractVariables, template.subject, template.body])
 
-  // Initialize context with empty values
   useEffect(() => {
     const newContext: Record<string, string> = {}
     variables.forEach((v) => {
@@ -107,14 +109,12 @@ export function SendTemplateDialogUnified({
     setContextValues(newContext)
   }, [variables])
 
-  // Reset dialog when opening
   useEffect(() => {
     if (isOpen) {
       setStep(1)
       setLoading(false)
       setPreviewLoading(false)
-      setRecipientTarget('self')
-      setRecipientMode('broadcast')
+      setRecipientMode('filter')
       setSingleUserId('')
       setBroadcastUserIds('')
       setFilterRole('public')
@@ -139,7 +139,6 @@ export function SendTemplateDialogUnified({
     try {
       setPreviewLoading(true)
 
-      // Get recipients
       let userIds: string[] | undefined
       let filter: FilterOptions | undefined = undefined
 
@@ -239,7 +238,7 @@ export function SendTemplateDialogUnified({
 
   const resetForm = () => {
     setStep(1)
-    setRecipientMode('broadcast')
+    setRecipientMode('filter')
     setSingleUserId('')
     setBroadcastUserIds('')
     setFilterRole('public')
@@ -277,210 +276,37 @@ export function SendTemplateDialogUnified({
         {/* Step 1: Recipients */}
         {step === 1 && (
           <div className="space-y-6">
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">Destinatário</Label>
-              <div className="space-y-3">
-                <label className="flex cursor-pointer items-center space-x-3 rounded-lg border border-gray-200 p-4 hover:border-blue-400 hover:bg-blue-50">
-                  <input
-                    type="radio"
-                    name="recipient-target"
-                    value="self"
-                    checked={recipientTarget === 'self'}
-                    onChange={(e) =>
-                      setRecipientTarget(e.target.value as 'self' | 'other' | 'broadcast')
-                    }
-                    className="h-4 w-4"
-                  />
-                  <div className="flex-1">
-                    <span className="text-sm font-medium">Para Mim Mesmo</span>
-                    <p className="text-xs text-gray-500">
-                      Enviar uma notificação de teste para sua conta
-                    </p>
-                  </div>
-                </label>
-
-                <label className="flex cursor-pointer items-center space-x-3 rounded-lg border border-gray-200 p-4 hover:border-blue-400 hover:bg-blue-50">
-                  <input
-                    type="radio"
-                    name="recipient-target"
-                    value="other"
-                    checked={recipientTarget === 'other'}
-                    onChange={(e) =>
-                      setRecipientTarget(e.target.value as 'self' | 'other' | 'broadcast')
-                    }
-                    className="h-4 w-4"
-                  />
-                  <div className="flex-1">
-                    <span className="text-sm font-medium">Para Outra Pessoa</span>
-                    <p className="text-xs text-gray-500">Informe os dados do destinatário</p>
-                  </div>
-                </label>
-
-                <label className="flex cursor-pointer items-center space-x-3 rounded-lg border border-gray-200 p-4 hover:border-blue-400 hover:bg-blue-50">
-                  <input
-                    type="radio"
-                    name="recipient-target"
-                    value="broadcast"
-                    checked={recipientTarget === 'broadcast'}
-                    onChange={(e) =>
-                      setRecipientTarget(e.target.value as 'self' | 'other' | 'broadcast')
-                    }
-                    className="h-4 w-4"
-                  />
-                  <div className="flex-1">
-                    <span className="text-sm font-medium">Para Múltiplas Pessoas</span>
-                    <p className="text-xs text-gray-500">
-                      Informe uma lista de destinatários ou filtros
-                    </p>
-                  </div>
-                </label>
+            {/* Info Box - Usuários Elegíveis */}
+            <div className="rounded-lg border-l-4 border-blue-500 bg-blue-50 p-4">
+              <div>
+                <p className="text-sm font-semibold text-blue-900">📋 Usuários Elegíveis</p>
+                <p className="mt-1 text-sm text-blue-800">
+                  As notificações serão enviadas para todos os usuários que possuem{' '}
+                  <strong>telefone cadastrado</strong> e{' '}
+                  <strong>aceitaram receber mensagens no WhatsApp</strong>.
+                </p>
               </div>
             </div>
 
-            {/* Para Outra Pessoa */}
-            {recipientTarget === 'other' && (
-              <div className="space-y-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
-                <h4 className="font-semibold text-blue-900">Informe os dados do destinatário</h4>
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="recipientName">Nome</Label>
-                    <Input
-                      id="recipientName"
-                      placeholder="Nome da pessoa"
-                      value={contextValues['userName'] || ''}
-                      onChange={(e) =>
-                        setContextValues((prev) => ({ ...prev, userName: e.target.value }))
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="recipientPhone">Número de WhatsApp</Label>
-                    <Input
-                      id="recipientPhone"
-                      placeholder="+55 (11) 9999-9999"
-                      value={contextValues['phoneNumber'] || ''}
-                      onChange={(e) =>
-                        setContextValues((prev) => ({ ...prev, phoneNumber: e.target.value }))
-                      }
-                    />
-                  </div>
-                </div>
+            {/* Filtro Automático */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="role">Papel do Usuário (opcional)</Label>
+                <select
+                  id="role"
+                  value={filterRole}
+                  onChange={(e) =>
+                    setFilterRole(e.target.value as 'public' | 'agent' | 'admin' | '')
+                  }
+                  className="w-full rounded-md border px-3 py-2"
+                >
+                  <option value="">Qualquer papel</option>
+                  <option value="public">Público</option>
+                  <option value="agent">Profissional de Saúde</option>
+                  <option value="admin">Admin</option>
+                </select>
               </div>
-            )}
-
-            {/* Para Múltiplas Pessoas - Modo Broadcast */}
-            {recipientTarget === 'broadcast' && (
-              <div className="space-y-4">
-                <div className="space-y-3">
-                  <Label className="text-sm font-semibold">Modo de Envio em Massa</Label>
-                  <div className="space-y-3">
-                    <label className="flex cursor-pointer items-center space-x-3">
-                      <input
-                        type="radio"
-                        name="broadcast-mode"
-                        value="single"
-                        checked={recipientMode === 'single'}
-                        onChange={(e) => setRecipientMode(e.target.value as RecipientMode)}
-                        className="h-4 w-4"
-                      />
-                      <span className="text-sm font-medium">Usuário Específico</span>
-                    </label>
-
-                    <label className="flex cursor-pointer items-center space-x-3">
-                      <input
-                        type="radio"
-                        name="broadcast-mode"
-                        value="broadcast"
-                        checked={recipientMode === 'broadcast'}
-                        onChange={(e) => setRecipientMode(e.target.value as RecipientMode)}
-                        className="h-4 w-4"
-                      />
-                      <span className="text-sm font-medium">Múltiplos Usuários</span>
-                    </label>
-
-                    <label className="flex cursor-pointer items-center space-x-3">
-                      <input
-                        type="radio"
-                        name="broadcast-mode"
-                        value="filter"
-                        checked={recipientMode === 'filter'}
-                        onChange={(e) => setRecipientMode(e.target.value as RecipientMode)}
-                        className="h-4 w-4"
-                      />
-                      <span className="text-sm font-medium">Filtro Automático</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Single User */}
-                {recipientMode === 'single' && (
-                  <div className="space-y-2">
-                    <Label htmlFor="userId">ID do Usuário</Label>
-                    <Input
-                      id="userId"
-                      placeholder="Informe o ID do usuário"
-                      value={singleUserId}
-                      onChange={(e) => setSingleUserId(e.target.value)}
-                    />
-                  </div>
-                )}
-
-                {/* Broadcast */}
-                {recipientMode === 'broadcast' && (
-                  <div className="space-y-2">
-                    <Label htmlFor="userIds">IDs dos Usuários</Label>
-                    <Textarea
-                      id="userIds"
-                      placeholder="Informe os IDs separados por vírgula ou quebra de linha&#10;user1, user2, user3"
-                      value={broadcastUserIds}
-                      onChange={(e) => setBroadcastUserIds(e.target.value)}
-                      rows={4}
-                    />
-                  </div>
-                )}
-
-                {/* Filter */}
-                {recipientMode === 'filter' && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="role">Papel do Usuário</Label>
-                      <select
-                        id="role"
-                        value={filterRole}
-                        onChange={(e) =>
-                          setFilterRole(e.target.value as 'public' | 'agent' | 'admin' | '')
-                        }
-                        className="w-full rounded-md border px-3 py-2"
-                      >
-                        <option value="">Qualquer papel</option>
-                        <option value="public">Público</option>
-                        <option value="agent">Profissional de Saúde</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    </div>
-
-                    <label className="flex cursor-pointer items-center space-x-3">
-                      <Checkbox
-                        checked={filterWhatsApp}
-                        onCheckedChange={(checked) => setFilterWhatsApp(checked as boolean)}
-                      />
-                      <span className="text-sm font-medium">
-                        Apenas usuários que aceitam WhatsApp
-                      </span>
-                    </label>
-
-                    <label className="flex cursor-pointer items-center space-x-3">
-                      <Checkbox
-                        checked={filterPhone}
-                        onCheckedChange={(checked) => setFilterPhone(checked as boolean)}
-                      />
-                      <span className="text-sm font-medium">Apenas usuários com telefone</span>
-                    </label>
-                  </div>
-                )}
-              </div>
-            )}
+            </div>
           </div>
         )}
 

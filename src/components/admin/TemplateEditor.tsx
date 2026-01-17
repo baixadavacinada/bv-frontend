@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 import {
   Dialog,
   DialogContent,
@@ -67,6 +68,7 @@ export function TemplateEditor({
   onClose,
   isLoading = false,
 }: TemplateEditorProps) {
+  useAccessibilityValidation({ enabled: true })
   const [formData, setFormData] = useState({
     name: '',
     description: '',

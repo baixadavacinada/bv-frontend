@@ -2,6 +2,7 @@
 
 import { NotificationTemplate } from '@/services/notificationTemplateService'
 import { Badge } from '@/components/ui/badge'
+import { useAccessibilityValidation } from '@/hooks/use-accessibility'
 
 interface TemplateTabsProps {
   templates: NotificationTemplate[]
