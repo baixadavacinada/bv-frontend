@@ -2,7 +2,7 @@
  * Serviço de cache com expira\u00e7\u00e3o para dados
  */
 
-const CACHE_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000 // 1 semana em ms
+const CACHE_EXPIRATION_TIME = 24 * 60 * 60 * 1000 // 24 horas em ms
 
 interface CachedData<T> {
   data: T
