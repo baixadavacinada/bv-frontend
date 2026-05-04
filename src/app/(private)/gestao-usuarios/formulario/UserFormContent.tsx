@@ -17,11 +17,13 @@ import { useUserManagement } from '@/services/user-management'
 import { UserRole, ROLE_DISPLAY_NAMES } from '@/types/auth'
 import { Label } from '@/components/ui/label'
 import { commonSchemas } from '@/schemas'
+import { apiClient } from '@/services/api'
 
 const userFormSchema = z.object({
   displayName: commonSchemas.fullName,
   email: commonSchemas.email,
   role: z.enum(['public', 'agent', 'admin']),
+  ubsId: z.string().optional(),
   phone: commonSchemas.optionalPhone,
   cpf: commonSchemas.optionalCPF,
   address: z.string().optional(),
@@ -42,6 +44,7 @@ const DEFAULT_FORM_VALUES: UserFormData = {
   displayName: '',
   email: '',
   role: 'public',
+  ubsId: '',
   phone: '',
   cpf: '',
   address: '',
@@ -56,10 +59,32 @@ export function UserFormContent() {
   useAccessibilityValidation()
 
   const [loading, setLoading] = useState(false)
+  const [healthUnits, setHealthUnits] = useState<{ value: string; label: string }[]>([])
   const { canManageUsers, getUserById, createUser, updateUser } = useUserManagement()
 
   const userId = searchParams.get('id')
   const isEditMode = !!userId
+
+  useEffect(() => {
+    apiClient
+      .get<
+        | { data?: { _id: string; name: string }[]; units?: { _id: string; name: string }[] }
+        | { _id: string; name: string }[]
+      >('/api/admin/health-units')
+      .then((res) => {
+        type ApiResponse = {
+          data?: { _id: string; name: string }[]
+          units?: { _id: string; name: string }[]
+        }
+        const list = Array.isArray(res)
+          ? res
+          : (res as ApiResponse).data || (res as ApiResponse).units || []
+        setHealthUnits(
+          list.map((u: { _id: string; name: string }) => ({ value: u._id, label: u.name })),
+        )
+      })
+      .catch(() => setHealthUnits([]))
+  }, [])
 
   const {
     register,
@@ -88,6 +113,7 @@ export function UserFormContent() {
           displayName: user.displayName || '',
           email: user.email,
           role: user.role,
+          ubsId: user.ubsId || '',
           phone: user.profile?.personalData?.phone || '',
           cpf: user.profile?.personalData?.cpf || '',
           address: user.profile?.personalData?.address || '',
@@ -134,6 +160,7 @@ export function UserFormContent() {
     const updateData = {
       role: data.role as UserRole,
       isActive: data.isActive,
+      ubsId: needsUbsBinding(data.role) ? data.ubsId || undefined : undefined,
     }
 
     await updateUser(userId, updateData)
@@ -149,6 +176,7 @@ export function UserFormContent() {
       displayName: data.displayName,
       role: data.role as UserRole,
       isActive: data.isActive,
+      ubsId: needsUbsBinding(data.role) ? data.ubsId || undefined : undefined,
       personalData: preparePersonalData(data),
     }
 
@@ -188,6 +216,9 @@ export function UserFormContent() {
   const pageTitle = isEditMode ? 'Editar usuário' : 'Adicionar usuário'
   const submitButtonText = isEditMode ? 'Salvar' : 'Adicionar'
   const isFormDisabled = isSubmitting || loading
+  const selectedRole = watch('role')
+
+  const needsUbsBinding = (role: string) => role === 'agent' || role === 'admin'
 
   return (
     <div className="min-h-screen">
@@ -199,9 +230,8 @@ export function UserFormContent() {
         {isEditMode && (
           <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
             <p className="text-sm text-amber-800">
-              <strong>Limitação atual:</strong> Apenas o perfil (role) e status do usuário podem ser
-              editados. A edição de dados pessoais (nome, email, telefone, etc.) está desabilitada
-              no momento.
+              <strong>Atenção:</strong> Em modo de edição, apenas o perfil, a unidade vinculada e o
+              status do usuário podem ser alterados.
             </p>
           </div>
         )}
@@ -248,6 +278,24 @@ export function UserFormContent() {
                 error={errors.role?.message}
                 fullWidth
               />
+
+              {/* Unidade de saúde vinculada */}
+              {needsUbsBinding(selectedRole) && (
+                <div className="lg:col-span-2">
+                  <BvSelect
+                    title="Unidade de saúde vinculada"
+                    placeholder="Selecione a UBS"
+                    options={healthUnits}
+                    value={watch('ubsId') || ''}
+                    onValueChange={(value) => setValue('ubsId', value as string)}
+                    error={errors.ubsId?.message}
+                    fullWidth
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    O usuário terá acesso restrito apenas a esta unidade.
+                  </p>
+                </div>
+              )}
 
               {/* Telefone */}
               <BvFormInput

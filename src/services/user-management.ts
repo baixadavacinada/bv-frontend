@@ -387,10 +387,11 @@ export function useUserManagement() {
       try {
         const existingUser = await getUserById(uid)
 
-        if (userData.role || userData.isActive !== undefined) {
+        if (userData.role || userData.isActive !== undefined || userData.ubsId !== undefined) {
           const claimsResult = await updateUserClaims(uid, {
             role: userData.role || existingUser.role,
             isActive: userData.isActive !== undefined ? userData.isActive : existingUser.isActive,
+            ubsId: userData.ubsId,
           })
 
           const updatedUser = {
